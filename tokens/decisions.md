@@ -666,3 +666,39 @@ roughly 25 seconds of DOM sampling across two attempts, so the layer never
 reached `z-index: 4` while it was being watched. 0.45 is a reasoned number, not a
 measured one, and it is the single value to move if the sheets vanish too eagerly
 or a sliver still shows.
+
+## D-42
+
+**G1 counted emitted files and called them routes.**
+
+The check reported `14 route(s) carry a placeholder`. There are 5. Next 16
+emits one route as several files — `foo.html`, `foo.rsc`, and a `foo.segments/`
+tree of per-segment payloads — so three case studies produce twelve files
+between them, and the file count runs about 3x the route count on any dynamic
+route.
+
+The verdict was never affected: G1 fails on one hit or fourteen. What was wrong
+is the number a reader takes away, and that number had been carried into
+`AUDIT-CLOSEOUT.md`, four commit messages, and the C5 row of the clause table,
+each time as "14 routes."
+
+`routeOf()` now derives the route from the emitted path: cut at `.segments/`,
+drop the `.html` or `.rsc`. The report gives both numbers and lists the routes:
+
+```
+G1: 5 route(s) carry a placeholder, across 14 emitted file(s)
+     /portfolio
+     /portfolio/case-studies/case-study-1
+     /portfolio/case-studies/case-study-2
+     /portfolio/case-studies/case-study-3
+     /portfolio/privacy
+```
+
+Listing them is the part that pays. "14 routes" is a number to worry about; five
+named routes is a work list, and it is immediately obvious that the three case
+studies are one template rendered three times.
+
+This is CLAUDE.md 14 on a number nobody thought to check, because it was never
+load-bearing — the gate's colour did not depend on it, so its wrongness was
+invisible. A number reported to a reader is a claim whether or not a branch
+reads it.

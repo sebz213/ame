@@ -339,6 +339,23 @@ const clientless = []
 const SHIPPED = process.argv.includes('--shipped')
 const mode = SHIPPED ? 'shipped' : 'full'
 const shippedHits = []
+const shippedRoutes = new Set()
+
+/**
+ * The route an emitted file belongs to.
+ *
+ * Next 16 emits one route as several files: `foo.html`, `foo.rsc`, and a
+ * `foo.segments/` tree of per-segment payloads. Counting files and calling the
+ * total "routes" overstates it by about 3x on any dynamic route — three case
+ * studies emit twelve files. G1 fails on either count, so the verdict was never
+ * wrong, but the number a reader takes away was.
+ */
+const routeOf = (f) => {
+  let r = f.slice(RULES.shipped.dir.length) // drop `.next/server/app`
+  const seg = r.indexOf('.segments/')
+  if (seg !== -1) r = r.slice(0, seg)
+  return r.replace(/\.(html|rsc)$/, '') || '/'
+}
 ;(function checkShipped() {
   if (!SHIPPED) return
   const g = RULES.shipped
@@ -353,6 +370,7 @@ const shippedHits = []
     if (re.test(body)) {
       const line = body.split('\n').find((l) => re.test(l)) ?? ''
       shippedHits.push(f)
+      shippedRoutes.add(routeOf(f))
       fail(g.id, `${f} ships a placeholder: ${line.trim().slice(0, 120)}`)
     }
   }
@@ -412,8 +430,14 @@ if (!process.argv.includes('--no-log')) {
 
 console.log(`ame@${manifest.version}   mode: ${mode}   tokens: ${tokens.length}   aliases: ${Object.keys(ALIASES).length}\n`)
 
-if (SHIPPED)
-  console.log(`SHIPPED\n  ${RULES.shipped.id}: ${shippedHits.length ? `${shippedHits.length} route(s) carry a placeholder` : 'no placeholder in the emitted app tree'}\n`)
+if (SHIPPED) {
+  const routes = [...shippedRoutes].sort()
+  const summary = routes.length
+    ? `${routes.length} route(s) carry a placeholder, across ${shippedHits.length} emitted file(s)\n` +
+      routes.map((r) => `       ${r}`).join('\n')
+    : 'no placeholder in the emitted app tree'
+  console.log(`SHIPPED\n  ${RULES.shipped.id}: ${summary}\n`)
+}
 
 console.log('CONTRAST')
 for (const r of contrastResults)
