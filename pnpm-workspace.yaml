@@ -1,0 +1,16 @@
+# pnpm settings. Not a monorepo: pnpm 10+ reads its configuration from this
+# file, so this is where the build-script allowlist lives.
+#
+# `allowBuilds` is pnpm 11's key and takes a boolean per package. The pnpm 10
+# spelling, an `onlyBuiltDependencies` list, is read by `pnpm config get` and
+# then ignored during install, which is a quiet way to look configured and not
+# be. The version is pinned in package.json, so this file tracks that version's
+# key and only that one.
+#
+# Two packages, named rather than blanket-approved: sharp is Next's image
+# optimizer and esbuild is a transitive build dependency. Anything else that
+# wants to run a postinstall fails the install until it is added here on
+# purpose.
+allowBuilds:
+  esbuild: true
+  sharp: true
