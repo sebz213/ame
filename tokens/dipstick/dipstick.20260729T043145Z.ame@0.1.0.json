@@ -1,0 +1,179 @@
+{
+  "$schema": "./dipstick.schema.json",
+  "$exported": "2026-07-29T04:31:45Z",
+  "$description": "Machine-written state export for Ame: 7 constraint deliverables and 6 instrument deliverables, measured, with the verdict of the one judge (tokens/check.mjs). Nothing here was typed by hand.",
+  "system": {
+    "name": "ame",
+    "version": "0.1.0",
+    "format": "DTOS 2025.10"
+  },
+  "verdict": {
+    "command": "node tokens/check.mjs --no-log",
+    "exit": 0,
+    "mode": "full",
+    "drift": {
+      "D2": 24,
+      "S1": 12,
+      "S2": 34,
+      "S3": 0,
+      "S4": 6,
+      "S5": 8,
+      "U1": 0,
+      "H1": 32
+    }
+  },
+  "constraints": [
+    {
+      "id": "c1",
+      "name": "Global tokens",
+      "status": "present",
+      "home": "tokens/base/",
+      "evidence": {
+        "files": 6,
+        "tokens": 113,
+        "groups": 20
+      }
+    },
+    {
+      "id": "c2",
+      "name": "Semantic tokens",
+      "status": "present",
+      "home": "tokens/semantic/",
+      "evidence": {
+        "tokens": 70,
+        "references": 70
+      }
+    },
+    {
+      "id": "c3",
+      "name": "Component tokens",
+      "status": "present",
+      "home": "tokens/component/",
+      "evidence": {
+        "tokens": 42,
+        "literals": 12
+      }
+    },
+    {
+      "id": "c4",
+      "name": "Named composites",
+      "status": "partial",
+      "home": "tokens/semantic/",
+      "evidence": {
+        "shadows": 10,
+        "roleSets": [
+          "type",
+          "motion"
+        ],
+        "clientless": 32
+      }
+    },
+    {
+      "id": "c5",
+      "name": "Component APIs",
+      "status": "partial",
+      "home": "components/ui/",
+      "evidence": {
+        "componentFiles": 61,
+        "measured": "file count only; API surface extraction is not implemented"
+      }
+    },
+    {
+      "id": "c6",
+      "name": "Platform artifacts",
+      "status": "present",
+      "home": "tokens/build/portfolio.tokens.css",
+      "evidence": {
+        "buildBytes": 19153,
+        "consumedBytes": 19153,
+        "parity": true,
+        "properties": 255,
+        "header": "/* ame@0.1.0 · DTOS 2025.10 · generated, do not edit */"
+      }
+    },
+    {
+      "id": "c7",
+      "name": "Package boundary",
+      "status": "present",
+      "home": "tokens/ame.json",
+      "evidence": {
+        "name": "ame",
+        "version": "0.1.0",
+        "format": "DTOS 2025.10"
+      }
+    }
+  ],
+  "instruments": [
+    {
+      "id": "i1",
+      "name": "The rules file",
+      "status": "present",
+      "home": "CLAUDE.md",
+      "evidence": {
+        "bytes": 964,
+        "modified": "2026-07-29T00:04:20Z"
+      }
+    },
+    {
+      "id": "i2",
+      "name": "The gate configuration",
+      "status": "present",
+      "home": "package.json",
+      "evidence": {
+        "build": "node tokens/build.mjs && node tokens/check.mjs && next build && node tokens/check.mjs --shipped",
+        "chainContainsCheck": true,
+        "lastShippedRun": "2026-07-29T04:27:05Z  ame@0.1.0  shipped  FAIL  D2=24 S1=12 S2=34 S3=0 S4=6 S5=8 U1=0 H1=32"
+      }
+    },
+    {
+      "id": "i3",
+      "name": "The transform pipeline",
+      "status": "present",
+      "home": "tokens/build.mjs",
+      "evidence": {
+        "header": "/* ame@0.1.0 · DTOS 2025.10 · generated, do not edit */",
+        "parity": true
+      }
+    },
+    {
+      "id": "i4",
+      "name": "The release path runbook",
+      "status": "present",
+      "home": "RUNBOOK.md",
+      "evidence": {
+        "bytes": 3102,
+        "procedures": 3
+      }
+    },
+    {
+      "id": "i5",
+      "name": "The viewer, plus its input contract",
+      "status": "present",
+      "home": "components/iphone-viewer-contract.ts",
+      "evidence": {
+        "requiredNodes": 5,
+        "viewerImportsIt": true
+      }
+    },
+    {
+      "id": "i6",
+      "name": "The run record",
+      "status": "present",
+      "home": "tokens/runs.log",
+      "evidence": {
+        "lines": 56,
+        "first": "2026-07-29T00:11:26Z",
+        "last": "2026-07-29T04:27:05Z"
+      }
+    }
+  ],
+  "jsonld": {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "ame",
+    "version": "0.1.0",
+    "dateCreated": "2026-07-29T04:31:45Z",
+    "programmingLanguage": "TypeScript",
+    "description": "Design token system state export: 7 constraint deliverables, 6 instrument deliverables, measured."
+  }
+}
