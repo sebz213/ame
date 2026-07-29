@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./dipstick.schema.json",
+  "title": "Ame dipstick export",
+  "description": "The single home of the dipstick export's shape. dipstick.mjs validates against this file before writing; it never restates the shape in code.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "$exported",
+    "$description",
+    "system",
+    "verdict",
+    "constraints",
+    "instruments",
+    "jsonld"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "$exported": {
+      "type": "string",
+      "description": "RFC 3339 UTC instant.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "$description": { "type": "string" },
+    "system": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "format": { "type": "string" }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "required": ["command", "exit", "mode", "drift"],
+      "properties": {
+        "command": { "type": "string" },
+        "exit": { "type": "integer" },
+        "mode": { "type": "string", "enum": ["full", "shipped"] },
+        "drift": { "type": "object" }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "instruments": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "jsonld": {
+      "type": "object",
+      "required": ["@context", "@type", "name", "version", "dateCreated", "programmingLanguage", "description"],
+      "properties": {
+        "@context": { "type": "string" },
+        "@type": { "type": "string" },
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "dateCreated": { "type": "string" },
+        "programmingLanguage": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["id", "name", "status", "home", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[ci][1-7]$" },
+        "name": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "partial", "absent"] },
+        "home": { "type": ["string", "null"] },
+        "evidence": { "type": "object" }
+      }
+    }
+  }
+}

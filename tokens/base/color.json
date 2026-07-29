@@ -1,0 +1,166 @@
+{
+  "$description": "Base colour primitives. DTOS 2025.10 colour objects: colourSpace + components, alpha where the colour is translucent. No other file may introduce a colour literal; semantic references these, component references semantic.",
+  "color": {
+    "$type": "color",
+
+    "white": {
+      "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" },
+      "$description": "Pure white. Glass light pole, card ground, foreground on ink."
+    },
+    "black": {
+      "$value": { "colorSpace": "srgb", "components": [0, 0, 0], "hex": "#000000" },
+      "$description": "Pure black. Headings only."
+    },
+    "paper": {
+      "$value": { "colorSpace": "oklch", "components": [0.985, 0.003, 106] },
+      "$description": "Warm off-white. The page ground."
+    },
+    "ink": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.062745, 0.07451, 0.098039],
+        "hex": "#101319"
+      },
+      "$description": "Brand near-black. Body ink, dark surfaces, and the colour every shadow is graded from."
+    },
+
+    "neutral": {
+      "$description": "Chromaless grey ramp in oklch. Higher number = darker, so it reads as a weight scale. Closed set: invariant no-raw-color admits no grey outside it.",
+      "100": { "$value": { "colorSpace": "oklch", "components": [0.95, 0, 0] } },
+      "200": { "$value": { "colorSpace": "oklch", "components": [0.93, 0, 0] } },
+      "300": { "$value": { "colorSpace": "oklch", "components": [0.9, 0, 0] } },
+      "500": { "$value": { "colorSpace": "oklch", "components": [0.52, 0, 0] } },
+      "800": { "$value": { "colorSpace": "oklch", "components": [0.22, 0, 0] } }
+    },
+
+    "surface-grey": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.737255, 0.737255, 0.745098],
+        "hex": "#bcbcbe"
+      },
+      "$description": "The neutral the glass reads as."
+    },
+    "surface-paper": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.933333, 0.933333, 0.921569],
+        "hex": "#eeeeeb"
+      },
+      "$description": "Near-white warm grey. The top utility bar."
+    },
+
+    "paper-alpha": {
+      "$description": "The page ground at partial opacity, for the opaque glass variant over a light backdrop.",
+      "88": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": { "$ref": "#/color/paper/$value/components" },
+          "alpha": 0.88
+        }
+      }
+    },
+
+    "modal-dark": {
+      "$value": { "colorSpace": "lab", "components": [19, 0.33, -15.02], "alpha": 0.69 },
+      "$description": "The shared ink surface behind the cookie, contact, and Ask-AI panels over a dark backdrop. Cooler and lighter than color.ink, so a panel reads as a layer above the dark card rather than a hole in it."
+    },
+
+    "brand": {
+      "$value": { "colorSpace": "oklch", "components": [0.55, 0.15, 256] },
+      "$description": "Brand blue. Links and accents."
+    },
+    "brand-contrast": {
+      "$value": { "colorSpace": "oklch", "components": [0.985, 0, 0] },
+      "$description": "Foreground on brand fills."
+    },
+    "danger": {
+      "$value": { "colorSpace": "oklch", "components": [0.577, 0.245, 27.325] },
+      "$description": "Error and destructive."
+    },
+
+    "ink-alpha": {
+      "$description": "The ink at graded opacity. Components are a JSON Pointer to color.ink, so re-toning ink re-tones every shadow, ring, and pill fill in one edit. This replaces the ink-channels string and every rgba(16, 19, 25, a) literal.",
+      "04": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.04
+        }
+      },
+      "05": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.05
+        }
+      },
+      "06": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.06
+        }
+      },
+      "07": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.07
+        }
+      },
+      "08": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.08
+        }
+      },
+      "10": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.1
+        }
+      },
+      "12": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.12
+        }
+      },
+      "14": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.14
+        }
+      },
+      "30": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.3
+        }
+      },
+      "25": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": { "$ref": "#/color/ink/$value/components" },
+          "alpha": 0.25
+        }
+      }
+    },
+
+    "white-alpha": {
+      "$description": "White at graded opacity. The dark-backdrop glass foreground and the dark-glass inset edge.",
+      "10": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.1 } },
+      "20": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.2 } },
+      "70": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.7 } },
+      "72": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.72 } },
+      "78": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.78 } },
+      "92": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.92 } }
+    }
+  }
+}

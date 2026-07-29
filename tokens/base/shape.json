@@ -1,0 +1,21 @@
+{
+  "$description": "Base radii and border widths.",
+  "radius": {
+    "$type": "dimension",
+    "$description": "Closed set: invariant radius-scale admits no border-radius outside it.",
+    "sm": { "$value": { "value": 5, "unit": "px" }, "$description": "Shortcut badge." },
+    "row": {
+      "$value": { "value": 7.11, "unit": "px" },
+      "$description": "Contact row. Half its 28.44px height, so the hover fill is a true stadium at that height."
+    },
+    "md": { "$value": { "value": 0.5, "unit": "rem" }, "$description": "rounded-lg." },
+    "lg": { "$value": { "value": 0.75, "unit": "rem" }, "$description": "rounded-xl." },
+    "xl": { "$value": { "value": 1, "unit": "rem" }, "$description": "Cards, rows, bubbles (rounded-2xl)." },
+    "2xl": { "$value": { "value": 1.5, "unit": "rem" }, "$description": "Popovers and panels (rounded-3xl)." },
+    "pill": { "$value": { "value": 999, "unit": "px" }, "$description": "Stadium. Every rounded-full control." }
+  },
+  "border": {
+    "$type": "dimension",
+    "hairline": { "$value": { "value": 1, "unit": "px" }, "$description": "Every ring and inset edge." }
+  }
+}

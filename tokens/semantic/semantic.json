@@ -1,0 +1,260 @@
+{
+  "$description": "Semantic layer. Every token here is a decision, expressed as a reference to a base primitive. The one declared exception is shadow geometry (offset, blur, spread), whose single home is this file. Re-point a base primitive and the whole system re-tones without a component being touched.",
+
+  "text": {
+    "$type": "color",
+    "heading": { "$value": "{color.black}", "$description": "h1 to h3. One real tonal step above body." },
+    "body": { "$value": "{color.ink}", "$description": "Running text and the surfaces it sits between." },
+    "secondary": { "$value": "{color.neutral.500}", "$description": "Muted and meta." },
+    "brand": { "$value": "{color.brand}" },
+    "on-brand": { "$value": "{color.brand-contrast}" },
+    "danger": { "$value": "{color.danger}" }
+  },
+
+  "background": {
+    "$type": "color",
+    "page": { "$value": "{color.paper}" },
+    "card": { "$value": "{color.white}" },
+    "ink": { "$value": "{color.ink}", "$description": "Dark surfaces: mark card, splash, iPhone card." },
+    "utility": { "$value": "{color.surface-paper}", "$description": "Top utility bar." }
+  },
+
+  "border": {
+    "subtle": { "$type": "color", "$value": "{color.neutral.300}" },
+    "hairline-width": { "$type": "dimension", "$value": "{border.hairline}" }
+  },
+
+  "surface": {
+    "$description": "The glass system. Tint and pole are the ground; the fg pair is the foreground the glass carries, declared once per backdrop tone. Which of the two pairs is live is a runtime state, switched by [data-backdrop] in portfolio.css; the values are decided here.",
+    "glass-tint": { "$type": "color", "$value": "{color.surface-grey}" },
+    "glass-light": { "$type": "color", "$value": "{color.white}" },
+    "glass-dark": { "$type": "color", "$value": "{color.ink}" },
+    "glass-fg-on-light": { "$type": "color", "$value": "{color.ink}", "$description": "Glass foreground over a light backdrop." },
+    "glass-fg-on-dark": { "$type": "color", "$value": "{color.white}", "$description": "Glass foreground over a dark backdrop." },
+    "glass-fg-muted-on-light": { "$type": "color", "$value": "{color.neutral.500}" },
+    "glass-fg-muted-on-dark": { "$type": "color", "$value": "{color.white-alpha.78}" },
+    "glass-fill-on-light": { "$type": "color", "$value": "{color.ink-alpha.05}", "$description": "Glass background over a light backdrop." },
+    "glass-fill-on-dark": { "$type": "color", "$value": "{color.white-alpha.10}", "$description": "Glass background over a dark backdrop." },
+    "card-glass": { "$type": "color", "$value": "{color.white-alpha.70}", "$description": "The work card's translucent ground." },
+    "glass-fill-opaque-on-light": { "$type": "color", "$value": "{color.paper-alpha.88}", "$description": "The opaque glass variant over a light backdrop: modals that must stay solid over content." },
+    "glass-fill-opaque-on-dark": { "$type": "color", "$value": "{color.modal-dark}", "$description": "The opaque glass variant over a dark backdrop. Shared by the cookie, contact, and Ask-AI panels." },
+    "glass-blur": { "$type": "dimension", "$value": "{glass.blur}" },
+    "glass-saturate": { "$type": "number", "$value": "{glass.saturate}" },
+    "dither-strength": { "$type": "number", "$value": "{dither.strength}" },
+    "dither-tile": { "$type": "dimension", "$value": "{dither.tile}", "$description": "Repeat size of the grain tile on every dithered surface." }
+  },
+
+  "nav": {
+    "$type": "color",
+    "bg": { "$value": "{color.white-alpha.72}", "$description": "Glass nav base tint, and the selection pill's fill." },
+    "bg-on-dark": { "$value": "{color.white-alpha.92}", "$description": "The selection pill over a dark backdrop: brighter, not darker, because the selected label stays dark." },
+    "selected": { "$value": "{color.white}" }
+  },
+
+  "type": {
+    "$description": "Typographic roles. Size, leading, tracking, and weight synthesis composed from the base scale.",
+    "hero-size": { "$type": "dimension", "$value": "{font.size.2xl}" },
+    "hero-leading": { "$type": "number", "$value": "{font.leading.tight}" },
+    "hero-tracking": { "$type": "number", "$value": "{font.tracking.tight}" },
+    "heading-synthesis": {
+      "$type": "number",
+      "$value": "{font.weight-synthesis.460}",
+      "$description": "The live header weight synthesis. Every h1 to h3 on the surface is a stroked 400, not a 460 cut."
+    },
+    "lead-size": { "$type": "dimension", "$value": "{font.size.18}" },
+    "lead-leading": { "$type": "number", "$value": "{font.leading.loose}" },
+    "body-size": { "$type": "dimension", "$value": "{font.size.15}" },
+    "body-tracking": { "$type": "number", "$value": "{font.tracking.body}" },
+    "body-synthesis": {
+      "$type": "number",
+      "$value": "{font.weight-synthesis.450}",
+      "$description": "The live body weight synthesis, set on .portfolio-root."
+    },
+    "label-size": { "$type": "dimension", "$value": "{font.size.11_9}" },
+    "meta-size": { "$type": "dimension", "$value": "{font.size.13}" },
+    "meta-tracking": { "$type": "number", "$value": "{font.tracking.caps}" },
+    "dense-leading": {
+      "$type": "number",
+      "$value": "{font.leading.snug}",
+      "$description": "Line-height for dense rows: the footer's stacked links and meta lines."
+    },
+    "root-tracking": { "$type": "number", "$value": "{font.tracking.base}" }
+  },
+
+  "space": {
+    "$type": "dimension",
+    "$description": "Brand spacing decisions from the unit ramp.",
+    "gutter": { "$value": "{unit.6}", "$description": "Page gutter (px-6)." },
+    "section-gap": { "$value": "{unit.14}", "$description": "Between sections (py-14)." },
+    "grid-gap": { "$value": "{unit.4}", "$description": "Work grid gap." },
+    "stack": { "$value": "{unit.6}", "$description": "Heading to body (mt-6)." },
+    "control-pad": { "$value": "{unit.2_5}", "$description": "Icon-button padding (p-2.5)." }
+  },
+
+  "motion": {
+    "$description": "Motion by role. Components reach for these, not raw durations or curves.",
+    "state-duration": { "$type": "duration", "$value": "{duration.instant}" },
+    "surface-duration": { "$type": "duration", "$value": "{duration.moderate}", "$description": "Glass tone cross-fade." },
+    "exit-duration": { "$type": "duration", "$value": "{duration.slow}" },
+    "reduced-duration": { "$type": "duration", "$value": "{duration.reduced}" },
+    "enter-ease": { "$type": "cubicBezier", "$value": "{ease.enter}" },
+    "spring-ease": { "$type": "cubicBezier", "$value": "{ease.spring}" },
+    "overshoot-ease": {
+      "$type": "cubicBezier",
+      "$value": "{ease.out-back}",
+      "$description": "A single clean overshoot on a control's transform. The role surfaces bind, so no surface reaches ease.out-back directly (invariant U1)."
+    },
+    "slide-ease": { "$type": "cubicBezier", "$value": "{ease.slide}", "$description": "The nav pill's slide." },
+    "slide-duration": { "$type": "duration", "$value": "{duration.slow}", "$description": "The nav pill's slide." },
+    "exit-ease": { "$type": "cubicBezier", "$value": "{ease.accel}", "$description": "Mobile menu and contact sheet close." }
+  },
+
+  "elevation": {
+    "$type": "shadow",
+    "$description": "Shadow recipes. Every colour is the ink at a graded alpha, referenced, so the whole shadow system re-tones from one primitive. Offset, blur, and spread are declared here: this file is their single home.",
+
+    "glass-edge": {
+      "$description": "The glass border, on its own so a surface can pick its strength without touching its drop. Every .port-glass surface carries one of these: the AI panel, the cookie modal, the nav, the top bar, the contact sheets. The default was doubled from 0.06 to 0.12 on 2026-07-29 so the edge reads against the page (D-23).",
+      "$value": {
+        "color": "{color.ink-alpha.12}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 0, "unit": "px" },
+        "blur": { "value": 0, "unit": "px" },
+        "spread": "{border.hairline}",
+        "inset": true
+      }
+    },
+    "glass-edge-light": {
+      "$description": "The faint edge, for a surface that should stay quiet. The nav takes this one: it sits high on the page against plain paper, where the full edge reads as a hard outline.",
+      "$value": {
+        "color": "{color.ink-alpha.06}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 0, "unit": "px" },
+        "blur": { "value": 0, "unit": "px" },
+        "spread": "{border.hairline}",
+        "inset": true
+      }
+    },
+    "glass-edge-on-dark": {
+      "$description": "The default edge over a dark backdrop. Doubled from 0.10 to 0.20 alongside the light tone, so both read at the same strength (D-23).",
+      "$value": {
+        "color": "{color.white-alpha.20}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 0, "unit": "px" },
+        "blur": { "value": 0, "unit": "px" },
+        "spread": "{border.hairline}",
+        "inset": true
+      }
+    },
+    "glass-edge-light-on-dark": {
+      "$description": "The faint edge over a dark backdrop.",
+      "$value": {
+        "color": "{color.white-alpha.10}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 0, "unit": "px" },
+        "blur": { "value": 0, "unit": "px" },
+        "spread": "{border.hairline}",
+        "inset": true
+      }
+    },
+
+    "glass-drop": {
+      "$description": "The glass drop, paired with any edge above.",
+      "$value": {
+        "color": "{color.ink-alpha.06}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 1, "unit": "px" },
+        "blur": { "value": 6, "unit": "px" },
+        "spread": { "value": 0, "unit": "px" }
+      }
+    },
+    "glass-drop-on-dark": {
+      "$value": {
+        "color": "{color.ink-alpha.25}",
+        "offsetX": { "value": 0, "unit": "px" },
+        "offsetY": { "value": 1, "unit": "px" },
+        "blur": { "value": 8, "unit": "px" },
+        "spread": { "value": 0, "unit": "px" }
+      }
+    },
+
+    "pill": {
+      "$value": [
+        {
+          "color": "{color.ink-alpha.04}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 0, "unit": "px" },
+          "blur": { "value": 0, "unit": "px" },
+          "spread": "{border.hairline}",
+          "inset": true
+        },
+        {
+          "color": "{color.ink-alpha.10}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 1, "unit": "px" },
+          "blur": { "value": 3, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      ]
+    },
+
+    "pill-on-dark": {
+      "$description": "The nav pill over a dark backdrop: a slightly stronger edge and a deeper drop, because it sits on an opaque light fill against dark glass.",
+      "$value": [
+        {
+          "color": "{color.ink-alpha.06}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 0, "unit": "px" },
+          "blur": { "value": 0, "unit": "px" },
+          "spread": "{border.hairline}",
+          "inset": true
+        },
+        {
+          "color": "{color.ink-alpha.30}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 1, "unit": "px" },
+          "blur": { "value": 4, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      ]
+    },
+
+    "card": {
+      "$value": [
+        {
+          "color": "{color.ink-alpha.08}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 0, "unit": "px" },
+          "blur": { "value": 0, "unit": "px" },
+          "spread": "{border.hairline}"
+        },
+        {
+          "color": "{color.ink-alpha.04}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 1, "unit": "px" },
+          "blur": { "value": 2, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      ]
+    },
+
+    "card-hover": {
+      "$value": [
+        {
+          "color": "{color.ink-alpha.14}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 0, "unit": "px" },
+          "blur": { "value": 0, "unit": "px" },
+          "spread": "{border.hairline}"
+        },
+        {
+          "color": "{color.ink-alpha.07}",
+          "offsetX": { "value": 0, "unit": "px" },
+          "offsetY": { "value": 8, "unit": "px" },
+          "blur": { "value": 24, "unit": "px" },
+          "spread": { "value": 0, "unit": "px" }
+        }
+      ]
+    }
+  }
+}

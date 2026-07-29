@@ -1,0 +1,6 @@
+{
+  "name": "ame",
+  "version": "0.1.0",
+  "format": "DTOS 2025.10",
+  "$description": "Ame manifest. The version is the outermost name a consumer binds. Bump by semver: breaking token rename or removal = major, additive = minor, value-only = patch."
+}

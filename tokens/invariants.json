@@ -1,0 +1,338 @@
+{
+  "$description": "The checkable rules, as data. Every condition in contract.md has exactly one machine-readable entry here and is evaluated in exactly one place (check.mjs). Reasoning for any of these lives in decisions.md; measured results live in outcomes.md. Nothing here restates a value that a token file already holds.",
+  "types": [
+    "color",
+    "dimension",
+    "duration",
+    "cubicBezier",
+    "fontFamily",
+    "fontWeight",
+    "number",
+    "shadow"
+  ],
+  "type_bounds": {
+    "$description": "F3. Bounds the DTOS 2025.10 value schemas impose, held here rather than as literals in check.mjs, so the checker states no number of its own. Source: schemas/src/2025.10/format/values/*.json.",
+    "dimension_units": [
+      "px",
+      "rem"
+    ],
+    "duration_units": [
+      "ms",
+      "s"
+    ],
+    "fontWeight_min": 1,
+    "fontWeight_max": 1000,
+    "cubicBezier_points": 4,
+    "color_spaces": [
+      "srgb",
+      "srgb-linear",
+      "hsl",
+      "hwb",
+      "lab",
+      "lch",
+      "oklab",
+      "oklch",
+      "display-p3",
+      "a98-rgb",
+      "prophoto-rgb",
+      "rec2020",
+      "xyz-d65",
+      "xyz-d50"
+    ]
+  },
+  "manifest": {
+    "$description": "B5. Both emitted CSS homes stamp the manifest version on their first line. The version's single home is ame.json; build.mjs writes the header, check.mjs extracts it with the pattern below and compares. A stale artifact and a bumped manifest cannot agree by accident.",
+    "file": "ame.json",
+    "emitted": [
+      "tokens/build/portfolio.tokens.css",
+      "app/(portfolio)/portfolio.tokens.css"
+    ],
+    "pattern": "^/\\* ame@([0-9]+\\.[0-9]+\\.[0-9]+) "
+  },
+  "naming": {
+    "segment": "^[a-z0-9]+([-_][a-z0-9]+)*$",
+    "$description": "N1. Every path segment. Lowercase, digits, single hyphen or underscore as separator. DTOS additionally forbids '.', '{', '}' and a leading '$' in any name; F5 checks those."
+  },
+  "layering": {
+    "$description": "L1 to L3. A layer may reference only the layers listed. literalTypes lists the $types a layer may state outright rather than reference.",
+    "base": {
+      "mayReference": [],
+      "literalTypes": [
+        "color",
+        "dimension",
+        "duration",
+        "cubicBezier",
+        "fontFamily",
+        "fontWeight",
+        "number"
+      ]
+    },
+    "semantic": {
+      "mayReference": [
+        "base"
+      ],
+      "literalTypes": [
+        "shadow"
+      ]
+    },
+    "component": {
+      "mayReference": [
+        "base",
+        "semantic"
+      ],
+      "literalTypes": [
+        "dimension",
+        "number"
+      ]
+    }
+  },
+  "contrast": {
+    "$description": "C1 to C10. Foreground over background, WCAG 2.2 relative-luminance ratio, computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA.",
+    "pairs": [
+      {
+        "id": "C1",
+        "fg": "text.body",
+        "bg": "background.page",
+        "min": 7
+      },
+      {
+        "id": "C2",
+        "fg": "text.heading",
+        "bg": "background.page",
+        "min": 7
+      },
+      {
+        "id": "C3",
+        "fg": "text.secondary",
+        "bg": "background.page",
+        "min": 4.5
+      },
+      {
+        "id": "C4",
+        "fg": "text.brand",
+        "bg": "background.page",
+        "min": 4.5
+      },
+      {
+        "id": "C5",
+        "fg": "text.danger",
+        "bg": "background.page",
+        "min": 4.5
+      },
+      {
+        "id": "C6",
+        "fg": "text.on-brand",
+        "bg": "text.brand",
+        "min": 4.5
+      },
+      {
+        "id": "C7",
+        "fg": "component.topbar.fg",
+        "bg": "component.topbar.bg",
+        "min": 4.5
+      },
+      {
+        "id": "C8",
+        "fg": "surface.glass-fg-on-dark",
+        "bg": "background.ink",
+        "min": 4.5
+      },
+      {
+        "id": "C9",
+        "fg": "surface.glass-fg-muted-on-dark",
+        "bg": "background.ink",
+        "min": 4.5
+      },
+      {
+        "id": "C10",
+        "fg": "surface.glass-fg-muted-on-light",
+        "bg": "background.page",
+        "min": 4.5
+      }
+    ]
+  },
+  "parity": {
+    "$description": "P1 to P3. A value with a second home in hand-written source. The token is the home; the literal must equal it. Each entry names the file, the pattern that finds the literal, and the token it must match.",
+    "entries": [
+      {
+        "id": "P1a",
+        "file": "components/portfolio/site-header.tsx",
+        "pattern": "const ITEM_W = ([0-9.]+)",
+        "token": "component.nav.item-width",
+        "as": "px"
+      },
+      {
+        "id": "P1b",
+        "file": "components/portfolio/site-header.tsx",
+        "pattern": "const ITEM_GAP = ([0-9.]+)",
+        "token": "component.nav.item-gap",
+        "as": "px"
+      },
+      {
+        "id": "P1c",
+        "file": "components/portfolio/site-header.tsx",
+        "pattern": "const LOGO_GAP = ([0-9.]+)",
+        "token": "component.nav.logo-gap",
+        "as": "px"
+      },
+      {
+        "id": "P1d",
+        "file": "components/portfolio/site-header.tsx",
+        "pattern": "const NAV_OFFSET_FALLBACK = ([0-9.]+)",
+        "token": "component.nav.offset-fallback",
+        "as": "px"
+      },
+      {
+        "id": "P2",
+        "file": "components/portfolio/site-header.tsx",
+        "pattern": "gap-\\[([0-9.]+)rem\\]",
+        "token": "component.nav.item-gap",
+        "as": "rem"
+      },
+      {
+        "id": "P3",
+        "file": "components/portfolio/*.tsx",
+        "pattern": "strokeWidth=\\{([0-9.]+)\\}",
+        "token": "font.icon-stroke",
+        "as": "number"
+      },
+      {
+        "id": "P4",
+        "file": "components/logo-bounce.tsx",
+        "pattern": "export const LOGO_CYCLE_MS = ([0-9.]+)",
+        "token": "component.splash.cycle",
+        "as": "ms"
+      },
+      {
+        "id": "P5",
+        "file": "components/portfolio/loading-screen.tsx",
+        "pattern": "const FADE_MS = ([0-9.]+)",
+        "token": "component.splash.fade",
+        "as": "ms"
+      }
+    ]
+  },
+  "duplication": {
+    "$description": "D1. A generated custom property re-declared in hand-written CSS is a second home for one value. Exceptions are values the token layer cannot hold: a runtime-switched assignment, or an asset.",
+    "hand_written": [
+      "app/(portfolio)/portfolio.css"
+    ],
+    "allowed": [
+      "--port-glass-fg",
+      "--port-glass-fg-muted",
+      "--port-glass-halo",
+      "--port-panel-w",
+      "--ask-w"
+    ],
+    "allowed_because": {
+      "--port-glass-fg": "Runtime-switched between two tokens by [data-backdrop]. The values are tokens; only the assignment is CSS.",
+      "--port-glass-fg-muted": "Same switch as --port-glass-fg.",
+      "--port-glass-halo": "A text-shadow the design sets to none on every surface. No second value exists to hold.",
+      "--port-panel-w": "The base width is component.ask-ai.width; the >=768px override is a calc() over the grid, which has no token form.",
+      "--ask-w": "A local alias inside the anchor's centring math. Reads --port-panel-w; holds nothing."
+    }
+  },
+  "restated": {
+    "$description": "D2. D1 catches a re-declared custom property. It cannot see a hand-written literal that happens to equal a token's resolved value, which is the same second home wearing different syntax: the nav pill and the work card each restated a shadow recipe the token layer already held, and the gate passed. Compared by numeric signature (the ordered numbers in the value) so rgba(16,19,25, 0.04) and rgb(16 19 25 / 0.04) are recognised as one value. min_numbers keeps single scalars from matching everything.",
+    "id": "D2",
+    "hand_written": [
+      "app/(portfolio)/portfolio.css"
+    ],
+    "min_numbers": 3
+  },
+  "shipped": {
+    "$description": "G1. A placeholder that survives into emitted HTML says on its face that the page is unfinished, so it must never reach a deployed route. Evaluated only in --shipped mode, after next build, against the emitted app tree. STANDARD.md C5 is the same condition at repo scope; this is its one evaluation site.",
+    "id": "G1",
+    "dir": ".next/server/app",
+    "extensions": [
+      ".html",
+      ".rsc"
+    ],
+    "pattern": "\\[\\[[A-Za-z_][A-Za-z0-9_]*\\]\\]",
+    "$pattern_note": "A bare \\[\\[ also matches React Server Component payload nesting (`[[[\"\",{\"children\"`), which every Next 16 route emits, so it flagged 40+ routes that hold no placeholder. The pattern requires a bracketed identifier, which is the shape the source placeholders actually use ([[META_DESCRIPTION]], [[year]]). STANDARD.md C5's own grep is the untightened form; this is its one evaluation site and the tightening is decision D-15."
+  },
+  "scales": {
+    "$description": "S1 to S5. Every literal of a scaled kind found in portfolio source must be a member of that scale. Reported as drift with a baseline rather than as a hard failure: Tailwind arbitrary-value classes can introduce a literal without touching this directory, so the count is a measurement that must not grow, in the shape CLAUDE.md uses for duplication.",
+    "entries": [
+      {
+        "id": "S1",
+        "group": "font.size",
+        "kind": "dimension",
+        "unit": "px",
+        "pattern": "text-\\[([0-9.]+)px\\]|fontSize:\\s*'([0-9.]+)px'"
+      },
+      {
+        "id": "S2",
+        "group": "unit",
+        "kind": "dimension",
+        "unit": "rem",
+        "pattern": "[a-z]+-\\[([0-9.]+)rem\\]"
+      },
+      {
+        "id": "S3",
+        "group": "radius",
+        "kind": "dimension",
+        "unit": "px",
+        "pattern": "rounded-\\[([0-9.]+)px\\]"
+      },
+      {
+        "id": "S4",
+        "group": "duration",
+        "kind": "duration",
+        "unit": "ms",
+        "pattern": "duration:\\s*([0-9]+)\\b"
+      },
+      {
+        "id": "S5",
+        "group": "z",
+        "kind": "number",
+        "unit": "",
+        "pattern": "z-\\[([0-9]+)\\]|zIndex:\\s*([0-9]+)"
+      }
+    ],
+    "sources": [
+      "app/(portfolio)",
+      "components/portfolio"
+    ]
+  },
+  "binding": {
+    "$description": "U1. The deliverable standard's allowed binding paths, as a tripwire. Surfaces bind semantic and component tokens; only tokens bind base tokens. A surface reading a base custom property resolves fine by name and violates the layering the deliverable list publishes, so the gate and the deliverable list agree by construction. The base-name set is derived from the token tree at check time, never restated here or in check.mjs. Aliases are not base names: an alias is a spelling the surface is meant to bind.",
+    "id": "U1",
+    "surfaces": [
+      "app/(portfolio)",
+      "components/portfolio"
+    ],
+    "extensions": [
+      ".ts",
+      ".tsx",
+      ".css"
+    ],
+    "exclude": [
+      "app/(portfolio)/portfolio.tokens.css"
+    ],
+    "target": 0
+  },
+  "clients": {
+    "$description": "H1. A token nothing consumes is a clause with one signature. A client is: a var() in portfolio source, another token's reference, an alias, or a named invariant that reads the token. The count of clientless tokens is a measurement, recorded in outcomes.md, and must not grow.",
+    "sources": [
+      "app",
+      "components",
+      "lib",
+      "hooks",
+      "styles",
+      "content"
+    ],
+    "invariant_clients": {
+      "$description": "Tokens whose client is an invariant rather than a call site. A closed scale is consumed whole by the check that admits nothing outside it.",
+      "unit": "S2",
+      "font.size": "S1",
+      "radius": "S3",
+      "duration": "S4",
+      "z": "S5",
+      "color.neutral": "L2",
+      "color.ink-alpha": "L2",
+      "color.white-alpha": "L2",
+      "dither": "derived:--port-dither-noise (build.mjs serializes frequency and octaves into the feTurbulence URI)"
+    }
+  }
+}

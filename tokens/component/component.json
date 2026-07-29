@@ -1,0 +1,127 @@
+{
+  "$description": "Component layer, namespaced so it cannot collide with base or semantic keys. Colour, duration, and easing are always references to semantic. Per-component measures are declared here as literals, because a measure used by exactly one element has no shared scale to sit on; that permission is stated in contract.md > Invariant L3 and checked.",
+  "component": {
+    "glass": {
+      "blur": { "$type": "dimension", "$value": "{surface.glass-blur}" },
+      "saturate": { "$type": "number", "$value": "{surface.glass-saturate}" },
+      "edge": { "$type": "shadow", "$value": "{elevation.glass-edge}" },
+      "edge-light": { "$type": "shadow", "$value": "{elevation.glass-edge-light}" },
+      "edge-on-dark": { "$type": "shadow", "$value": "{elevation.glass-edge-on-dark}" },
+      "edge-light-on-dark": { "$type": "shadow", "$value": "{elevation.glass-edge-light-on-dark}" },
+      "drop": { "$type": "shadow", "$value": "{elevation.glass-drop}" },
+      "drop-on-dark": { "$type": "shadow", "$value": "{elevation.glass-drop-on-dark}" },
+      "fill-opaque": { "$type": "color", "$value": "{surface.glass-fill-opaque-on-light}" },
+      "fill-opaque-on-dark": { "$type": "color", "$value": "{surface.glass-fill-opaque-on-dark}" }
+    },
+
+    "nav": {
+      "item-width": {
+        "$type": "dimension",
+        "$value": { "value": 78, "unit": "px" },
+        "$description": "Sliding nav pill item width. Single home: site-header.tsx ITEM_W must equal it (invariant P1)."
+      },
+      "item-gap": {
+        "$type": "dimension",
+        "$value": { "value": 0.2125, "unit": "rem" },
+        "$description": "3.4px. Single home: site-header.tsx ITEM_GAP and the rendered flex gap must equal it (invariant P1)."
+      },
+      "logo-gap": {
+        "$type": "dimension",
+        "$value": { "value": 33, "unit": "px" },
+        "$description": "Logo lockup to glass nav. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1)."
+      },
+      "offset-fallback": {
+        "$type": "dimension",
+        "$value": { "value": 61, "unit": "px" },
+        "$description": "Nav offset used before the logo has measured. Single home: site-header.tsx NAV_OFFSET_FALLBACK (invariant P1)."
+      },
+      "pill-bg": { "$type": "color", "$value": "{nav.bg}" },
+      "pill-bg-on-dark": { "$type": "color", "$value": "{nav.bg-on-dark}" },
+      "pill-shadow": { "$type": "shadow", "$value": "{elevation.pill}" },
+      "pill-shadow-on-dark": { "$type": "shadow", "$value": "{elevation.pill-on-dark}" }
+    },
+
+    "topbar": {
+      "height": { "$type": "dimension", "$value": { "value": 32.5, "unit": "px" } },
+      "bg": { "$type": "color", "$value": "{background.utility}" },
+      "fg": {
+        "$type": "color",
+        "$value": "{text.secondary}",
+        "$description": "EN label and a11y glyph. The tightest contrast pair in the system; see invariant C1."
+      },
+      "fg-hover": { "$type": "color", "$value": "{text.body}" },
+      "lang-min-width": {
+        "$type": "dimension",
+        "$value": { "value": 18.5, "unit": "px" },
+        "$description": "Fixed floor so the justify-end row does not shift as the label width changes."
+      }
+    },
+
+    "header-logo": {
+      "height": { "$type": "dimension", "$value": { "value": 3.1757, "unit": "rem" } },
+      "stretch-x": {
+        "$type": "number",
+        "$value": 1.03,
+        "$description": "scaleX. The SVG keeps preserveAspectRatio, so width alone would only centre it."
+      }
+    },
+
+    "ask-ai": {
+      "width": {
+        "$type": "dimension",
+        "$value": { "value": 18.08, "unit": "rem" },
+        "$description": "Panel width. Single home: portfolio.css --port-panel-w must equal it (invariant P2). At md it is recomputed against the work-grid column; that formula is CSS-only and named in decisions.md."
+      },
+      "panel-radius": { "$type": "dimension", "$value": "{radius.2xl}" },
+      "trigger-radius": { "$type": "dimension", "$value": "{radius.pill}" },
+      "raise": {
+        "$type": "number",
+        "$value": 10,
+        "$description": "Pill anchor lift above the trigger, in vh. DTOS dimension admits px and rem only; see contract.md > Spec gaps.",
+        "$extensions": { "org.metis.css": { "unit": "vh" } }
+      }
+    },
+
+    "splash": {
+      "$description": "How the splash leaves: a quick fade, on the enter curve. The mask-cutout reveal that lived here was removed; see decisions D-38.",
+      "cycle": {
+        "$type": "duration",
+        "$value": "{duration.cycle}",
+        "$description": "One logo cycle. Read by no rule; its client is invariant P4, which holds logo-bounce.tsx LOGO_CYCLE_MS to it."
+      },
+      "fade": {
+        "$type": "duration",
+        "$value": "{duration.long}",
+        "$description": "The dismiss, 800ms. loading-screen.tsx FADE_MS must equal it (invariant P5), and it is also the floor the splash adds to its own 6540ms before the page is interactive."
+      },
+      "fade-ease": {
+        "$type": "cubicBezier",
+        "$value": "{motion.enter-ease}",
+        "$description": "Fast off the mark, settling at the end, so the page reads as arriving rather than the overlay as leaving."
+      }
+    },
+
+    "card": {
+      "bg": { "$type": "color", "$value": "{surface.card-glass}" },
+      "min-height": { "$type": "dimension", "$value": { "value": 320, "unit": "px" } },
+      "radius": { "$type": "dimension", "$value": "{radius.xl}" },
+      "shadow": { "$type": "shadow", "$value": "{elevation.card}" },
+      "shadow-hover": { "$type": "shadow", "$value": "{elevation.card-hover}" },
+      "lift": {
+        "$type": "dimension",
+        "$value": { "value": -0.125, "unit": "rem" },
+        "$description": "hover translate-y."
+      }
+    },
+
+    "pill": {
+      "radius": { "$type": "dimension", "$value": "{radius.pill}" },
+      "bg-rest": { "$type": "color", "$value": "{color.ink-alpha.08}" },
+      "bg-hover": { "$type": "color", "$value": "{color.ink-alpha.14}" }
+    },
+
+    "contact-row": {
+      "radius": { "$type": "dimension", "$value": "{radius.row}" }
+    }
+  }
+}

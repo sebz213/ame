@@ -1,0 +1,12 @@
+{
+  "$description": "Measured drift counts. check.mjs fails when a count grows, and X1 fails when a number here sits above what the last logged run measured. Lower a number only together with the change that earned it, and the run that measured it is in runs.log. Reasoning belongs in decisions.md; what these numbers mean belongs in outcomes.md.",
+  "$measured": "2026-07-29",
+  "D2": 24,
+  "S1": 12,
+  "S2": 34,
+  "S3": 0,
+  "S4": 6,
+  "S5": 8,
+  "U1": 0,
+  "H1": 32
+}

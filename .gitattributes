@@ -1,0 +1,3 @@
+*.glb filter=lfs diff=lfs merge=lfs -text
+public/kindle-mascot.svg filter=lfs diff=lfs merge=lfs -text
+public/kindle-ux-collection.svg filter=lfs diff=lfs merge=lfs -text
