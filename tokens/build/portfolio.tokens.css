@@ -17,6 +17,9 @@
   --color-black: #000000;  /* Pure black. Headings only. */
   --color-paper: oklch(0.985 0.003 106);  /* Warm off-white. The page ground. */
   --color-ink: #101319;  /* Brand near-black. Body ink, dark surfaces, and the colour every shadow is graded from. */
+  --color-ink-raised: #181d25;  /* Ink lifted one step: the secondary (dark) button fill. */
+  --color-ink-raised-edge: #2b333e;  /* The hairline edge on the secondary (dark) button. */
+  --color-slate-400: #99a1af;  /* Cool blue-grey. Dark-mode secondary / meta text (text.secondary-on-dark). */
   --color-neutral-100: oklch(0.95 0 0);
   --color-neutral-200: oklch(0.93 0 0);
   --color-neutral-300: oklch(0.9 0 0);
@@ -24,6 +27,7 @@
   --color-neutral-800: oklch(0.22 0 0);
   --color-surface-grey: #bcbcbe;  /* The neutral the glass reads as. */
   --color-surface-paper: #eeeeeb;  /* Near-white warm grey. The top utility bar. */
+  --color-surface-ink: #1a1e28;  /* Dark counterpart of surface-paper: the top utility bar on an ink ground (the marketing-site sister). A subtle elevation of ink that keeps its blue cast. */
   --color-paper-alpha-88: oklch(0.985 0.003 106 / 0.88);
   --color-modal-dark: lab(19 0.33 -15.02 / 0.69);  /* The shared ink surface behind the cookie, contact, and Ask-AI panels over a dark backdrop. Cooler and lighter than color.ink, so a panel reads as a layer above the dark card rather than a hole in it. */
   --color-brand: oklch(0.55 0.15 256);  /* Brand blue. Links and accents. */
@@ -58,12 +62,19 @@
 
   /* z */
   --z-base: 0;
+  --z-grain: 1;  /* The page-grain dither overlay and the card edge, painted just above normal flow. */
+  --z-card-raise: 2;  /* The iPhone viewer card, above the page-grain overlay (z 1). */
   --z-raised: 10;
   --z-sticky: 50;  /* The sticky header. */
   --z-float: 55;  /* Floating Ask-AI trigger. */
   --z-scrim: 60;  /* Popover click-catcher. */
   --z-popover: 61;  /* Ask-AI panel. */
-  --z-splash: 9999;  /* Full-page loading overlay. */
+  --z-intro: 9000;  /* The intro curtain. */
+  --z-intro-fore: 9001;  /* The intro statement and the elevated card during the intro, above the curtain. */
+  --z-menu: 9990;  /* The contact popover, top of the overlay stack. */
+  --z-banner: 9997;  /* The cookie-consent banner. */
+  --z-modal-scrim: 9998;  /* A modal's click-catcher / scrim, just below its panel. */
+  --z-splash: 9999;  /* Full-page loading overlay and the modal panels (cookie, contact, accessibility). */
 
   /* duration */
   --duration-instant: 150ms;  /* Colour and small state. */
@@ -72,8 +83,10 @@
   --duration-moderate: 350ms;  /* Glass tone cross-fade. */
   --duration-slow: 400ms;  /* Pill slide, exits, splash fade. */
   --duration-exit: 420ms;  /* Dismiss exit tween. */
+  --duration-squish: 440ms;  /* Segmented-pill squish bounce. One home for the nav, the 3D/2D toggle, and the accessibility Segmented (site-header / page / portfolio-accessibility read var(--duration-squish)). */
   --duration-slower: 520ms;  /* Nav spring and sidebar show. */
   --duration-settle: 780ms;  /* Popover and panel spring in. */
+  --duration-reveal: 700ms;  /* Section scroll-reveal spring (scroll-reveal.tsx). A watchable entrance, longer than settle's overshoot. */
   --duration-long: 800ms;  /* A dismissal meant to be watched rather than got through. Sits 20ms from settle (780); the two are near-duplicates and one of them should absorb the other if a third consumer ever wants this length. */
   --duration-cycle: 2180ms;  /* One full logo-bounce cycle: enter, hold, exit, gap. The splash reveal runs exactly one of these, reversed. logo-bounce.tsx LOGO_CYCLE_MS must equal it (invariant P4). */
   --duration-reduced: 0.01ms;  /* The prefers-reduced-motion clamp. A floor that collapses every role duration at once, not a tempo. */
@@ -86,7 +99,7 @@
   --ease-accel: cubic-bezier(0.4, 0, 1, 1);  /* Mobile-menu close. */
 
   /* radius */
-  --radius-sm: 5px;  /* Shortcut badge. */
+  --radius-sm: 4px;  /* Shortcut badge (4px, on the grid). */
   --radius-row: 7.11px;  /* Contact row. Half its 28.44px height, so the hover fill is a true stadium at that height. */
   --radius-md: 0.5rem;  /* rounded-lg. */
   --radius-lg: 0.75rem;  /* rounded-xl. */
@@ -155,18 +168,25 @@
   --text-heading: #000000;  /* h1 to h3. One real tonal step above body. */
   --text-body: #101319;  /* Running text and the surfaces it sits between. */
   --text-secondary: oklch(0.52 0 0);  /* Muted and meta. */
+  --text-heading-on-dark: #ffffff;  /* Heading text on an ink ground. The dark-theme counterpart of text.heading, bound by the --port-text-heading alias under [data-theme=dark]. */
+  --text-body-on-dark: #ffffff;  /* Running text on an ink ground. The dark-theme counterpart of text.body. */
+  --text-secondary-on-dark: #99a1af;  /* Muted and meta on an ink ground (#99a1af). The dark-theme counterpart of text.secondary. */
+  --text-quote-on-dark: rgb(255 255 255 / 0.78);  /* Brighter muted text on an ink ground (white 78%): the endorsement-card quote, which stays brighter than the #99a1af meta. Reached via --port-text-quote. */
   --text-brand: oklch(0.55 0.15 256);
   --text-on-brand: oklch(0.985 0 0);
   --text-danger: oklch(0.577 0.245 27.325);
 
   /* background */
-  --background-page: oklch(0.985 0.003 106);
+  --background-page: #ffffff;  /* The page ground: pure white (#fff). */
   --background-card: #ffffff;
+  --background-card-on-dark: #1a1e28;  /* Elevated card surface on an ink ground — one step lighter than the page, per the dark-mode base/elevated split (Apple HIG). The dark-theme counterpart of background.card. */
   --background-ink: #101319;  /* Dark surfaces: mark card, splash, iPhone card. */
-  --background-utility: #eeeeeb;  /* Top utility bar. */
+  --background-utility: #eeeeeb;  /* Top utility bar on a light ground. On dark the bar is ink (background.ink) so it blends into the page; see component.topbar.bg-on-dark. */
 
   /* surface */
   --surface-glass-tint: #bcbcbe;
+  --surface-btn-secondary: #181d25;  /* Secondary (dark) button fill; the -30 variant is this at 30% via color-mix in portfolio.css. */
+  --surface-btn-secondary-edge: #2b333e;  /* Secondary (dark) button edge. */
   --surface-glass-light: #ffffff;
   --surface-glass-dark: #101319;
   --surface-glass-fg-on-light: #101319;  /* Glass foreground over a light backdrop. */
@@ -199,6 +219,7 @@
   --type-body-tracking: 0.05em;
   --type-body-synthesis: 0.013em;  /* The live body weight synthesis, set on .portfolio-root. */
   --type-label-size: 11.9px;
+  --type-icon-stroke: 1.5;  /* Lucide icon stroke width, 1.5. The .lucide default rule in portfolio.css reads var(--type-icon-stroke) so every icon is 1.5 without a per-icon prop. */
   --type-meta-size: 13px;
   --type-meta-tracking: 0.14em;
   --type-dense-leading: 1.4;  /* Line-height for dense rows: the footer's stacked links and meta lines. */
@@ -221,6 +242,9 @@
   --motion-overshoot-ease: cubic-bezier(0.34, 1.56, 0.64, 1);  /* A single clean overshoot on a control's transform. The role surfaces bind, so no surface reaches ease.out-back directly (invariant U1). */
   --motion-slide-ease: cubic-bezier(1, 0, 0.4, 1);  /* The nav pill's slide. */
   --motion-slide-duration: 400ms;  /* The nav pill's slide. */
+  --motion-squish-duration: 440ms;  /* The segmented-pill squish bounce (nav, 3D/2D toggle, accessibility Segmented). */
+  --motion-card-duration: 220ms;  /* The card hover transition (.port-card box-shadow + transform), 220ms. */
+  --motion-enter-duration: 520ms;  /* Entrance fades: the work-card enter animation and the case-study stagger, 520ms (snapped from 0.5s/0.6s onto the scale). */
   --motion-exit-ease: cubic-bezier(0.4, 0, 1, 1);  /* Mobile menu and contact sheet close. */
 
   /* elevation */
@@ -250,31 +274,38 @@
   --component-glass-fill-opaque-on-dark: lab(19 0.33 -15.02 / 0.69);
 
   /* nav */
-  --component-nav-item-width: 78px;  /* Sliding nav pill item width. Single home: site-header.tsx ITEM_W must equal it (invariant P1). */
-  --component-nav-item-gap: 0.2125rem;  /* 3.4px. Single home: site-header.tsx ITEM_GAP and the rendered flex gap must equal it (invariant P1). */
-  --component-nav-logo-gap: 33px;  /* Logo lockup to glass nav. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1). */
-  --component-nav-offset-fallback: 61px;  /* Nav offset used before the logo has measured. Single home: site-header.tsx NAV_OFFSET_FALLBACK (invariant P1). */
+  --component-nav-item-gap: 0.25rem;  /* 4px (on the spacing grid), the gap between nav pills. Single home: the rendered flex gap (gap-[0.25rem]) must equal it (invariant P2). The pills themselves size to their labels, so there is no longer an item-width token. */
+  --component-nav-pad: 0.25rem;  /* Segmented-pill inner padding, the ring around the items. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; the toggle and Segmented read var(--component-nav-pad). */
+  --component-nav-item-height: 1.75rem;  /* Segmented-pill item height. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; they read var(--component-nav-item-height). */
+  --component-nav-logo-gap: 12px;  /* Logo lockup (comb + Sébastien wordmark) to glass nav, 12px (on the 4px grid). The wordmark's right spacing (marginRight 3 + this = 15) is set equal to its left (marginLeft 15) for symmetry. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1). */
+  --component-nav-offset-fallback: 60px;  /* Nav offset used before the logo has measured. Single home: site-header.tsx NAV_OFFSET_FALLBACK (invariant P1). */
   --component-nav-pill-bg: rgb(255 255 255 / 0.72);
   --component-nav-pill-bg-on-dark: rgb(255 255 255 / 0.92);
   --component-nav-pill-shadow: inset 0px 0px 0px 1px rgb(16 19 25 / 0.04), 0px 1px 3px 0px rgb(16 19 25 / 0.1);
   --component-nav-pill-shadow-on-dark: inset 0px 0px 0px 1px rgb(16 19 25 / 0.06), 0px 1px 4px 0px rgb(16 19 25 / 0.3);
 
   /* topbar */
-  --component-topbar-height: 32.5px;
+  --component-topbar-height: 44px;  /* Utility strip height, 44px (on the 4px grid; also the 44px min tap target). */
   --component-topbar-bg: #eeeeeb;
+  --component-topbar-bg-on-dark: #101319;  /* The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site. */
   --component-topbar-fg: oklch(0.52 0 0);  /* EN label and a11y glyph. The tightest contrast pair in the system; see invariant C1. */
+  --component-topbar-fg-on-dark: rgb(255 255 255 / 0.78);  /* EN label and a11y glyph on the ink strip. */
   --component-topbar-fg-hover: #101319;
-  --component-topbar-lang-min-width: 18.5px;  /* Fixed floor so the justify-end row does not shift as the label width changes. */
+  --component-topbar-fg-hover-on-dark: #ffffff;
+  --component-topbar-lang-min-width: 20px;  /* Fixed floor so the justify-end row does not shift as the label width changes. */
+
+  /* header */
+  --component-header-max-width: 1728px;  /* The header shell cap on wide screens (utility bar + nav band). Wider than the max-w-5xl (1024px) content column on purpose, so the logo→icons composition breathes on ultrawide instead of stranding a narrow strip. site-header.tsx and portfolio-top-bar.tsx read var(--component-header-max-width). */
 
   /* header-logo */
-  --component-header-logo-height: 3.1757rem;
+  --component-header-logo-height: 2.850553rem;  /* Comb-mark height in the site header (2.79466rem reduced 15% to 2.375461rem, then increased 20%). Single home: site-header.tsx reads var(--component-header-logo-height); no source literal duplicates it. */
   --component-header-logo-stretch-x: 1.03;  /* scaleX. The SVG keeps preserveAspectRatio, so width alone would only centre it. */
 
-  /* ask-ai */
-  --component-ask-ai-width: 18.08rem;  /* Panel width. Single home: portfolio.css --port-panel-w must equal it (invariant P2). At md it is recomputed against the work-grid column; that formula is CSS-only and named in decisions.md. */
-  --component-ask-ai-panel-radius: 1.5rem;
-  --component-ask-ai-trigger-radius: 999px;
-  --component-ask-ai-raise: 10vh;  /* Pill anchor lift above the trigger, in vh. DTOS dimension admits px and rem only; see contract.md > Spec gaps. */
+  /* accessibility */
+  --component-accessibility-width: 18rem;  /* Panel width (288px) for the accessibility, contact, and cookie panels. Single home: portfolio.css --port-panel-w reads it (a D1 exception). At md, --port-panel-w is recomputed against the work-grid column; that calc is CSS-only and named in decisions.md. */
+  --component-accessibility-panel-radius: 1.5rem;
+  --component-accessibility-trigger-radius: 999px;
+  --component-accessibility-raise: 10vh;  /* Pill anchor lift above the trigger, in vh. DTOS dimension admits px and rem only; see contract.md > Spec gaps. */
 
   /* splash */
   --component-splash-cycle: 2180ms;  /* One logo cycle. Read by no rule; its client is invariant P4, which holds logo-bounce.tsx LOGO_CYCLE_MS to it. */
@@ -297,6 +328,9 @@
   /* contact-row */
   --component-contact-row-radius: 7.11px;
 
+  /* icon */
+  --component-icon-size: 1rem;  /* Shared icon box size (h/w), 16px. One home for the small icons across the header, contact menu, accessibility modal, endorsements, and cookie panel; they read var(--component-icon-size). */
+
   /* ──── DERIVED — serialized from tokens, not a token itself ──── */
   --port-dither-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='pd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23pd)'/%3E%3C/svg%3E");  /* feTurbulence built from dither.frequency and dither.octaves. */
 
@@ -306,6 +340,7 @@
   --port-text-primary: var(--text-body);
   --port-text-heading: var(--text-heading);
   --port-text-secondary: var(--text-secondary);
+  --port-text-quote: var(--text-secondary);
   --port-brand: var(--text-brand);
   --port-brand-fg: var(--text-on-brand);
   --port-nav-bg: var(--nav-bg);
@@ -323,11 +358,20 @@
   --port-glass-fill-on-dark: var(--surface-glass-fill-on-dark);
   --port-dither-strength: var(--surface-dither-strength);
   --port-dither-tile: var(--surface-dither-tile);
-  --port-panel-w: var(--component-ask-ai-width);
+  --port-panel-w: var(--component-accessibility-width);
   --port-w450: var(--font-weight-synthesis-450);
   --port-w460: var(--font-weight-synthesis-460);
   --port-w470: var(--font-weight-synthesis-470);
   --port-w480: var(--font-weight-synthesis-480);
   --port-w490: var(--font-weight-synthesis-490);
   --port-header-stroke: var(--type-heading-synthesis);
+}
+
+/* ──── DARK THEME — themed aliases re-pointed to their on-dark tokens ──── */
+.portfolio-root[data-theme="dark"], .portfolio-root [data-theme="dark"] {
+  --port-page-bg: var(--background-ink);
+  --port-text-primary: var(--text-body-on-dark);
+  --port-text-heading: var(--text-heading-on-dark);
+  --port-text-secondary: var(--text-secondary-on-dark);
+  --port-text-quote: var(--text-quote-on-dark);
 }

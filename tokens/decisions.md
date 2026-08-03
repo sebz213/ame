@@ -679,7 +679,7 @@ route.
 
 The verdict was never affected: G1 fails on one hit or fourteen. What was wrong
 is the number a reader takes away, and that number had been carried into
-`AUDIT-CLOSEOUT.md`, four commit messages, and the C5 row of the clause table,
+`docs/orders/AUDIT-CLOSEOUT.md`, four commit messages, and the C5 row of the clause table,
 each time as "14 routes."
 
 `routeOf()` now derives the route from the emitted path: cut at `.segments/`,
@@ -702,3 +702,61 @@ This is CLAUDE.md 14 on a number nobody thought to check, because it was never
 load-bearing — the gate's colour did not depend on it, so its wrongness was
 invisible. A number reported to a reader is a claim whether or not a branch
 reads it.
+
+## D-43 A dark counterpart for the top utility bar, so the bar is one component on two grounds
+
+The top bar painted `--component-topbar-bg` (#eeeeeb) and had no dark counterpart.
+On a paper page that is a warm near-white strip; dropped onto an ink ground it is a
+white band across the top. So a sister site on ink could not share the bar — it had
+to re-implement it as glass, a different surface.
+
+Closed the gap through the chain: base `color.surface-ink` (#1a1e28, a subtle
+elevation of ink that keeps its blue cast), semantic `background.utility-on-dark`
+(references it), component `topbar.bg-on-dark` (references the semantic), plus
+`topbar.fg-on-dark` / `-fg-hover-on-dark` referencing the glass on-dark foreground
+pair. C7 (topbar fg-on-bg contrast) is unchanged; the on-dark pair reads on the ink
+strip at glass's own on-dark ratios (C8/C9). The bar is now one tone-aware component,
+not two.
+
+## D-44 A dark theme, expressed as re-pointed aliases, not a second set of tokens
+
+The marketing route needed the whole portfolio surface on ink, not one flag flipped.
+Re-declaring the surface tokens under a `.dark` selector was not an option: contract
+B1 gives every token exactly one home under `.portfolio-root`, and D1 bans a hand file
+re-declaring a generated name. Both would break.
+
+The alias layer is the clean seam. An alias is "a spelling a surface binds" (B3), not a
+token, so it is the one thing that may resolve differently per context without a value
+gaining a second home. An alias value is now either a path (light only) or `{ light,
+dark }`; the build emits the light target on `.portfolio-root` as before, then a generated
+`.portfolio-root[data-theme="dark"]` block that re-points the themed aliases to their
+on-dark tokens. Four aliases are themed: `--port-page-bg` → `background.ink`, and
+`--port-text-{primary,heading,secondary}` → three new `text.*-on-dark` tokens
+(white / white / white-alpha.78). Every base, semantic, and component token still has one
+home; only the spelling gained a per-theme target. B3 now reads "resolves to exactly one
+token per theme scope," and check.mjs counts both scopes' targets in the client census.
+
+A route opts in with `data-theme="dark"` on its `<main>`, and every surface below inherits
+the ink treatment through the same variables it already read. /portfolio stays light;
+/mmarketing renders the same home component dark. Because it is one component, the marketing
+route adds no duplicated literals — S1–S5 hold at baseline. The baseline drops S2 34→33 and
+H1 32→29 in this change, the run that earned it in runs.log.
+
+## D-45 The dark theme reaches the solid surfaces, not only the page and text
+
+D-44 flipped the page ground and the running text. That left the SOLID chrome and
+card surfaces on their light values, because those read component tokens or fixed
+fills directly rather than the themed --port-* aliases: the utility strip and the
+footer stayed paper, and the .port-card fill stayed a light card, so white text on
+it lost contrast. The glass surfaces are deliberately untouched — glass is glass on
+either ground.
+
+Apple's dark mode is the reference for the fix: it uses a base/elevated split where
+a foreground surface advances by getting LIGHTER, not darker. So the card is not the
+page colour; it is one step up. Added `background.card-on-dark` ({color.surface-ink},
+#1a1e28 on the #101319 page) and a single `[data-theme="dark"] .port-card` rule that
+binds it — a property, not a re-declared custom property, so no invariant moves. The
+utility strip and footer switch to their existing on-dark tones by route/theme, and
+the nav's selected label now reads `surface.glass-fg-on-light` (always ink on its
+bright pill) instead of the themed text token, which is what its own comment always
+intended. Contrast on the ink ground clears Apple's 4.5:1 floor at every surface.

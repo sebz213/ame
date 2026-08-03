@@ -40,11 +40,18 @@
     "$type": "number",
     "$description": "Named stacking layers. Closed set: invariant z-scale admits no z-index outside it.",
     "base": { "$value": 0 },
+    "grain": { "$value": 1, "$description": "The page-grain dither overlay and the card edge, painted just above normal flow." },
+    "card-raise": { "$value": 2, "$description": "The iPhone viewer card, above the page-grain overlay (z 1)." },
     "raised": { "$value": 10 },
     "sticky": { "$value": 50, "$description": "The sticky header." },
     "float": { "$value": 55, "$description": "Floating Ask-AI trigger." },
     "scrim": { "$value": 60, "$description": "Popover click-catcher." },
     "popover": { "$value": 61, "$description": "Ask-AI panel." },
-    "splash": { "$value": 9999, "$description": "Full-page loading overlay." }
+    "intro": { "$value": 9000, "$description": "The intro curtain." },
+    "intro-fore": { "$value": 9001, "$description": "The intro statement and the elevated card during the intro, above the curtain." },
+    "menu": { "$value": 9990, "$description": "The contact popover, top of the overlay stack." },
+    "banner": { "$value": 9997, "$description": "The cookie-consent banner." },
+    "modal-scrim": { "$value": 9998, "$description": "A modal's click-catcher / scrim, just below its panel." },
+    "splash": { "$value": 9999, "$description": "Full-page loading overlay and the modal panels (cookie, contact, accessibility)." }
   }
 }

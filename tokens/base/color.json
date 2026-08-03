@@ -23,6 +23,18 @@
       },
       "$description": "Brand near-black. Body ink, dark surfaces, and the colour every shadow is graded from."
     },
+    "ink-raised": {
+      "$value": { "colorSpace": "srgb", "components": [0.094118, 0.113725, 0.145098], "hex": "#181d25" },
+      "$description": "Ink lifted one step: the secondary (dark) button fill."
+    },
+    "ink-raised-edge": {
+      "$value": { "colorSpace": "srgb", "components": [0.168627, 0.2, 0.243137], "hex": "#2b333e" },
+      "$description": "The hairline edge on the secondary (dark) button."
+    },
+    "slate-400": {
+      "$value": { "colorSpace": "srgb", "components": [0.6, 0.631373, 0.686275], "hex": "#99a1af" },
+      "$description": "Cool blue-grey. Dark-mode secondary / meta text (text.secondary-on-dark)."
+    },
 
     "neutral": {
       "$description": "Chromaless grey ramp in oklch. Higher number = darker, so it reads as a weight scale. Closed set: invariant no-raw-color admits no grey outside it.",
@@ -48,6 +60,14 @@
         "hex": "#eeeeeb"
       },
       "$description": "Near-white warm grey. The top utility bar."
+    },
+    "surface-ink": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.101961, 0.117647, 0.156863],
+        "hex": "#1a1e28"
+      },
+      "$description": "Dark counterpart of surface-paper: the top utility bar on an ink ground (the marketing-site sister). A subtle elevation of ink that keeps its blue cast."
     },
 
     "paper-alpha": {

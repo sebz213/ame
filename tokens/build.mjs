@@ -215,12 +215,19 @@ export function toCss(type, value, ext) {
 // ── Legacy --port-* aliases ─────────────────────────────────────────────────
 // Names the components already read. Each maps to exactly one token, so the
 // alias adds a spelling, never a second home for a value.
+//
+// An alias value is either a token path (light only) or { light, dark }: a
+// spelling that resolves to a different token per theme scope. The dark target
+// is emitted under .portfolio-root[data-theme="dark"] (see below). The tokens
+// themselves keep one home each under .portfolio-root; only the SPELLING gains
+// a per-theme target, which is what an alias is for (contract B3).
 export const ALIASES = {
   '--font-port-sans': 'font.family.sans',
-  '--port-page-bg': 'background.page',
-  '--port-text-primary': 'text.body',
-  '--port-text-heading': 'text.heading',
-  '--port-text-secondary': 'text.secondary',
+  '--port-page-bg': { light: 'background.page', dark: 'background.ink' },
+  '--port-text-primary': { light: 'text.body', dark: 'text.body-on-dark' },
+  '--port-text-heading': { light: 'text.heading', dark: 'text.heading-on-dark' },
+  '--port-text-secondary': { light: 'text.secondary', dark: 'text.secondary-on-dark' },
+  '--port-text-quote': { light: 'text.secondary', dark: 'text.quote-on-dark' },
   '--port-brand': 'text.brand',
   '--port-brand-fg': 'text.on-brand',
   '--port-nav-bg': 'nav.bg',
@@ -238,7 +245,7 @@ export const ALIASES = {
   '--port-glass-fill-on-dark': 'surface.glass-fill-on-dark',
   '--port-dither-strength': 'surface.dither-strength',
   '--port-dither-tile': 'surface.dither-tile',
-  '--port-panel-w': 'component.ask-ai.width',
+  '--port-panel-w': 'component.accessibility.width',
   '--port-w450': 'font.weight-synthesis.450',
   '--port-w460': 'font.weight-synthesis.460',
   '--port-w470': 'font.weight-synthesis.470',
@@ -251,6 +258,12 @@ export const ALIASES = {
 // would name the same value twice.
 
 export const cssName = (path) => '--' + path.split('.').join('-')
+
+/** An alias value is a path string or { light, dark }; these read either shape. */
+export const aliasLight = (v) => (typeof v === 'string' ? v : v.light)
+export const aliasDark = (v) => (typeof v === 'string' ? undefined : v.dark)
+/** Every token path an alias binds, across all theme scopes — for the client census. */
+export const aliasPaths = (v) => (typeof v === 'string' ? [v] : [v.light, v.dark].filter(Boolean))
 
 /**
  * The one derived property. DTOS has no asset type, so the grain cannot be a
@@ -356,13 +369,38 @@ function main() {
   out += `  /* feTurbulence built from dither.frequency and dither.octaves. */\n`
 
   out += `\n  /* ──── ALIASES — the names the components read. One token each. ──── */\n`
-  for (const [name, path] of Object.entries(ALIASES)) {
+  for (const [name, val] of Object.entries(ALIASES)) {
+    const path = aliasLight(val)
     const t = tokens.find((t) => t.path === path)
     if (!t) throw new Error(`Alias ${name} -> ${path} does not resolve to a token`)
     out += `  ${name}: var(${t.cssName});\n`
   }
 
   out += `}\n`
+
+  /*
+    Dark theme scope. A route opts in with data-theme="dark" on .portfolio-root,
+    and the themed aliases re-point to their on-dark tokens. Only the ALIAS —
+    the spelling a surface binds — gains a second target here; every base,
+    semantic, and component token still has exactly one home under
+    .portfolio-root above (contract B1). This block is generated, so it is not a
+    hand re-declaration (invariant D1).
+  */
+  const darkAliases = Object.entries(ALIASES).filter(([, val]) => aliasDark(val))
+  if (darkAliases.length) {
+    out += `\n/* ──── DARK THEME — themed aliases re-pointed to their on-dark tokens ──── */\n`
+    // Matches the attribute on .portfolio-root itself OR on any element within
+    // it, so a route can opt a subtree into dark (data-theme on its <main>)
+    // without the shared layout changing for every other route.
+    out += `.portfolio-root[data-theme="dark"], .portfolio-root [data-theme="dark"] {\n`
+    for (const [name, val] of darkAliases) {
+      const path = aliasDark(val)
+      const t = tokens.find((t) => t.path === path)
+      if (!t) throw new Error(`Dark alias ${name} -> ${path} does not resolve to a token`)
+      out += `  ${name}: var(${t.cssName});\n`
+    }
+    out += `}\n`
+  }
 
   mkdirSync(join(ROOT, 'build'), { recursive: true })
   writeFileSync(join(ROOT, 'build', 'portfolio.tokens.css'), out)

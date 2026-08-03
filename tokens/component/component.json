@@ -15,24 +15,29 @@
     },
 
     "nav": {
-      "item-width": {
-        "$type": "dimension",
-        "$value": { "value": 78, "unit": "px" },
-        "$description": "Sliding nav pill item width. Single home: site-header.tsx ITEM_W must equal it (invariant P1)."
-      },
       "item-gap": {
         "$type": "dimension",
-        "$value": { "value": 0.2125, "unit": "rem" },
-        "$description": "3.4px. Single home: site-header.tsx ITEM_GAP and the rendered flex gap must equal it (invariant P1)."
+        "$value": { "value": 0.25, "unit": "rem" },
+        "$description": "4px (on the spacing grid), the gap between nav pills. Single home: the rendered flex gap (gap-[0.25rem]) must equal it (invariant P2). The pills themselves size to their labels, so there is no longer an item-width token."
+      },
+      "pad": {
+        "$type": "dimension",
+        "$value": { "value": 0.25, "unit": "rem" },
+        "$description": "Segmented-pill inner padding, the ring around the items. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; the toggle and Segmented read var(--component-nav-pad)."
+      },
+      "item-height": {
+        "$type": "dimension",
+        "$value": { "value": 1.75, "unit": "rem" },
+        "$description": "Segmented-pill item height. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; they read var(--component-nav-item-height)."
       },
       "logo-gap": {
         "$type": "dimension",
-        "$value": { "value": 33, "unit": "px" },
-        "$description": "Logo lockup to glass nav. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1)."
+        "$value": { "value": 12, "unit": "px" },
+        "$description": "Logo lockup (comb + Sébastien wordmark) to glass nav, 12px (on the 4px grid). The wordmark's right spacing (marginRight 3 + this = 15) is set equal to its left (marginLeft 15) for symmetry. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1)."
       },
       "offset-fallback": {
         "$type": "dimension",
-        "$value": { "value": 61, "unit": "px" },
+        "$value": { "value": 60, "unit": "px" },
         "$description": "Nav offset used before the logo has measured. Single home: site-header.tsx NAV_OFFSET_FALLBACK (invariant P1)."
       },
       "pill-bg": { "$type": "color", "$value": "{nav.bg}" },
@@ -42,23 +47,38 @@
     },
 
     "topbar": {
-      "height": { "$type": "dimension", "$value": { "value": 32.5, "unit": "px" } },
+      "height": { "$type": "dimension", "$value": { "value": 44, "unit": "px" }, "$description": "Utility strip height, 44px (on the 4px grid; also the 44px min tap target)." },
       "bg": { "$type": "color", "$value": "{background.utility}" },
+      "bg-on-dark": { "$type": "color", "$value": "{background.ink}", "$description": "The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site." },
       "fg": {
         "$type": "color",
         "$value": "{text.secondary}",
         "$description": "EN label and a11y glyph. The tightest contrast pair in the system; see invariant C1."
       },
+      "fg-on-dark": { "$type": "color", "$value": "{surface.glass-fg-muted-on-dark}", "$description": "EN label and a11y glyph on the ink strip." },
       "fg-hover": { "$type": "color", "$value": "{text.body}" },
+      "fg-hover-on-dark": { "$type": "color", "$value": "{surface.glass-fg-on-dark}" },
       "lang-min-width": {
         "$type": "dimension",
-        "$value": { "value": 18.5, "unit": "px" },
+        "$value": { "value": 20, "unit": "px" },
         "$description": "Fixed floor so the justify-end row does not shift as the label width changes."
       }
     },
 
+    "header": {
+      "max-width": {
+        "$type": "dimension",
+        "$value": { "value": 1728, "unit": "px" },
+        "$description": "The header shell cap on wide screens (utility bar + nav band). Wider than the max-w-5xl (1024px) content column on purpose, so the logo→icons composition breathes on ultrawide instead of stranding a narrow strip. site-header.tsx and portfolio-top-bar.tsx read var(--component-header-max-width)."
+      }
+    },
+
     "header-logo": {
-      "height": { "$type": "dimension", "$value": { "value": 3.1757, "unit": "rem" } },
+      "height": {
+        "$type": "dimension",
+        "$value": { "value": 2.8505532, "unit": "rem" },
+        "$description": "Comb-mark height in the site header (2.79466rem reduced 15% to 2.375461rem, then increased 20%). Single home: site-header.tsx reads var(--component-header-logo-height); no source literal duplicates it."
+      },
       "stretch-x": {
         "$type": "number",
         "$value": 1.03,
@@ -66,11 +86,11 @@
       }
     },
 
-    "ask-ai": {
+    "accessibility": {
       "width": {
         "$type": "dimension",
-        "$value": { "value": 18.08, "unit": "rem" },
-        "$description": "Panel width. Single home: portfolio.css --port-panel-w must equal it (invariant P2). At md it is recomputed against the work-grid column; that formula is CSS-only and named in decisions.md."
+        "$value": { "value": 18, "unit": "rem" },
+        "$description": "Panel width (288px) for the accessibility, contact, and cookie panels. Single home: portfolio.css --port-panel-w reads it (a D1 exception). At md, --port-panel-w is recomputed against the work-grid column; that calc is CSS-only and named in decisions.md."
       },
       "panel-radius": { "$type": "dimension", "$value": "{radius.2xl}" },
       "trigger-radius": { "$type": "dimension", "$value": "{radius.pill}" },
@@ -122,6 +142,13 @@
 
     "contact-row": {
       "radius": { "$type": "dimension", "$value": "{radius.row}" }
+    },
+    "icon": {
+      "size": {
+        "$type": "dimension",
+        "$value": { "value": 1, "unit": "rem" },
+        "$description": "Shared icon box size (h/w), 16px. One home for the small icons across the header, contact menu, accessibility modal, endorsements, and cookie panel; they read var(--component-icon-size)."
+      }
     }
   }
 }

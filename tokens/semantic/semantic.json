@@ -6,6 +6,10 @@
     "heading": { "$value": "{color.black}", "$description": "h1 to h3. One real tonal step above body." },
     "body": { "$value": "{color.ink}", "$description": "Running text and the surfaces it sits between." },
     "secondary": { "$value": "{color.neutral.500}", "$description": "Muted and meta." },
+    "heading-on-dark": { "$value": "{color.white}", "$description": "Heading text on an ink ground. The dark-theme counterpart of text.heading, bound by the --port-text-heading alias under [data-theme=dark]." },
+    "body-on-dark": { "$value": "{color.white}", "$description": "Running text on an ink ground. The dark-theme counterpart of text.body." },
+    "secondary-on-dark": { "$value": "{color.slate-400}", "$description": "Muted and meta on an ink ground (#99a1af). The dark-theme counterpart of text.secondary." },
+    "quote-on-dark": { "$value": "{color.white-alpha.78}", "$description": "Brighter muted text on an ink ground (white 78%): the endorsement-card quote, which stays brighter than the #99a1af meta. Reached via --port-text-quote." },
     "brand": { "$value": "{color.brand}" },
     "on-brand": { "$value": "{color.brand-contrast}" },
     "danger": { "$value": "{color.danger}" }
@@ -13,10 +17,11 @@
 
   "background": {
     "$type": "color",
-    "page": { "$value": "{color.paper}" },
+    "page": { "$value": "{color.white}", "$description": "The page ground: pure white (#fff)." },
     "card": { "$value": "{color.white}" },
+    "card-on-dark": { "$value": "{color.surface-ink}", "$description": "Elevated card surface on an ink ground — one step lighter than the page, per the dark-mode base/elevated split (Apple HIG). The dark-theme counterpart of background.card." },
     "ink": { "$value": "{color.ink}", "$description": "Dark surfaces: mark card, splash, iPhone card." },
-    "utility": { "$value": "{color.surface-paper}", "$description": "Top utility bar." }
+    "utility": { "$value": "{color.surface-paper}", "$description": "Top utility bar on a light ground. On dark the bar is ink (background.ink) so it blends into the page; see component.topbar.bg-on-dark." }
   },
 
   "border": {
@@ -27,6 +32,8 @@
   "surface": {
     "$description": "The glass system. Tint and pole are the ground; the fg pair is the foreground the glass carries, declared once per backdrop tone. Which of the two pairs is live is a runtime state, switched by [data-backdrop] in portfolio.css; the values are decided here.",
     "glass-tint": { "$type": "color", "$value": "{color.surface-grey}" },
+    "btn-secondary": { "$type": "color", "$value": "{color.ink-raised}", "$description": "Secondary (dark) button fill; the -30 variant is this at 30% via color-mix in portfolio.css." },
+    "btn-secondary-edge": { "$type": "color", "$value": "{color.ink-raised-edge}", "$description": "Secondary (dark) button edge." },
     "glass-light": { "$type": "color", "$value": "{color.white}" },
     "glass-dark": { "$type": "color", "$value": "{color.ink}" },
     "glass-fg-on-light": { "$type": "color", "$value": "{color.ink}", "$description": "Glass foreground over a light backdrop." },
@@ -71,6 +78,7 @@
       "$description": "The live body weight synthesis, set on .portfolio-root."
     },
     "label-size": { "$type": "dimension", "$value": "{font.size.11_9}" },
+    "icon-stroke": { "$type": "number", "$value": "{font.icon-stroke}", "$description": "Lucide icon stroke width, 1.5. The .lucide default rule in portfolio.css reads var(--type-icon-stroke) so every icon is 1.5 without a per-icon prop." },
     "meta-size": { "$type": "dimension", "$value": "{font.size.13}" },
     "meta-tracking": { "$type": "number", "$value": "{font.tracking.caps}" },
     "dense-leading": {
@@ -106,6 +114,9 @@
     },
     "slide-ease": { "$type": "cubicBezier", "$value": "{ease.slide}", "$description": "The nav pill's slide." },
     "slide-duration": { "$type": "duration", "$value": "{duration.slow}", "$description": "The nav pill's slide." },
+    "squish-duration": { "$type": "duration", "$value": "{duration.squish}", "$description": "The segmented-pill squish bounce (nav, 3D/2D toggle, accessibility Segmented)." },
+    "card-duration": { "$type": "duration", "$value": "{duration.base}", "$description": "The card hover transition (.port-card box-shadow + transform), 220ms." },
+    "enter-duration": { "$type": "duration", "$value": "{duration.slower}", "$description": "Entrance fades: the work-card enter animation and the case-study stagger, 520ms (snapped from 0.5s/0.6s onto the scale)." },
     "exit-ease": { "$type": "cubicBezier", "$value": "{ease.accel}", "$description": "Mobile menu and contact sheet close." }
   },
 

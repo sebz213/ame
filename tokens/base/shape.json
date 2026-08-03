@@ -3,7 +3,7 @@
   "radius": {
     "$type": "dimension",
     "$description": "Closed set: invariant radius-scale admits no border-radius outside it.",
-    "sm": { "$value": { "value": 5, "unit": "px" }, "$description": "Shortcut badge." },
+    "sm": { "$value": { "value": 4, "unit": "px" }, "$description": "Shortcut badge (4px, on the grid)." },
     "row": {
       "$value": { "value": 7.11, "unit": "px" },
       "$description": "Contact row. Half its 28.44px height, so the hover fill is a true stadium at that height."
