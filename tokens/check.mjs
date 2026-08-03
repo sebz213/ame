@@ -13,7 +13,9 @@
 import { readdirSync, readFileSync, existsSync, appendFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildTokens, ALIASES, cssName, LAYERS, manifest } from './build.mjs'
+import { buildTokens, ALIASES, aliasPaths, cssName, LAYERS, manifest } from './build.mjs'
+import { contrast } from './contrast.mjs'
+import { ratchetExceeded } from './ratchet.mjs'
 
 const ROOT = dirname(fileURLToPath(import.meta.url))
 const REPO = join(ROOT, '..')
@@ -46,49 +48,8 @@ const expand = (pat) =>
       )
     : [pat]
 
-// ── colour maths, for the contrast invariants ───────────────────────────────
-const cube = (x) => x * x * x
-function oklabToLinearSrgb(L, a, b) {
-  const l = cube(L + 0.3963377774 * a + 0.2158037573 * b)
-  const m = cube(L - 0.1055613458 * a - 0.0638541728 * b)
-  const s = cube(L - 0.0894841775 * a - 1.291485548 * b)
-  return [
-    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
-  ]
-}
-const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
-const linearToSrgb = (c) => (c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055)
-
-/** Any DTOS colour value to linear-light sRGB, plus its alpha. */
-function toLinear(v) {
-  let lin
-  if (v.colorSpace === 'srgb') lin = v.components.map(srgbToLinear)
-  else if (v.colorSpace === 'oklch') {
-    const [L, C, H] = v.components
-    const h = (H * Math.PI) / 180
-    lin = oklabToLinearSrgb(L, C * Math.cos(h), C * Math.sin(h))
-  } else if (v.colorSpace === 'oklab') lin = oklabToLinearSrgb(...v.components)
-  else throw new Error(`Contrast: unsupported colour space ${v.colorSpace}`)
-  return { lin, alpha: v.alpha ?? 1 }
-}
-const luminance = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b
-
-function contrast(fgVal, bgVal) {
-  const fg = toLinear(fgVal)
-  const bg = toLinear(bgVal)
-  // Composite a translucent foreground over its background in sRGB, the way a
-  // browser paints it, before measuring.
-  const over =
-    fg.alpha === 1
-      ? fg.lin
-      : fg.lin.map((c, i) =>
-          srgbToLinear(fg.alpha * linearToSrgb(c) + (1 - fg.alpha) * linearToSrgb(bg.lin[i])),
-        )
-  const [hi, lo] = [luminance(over), luminance(bg.lin)].sort((a, b) => b - a)
-  return (hi + 0.05) / (lo + 0.05)
-}
+// Colour maths for the contrast invariants (C1 to C10) live in contrast.mjs so
+// they are unit-testable; `contrast` is imported above.
 
 // ── F. DTOS format conformance ──────────────────────────────────────────────
 const NAME_OK = new RegExp(RULES.naming.segment)
@@ -122,6 +83,34 @@ const NAME_OK = new RegExp(RULES.naming.segment)
   }
   // F1 and F4 are structural: build.mjs throws on a missing $value, an
   // unresolved reference, or a cycle, so reaching this line proves them.
+})()
+
+// ── N2. One word per concept: no synonym in a token path or exported symbol ──
+;(function checkSynonyms() {
+  const s = RULES.synonyms
+  // Tokenize an identifier on separators and camelCase boundaries, lowercased.
+  const words = (id) =>
+    id
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .split(/[-_./ ]+/)
+      .filter(Boolean)
+      .map((w) => w.toLowerCase())
+  const deprecated = new Map(s.pairs.map((p) => [p.deprecated, p.canonical]))
+  const scan = (id, kind) => {
+    for (const w of words(id)) {
+      if (deprecated.has(w) && s.waived[id] !== w)
+        fail(
+          s.id,
+          `${kind} "${id}" says "${w}"; the one word for this concept is "${deprecated.get(w)}". Rename it, or waive the identifier in invariants.json > synonyms.waived.`,
+        )
+    }
+  }
+  for (const t of tokens) scan(t.path, 'token path')
+  const symFiles = s.symbol_sources
+    .flatMap((src) => walkFiles(src))
+    .filter((f) => /\.tsx?$/.test(f) && !s.symbol_exclude.some((x) => f.startsWith(x)))
+  const symRe = /export\s+(?:default\s+)?(?:async\s+)?(?:function|const|class|type|interface|let)\s+([A-Za-z0-9_]+)/g
+  for (const f of symFiles) for (const m of read(f).matchAll(symRe)) scan(m[1], 'exported symbol')
 })()
 
 // ── B5. The emitted header carries the manifest version ─────────────────────
@@ -317,7 +306,7 @@ const clientless = []
     }
   }
   for (const t of tokens) collect(t.raw)
-  const aliased = new Set(Object.values(ALIASES))
+  const aliased = new Set(Object.values(ALIASES).flatMap(aliasPaths))
   const invariantOwned = Object.keys(RULES.clients.invariant_clients)
   const parityOwned = new Set(RULES.parity.entries.map((e) => e.token))
   const contrastOwned = new Set(RULES.contrast.pairs.flatMap((p) => [p.fg, p.bg]))
@@ -407,10 +396,7 @@ const parseCounts = (line) =>
   }
 })()
 
-let grew = false
-for (const [id, count] of Object.entries(drift)) {
-  if (baseline[id] !== undefined && count > baseline[id]) grew = true
-}
+const grew = ratchetExceeded(drift, baseline).length > 0
 
 const verdict = violations.length || grew ? 'FAIL' : 'PASS'
 const counts = Object.entries(drift)

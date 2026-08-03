@@ -70,6 +70,14 @@ These hold before and after any change to any token, not of any one token.
   `_` marks a fractional step (`unit.1_5`, `font.size.11_9`). The CSS name is
   derived mechanically from the path and is never chosen by hand.
 
+- **N2** One word per concept. A token path and one of the repo's own exported
+  symbols do not use two different words for one thing (`bg` and `background`,
+  `nav` and `navigation`). The forbidden pairs and the canonical word for each
+  concept are in `invariants.json`; a deprecated word in a new identifier fails
+  N2, and the legacy names that predate the rule are waived there with the reason
+  they cannot move yet. This is STANDARD.md N3 (Deissenboeck's bijection) at token
+  scale; vendored code under `components/ui` is out of scope.
+
 ### C. Contrast
 
 - **C1–C10** Ten foreground/background pairs, each with a required WCAG 2.2

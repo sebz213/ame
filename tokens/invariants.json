@@ -53,6 +53,40 @@
     "segment": "^[a-z0-9]+([-_][a-z0-9]+)*$",
     "$description": "N1. Every path segment. Lowercase, digits, single hyphen or underscore as separator. DTOS additionally forbids '.', '{', '}' and a leading '$' in any name; F5 checks those."
   },
+  "synonyms": {
+    "$description": "N2. One word per concept, across token paths and the repo's own exported symbols (Deissenboeck & Pizka's name-to-concept bijection; STANDARD.md N3). Each pair names the canonical word for a concept and the deprecated synonym that must not enter a new identifier. An identifier is tokenized on '-', '_', '.', '/' and camelCase boundaries; a deprecated word appearing as one of those tokens fails N2 unless the whole identifier is listed in `waived`. Vendored code (components/ui) is out of scope: its names are the upstream's call, not this repo's, the same exemption R-8 gives vendored files. Scope note: this reads identifiers, not Tailwind class strings or CSS custom-property call sites, so a `bg-*` utility class is untouched.",
+    "id": "N2",
+    "pairs": [
+      { "canonical": "fg", "deprecated": "foreground" },
+      { "canonical": "nav", "deprecated": "navigation" },
+      { "canonical": "grey", "deprecated": "gray" },
+      { "canonical": "color", "deprecated": "colour" },
+      { "canonical": "background", "deprecated": "bg" },
+      { "canonical": "button", "deprecated": "btn" }
+    ],
+    "symbol_sources": [
+      "components",
+      "lib",
+      "hooks"
+    ],
+    "symbol_exclude": [
+      "components/ui"
+    ],
+    "waived": {
+      "nav.bg": "bg",
+      "nav.bg-on-dark": "bg",
+      "component.nav.pill-bg": "bg",
+      "component.nav.pill-bg-on-dark": "bg",
+      "component.topbar.bg": "bg",
+      "component.topbar.bg-on-dark": "bg",
+      "component.card.bg": "bg",
+      "component.pill.bg-rest": "bg",
+      "component.pill.bg-hover": "bg",
+      "surface.btn-secondary": "btn",
+      "surface.btn-secondary-edge": "btn"
+    },
+    "waived_because": "Each waived name is a bound token deliverable: a rename is a consumer migration, global-or-nothing (DECISIONS R-1's boundary on CSS custom-property renames), so the abbreviation stays until a dedicated migration order. The two concepts already carry both spellings in the tree, background/bg and button/btn, and the canonical is the fuller word the semantic role home and the component symbols already use. N2 blocks a third occurrence from landing, which is what the ratchet is for."
+  },
   "layering": {
     "$description": "L1 to L3. A layer may reference only the layers listed. literalTypes lists the $types a layer may state outright rather than reference.",
     "base": {
@@ -155,20 +189,6 @@
     "$description": "P1 to P3. A value with a second home in hand-written source. The token is the home; the literal must equal it. Each entry names the file, the pattern that finds the literal, and the token it must match.",
     "entries": [
       {
-        "id": "P1a",
-        "file": "components/portfolio/site-header.tsx",
-        "pattern": "const ITEM_W = ([0-9.]+)",
-        "token": "component.nav.item-width",
-        "as": "px"
-      },
-      {
-        "id": "P1b",
-        "file": "components/portfolio/site-header.tsx",
-        "pattern": "const ITEM_GAP = ([0-9.]+)",
-        "token": "component.nav.item-gap",
-        "as": "px"
-      },
-      {
         "id": "P1c",
         "file": "components/portfolio/site-header.tsx",
         "pattern": "const LOGO_GAP = ([0-9.]+)",
@@ -228,7 +248,7 @@
       "--port-glass-fg": "Runtime-switched between two tokens by [data-backdrop]. The values are tokens; only the assignment is CSS.",
       "--port-glass-fg-muted": "Same switch as --port-glass-fg.",
       "--port-glass-halo": "A text-shadow the design sets to none on every surface. No second value exists to hold.",
-      "--port-panel-w": "The base width is component.ask-ai.width; the >=768px override is a calc() over the grid, which has no token form.",
+      "--port-panel-w": "The base width is component.accessibility.width; the >=768px override is a calc() over the grid, which has no token form.",
       "--ask-w": "A local alias inside the anchor's centring math. Reads --port-panel-w; holds nothing."
     }
   },
@@ -334,5 +354,12 @@
       "color.white-alpha": "L2",
       "dither": "derived:--port-dither-noise (build.mjs serializes frequency and octaves into the feTurbulence URI)"
     }
+  },
+  "lint": {
+    "$description": "Code-quality thresholds for eslint.config.mjs (WO-6.1, decision R-23, superseding tokens/decisions.md D-12). This file is the one home for the numbers; eslint.config.mjs reads them with readFileSync so the config states no threshold of its own, the same relation deliverables.md sets for the gate. Evaluated by ESLint, not check.mjs. `complexity` is an ERROR set at the current measured cyclomatic maximum, so it is green now and only ever ratchets DOWN as deep functions are split. The three max_* entries are WARNING thresholds; their counts are baselined in tokens/lint-baseline.json under the same move-down-only rule as baseline.json (X1). max_params is 6, STANDARD.md M2's stated limit, so a seventh parameter warns.",
+    "complexity": 53,
+    "max_lines_per_function": 100,
+    "max_depth": 4,
+    "max_params": 6
   }
 }
