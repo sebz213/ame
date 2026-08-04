@@ -196,6 +196,29 @@ R-36, R-37.
   budget"), so the 25 MB-SVG / 82 MB-GLB class of regression cannot land
   silently. WO-8.6, decision R-40.
 
+### Z. The bijection census
+
+The contract, its data, and its checker are meant to be one rule in three homes:
+a clause here, its values in `invariants.json`, its logic in `check.mjs`. Section
+Z checks that correspondence itself, so the bijection is enforced by the gate
+rather than by discipline. WO-9.1, decision R-50.
+
+- **Z1** Every clause declared in this file has a census record in
+  `invariants.json > census.clauses` naming the `invariants.json` key that holds
+  its data and the `check.mjs` function that evaluates it, or a `structural`
+  waiver naming the `build.mjs` mechanism that enforces it instead (the
+  preconditions `build.mjs` throws on, and the postconditions it emits, have no
+  `check.mjs` branch and are waived by name). A clause with no record, a record
+  naming an absent invariants key or an absent check function, or a stale record
+  for a clause this file no longer declares, fails Z1. The check is `checkCensus`.
+
+- **Z2** No threshold literal is hardcoded in `check.mjs`. A value a clause
+  compares against lives in `invariants.json` and the checker reads it, never
+  restates it (`deliverables.md`: the gate imports its thresholds). The scan
+  flags a decimal literal or an integer at or above `census.threshold_scan.min_integer`
+  in checker code, after stripping comments, strings, and regex literals, unless
+  the number is in `census.threshold_scan.allow`. The check is `checkThresholdScan`.
+
 ## What does not belong in this file
 
 Reasoning belongs in `decisions.md`. Measurements belong in `outcomes.md`.

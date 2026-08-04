@@ -131,6 +131,23 @@ const NAME_OK = new RegExp(RULES.naming.segment)
   }
 })()
 
+// ── B4. The two emitted CSS homes are byte-identical ────────────────────────
+// build.mjs writes both from one string, so they agree at build time; this
+// proves they still agree on disk, catching a hand-edit to either copy that a
+// rebuild has not overwritten. The emitted pair is data in invariants.json >
+// manifest.emitted, the same list B5 reads.
+;(function checkB4() {
+  const [a, b] = RULES.manifest.emitted
+  const pa = join(REPO, a)
+  const pb = join(REPO, b)
+  if (!existsSync(pa) || !existsSync(pb)) {
+    fail('B4', `an emitted token CSS home is missing (${!existsSync(pa) ? a : b}); run node tokens/build.mjs`)
+    return
+  }
+  if (!readFileSync(pa).equals(readFileSync(pb)))
+    fail('B4', `${a} and ${b} are not byte-identical; rebuild with node tokens/build.mjs so the versioned artifact and its mirror agree.`)
+})()
+
 // ── L. Layering ─────────────────────────────────────────────────────────────
 ;(function checkLayering() {
   const layerOfPath = new Map(tokens.map((t) => [t.path, t.layer]))
@@ -478,6 +495,78 @@ const clientless = []
       fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
     }
   }
+})()
+
+// ── Z1. Bijection census: contract clause -> invariants entry + check ────────
+// Every clause declared in contract.md has a machine-readable census record in
+// invariants.json > census.clauses naming where it is covered (an invariants
+// key and a check.mjs function), or a structural waiver naming the build.mjs
+// mechanism that enforces it. This makes the contract->invariants->check
+// bijection a gate check rather than a discipline. Data in invariants.json,
+// clause in contract.md section Z; nothing here restates a clause list.
+;(function checkCensus() {
+  const c = RULES.census
+  const contract = read(c.contract_file)
+  if (!contract) {
+    fail(c.id, `${c.contract_file} not found; the census cannot parse the contract clauses it must account for.`)
+    return
+  }
+  // Bold clause markers only: **A1**, **C1–C10**, ... The id is a letter run,
+  // digits, optionally a range (en-dash or hyphen) to a second id. Normalize the
+  // en-dash contract.md writes ranges with to a plain hyphen for the map key.
+  const declared = new Set()
+  for (const m of contract.matchAll(/\*\*([A-Z]+[0-9]+(?:[\u2013-][A-Z]*[0-9]+)?)\*\*/g))
+    declared.add(m[1].replace(/\u2013/g, '-'))
+
+  const checkerSrc = read(c.checker_file)
+  const hasKey = (k) =>
+    k.split('.').reduce((o, seg) => (o && typeof o === 'object' ? o[seg] : undefined), RULES) !== undefined
+  const hasFn = (name) => new RegExp('function\\s+' + name + '\\b').test(checkerSrc)
+
+  for (const id of [...declared].sort()) {
+    const rec = c.clauses[id]
+    if (!rec) {
+      fail(c.id, `contract clause ${id} has no census record in invariants.json > census.clauses. Give it an invariant+check, or a structural waiver naming what enforces it.`)
+      continue
+    }
+    if (rec.invariant && !hasKey(rec.invariant))
+      fail(c.id, `contract clause ${id} maps to invariants key "${rec.invariant}", which does not exist in invariants.json.`)
+    if (rec.check && !hasFn(rec.check))
+      fail(c.id, `contract clause ${id} maps to check "${rec.check}", which is not a function in ${c.checker_file}.`)
+    if (!rec.invariant && !rec.check && !rec.structural)
+      fail(c.id, `contract clause ${id} census record is empty; give it an invariant+check pair or a structural waiver reason.`)
+  }
+  // A record for a clause the contract no longer declares is stale: catch it so
+  // the map cannot drift out of step with contract.md in the other direction.
+  for (const id of Object.keys(c.clauses))
+    if (!declared.has(id))
+      fail(c.id, `census.clauses lists ${id}, which ${c.contract_file} no longer declares as a clause. Remove the stale record.`)
+})()
+
+// ── Z2. No threshold literal hardcoded in the checker ────────────────────────
+// A threshold a clause compares against lives in invariants.json; the checker
+// reads it (deliverables.md: the gate imports its thresholds, never restates
+// them). This flags a decimal literal or an integer >= min_integer in check.mjs
+// code, after stripping comments, strings, and regex literals, unless it is an
+// allowlisted constant. Both the bound and the allowlist are data in
+// invariants.json > census.threshold_scan, so this scan states no number either.
+;(function checkThresholdScan() {
+  const t = RULES.census.threshold_scan
+  let src = read(RULES.census.checker_file)
+  src = src.replace(/\/\*[\s\S]*?\*\//g, ' ')
+  src = src.replace(/`(?:\\.|[^`\\])*`/g, ' ')
+  src = src.replace(/'(?:\\.|[^'\\])*'/g, ' ')
+  src = src.replace(/"(?:\\.|[^"\\])*"/g, ' ')
+  src = src.replace(/(^|[=(,:[!&|?{;])\s*\/(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[gimsuy]*/g, '$1 ')
+  src = src.replace(/(^|[^:/])\/\/[^\n]*/g, '$1')
+  const allow = new Set(Object.keys(t.allow))
+  const flagged = new Map()
+  for (const m of src.matchAll(/\b\d+\.\d+\b/g)) if (!allow.has(m[0])) flagged.set(m[0], 'decimal')
+  for (const m of src.matchAll(/\b\d+\b/g)) {
+    if (Number(m[0]) >= t.min_integer && !allow.has(m[0])) flagged.set(m[0], 'integer')
+  }
+  for (const [num, kind] of flagged)
+    fail(t.id, `${RULES.census.checker_file} hardcodes the ${kind} threshold ${num}; a threshold lives in invariants.json, not in the checker. Move it there, or if it is a legitimate constant allowlist it in invariants.json > census.threshold_scan.allow.`)
 })()
 
 // ── G1. Placeholders never ship (--shipped mode only) ───────────────────────

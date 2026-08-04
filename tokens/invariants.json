@@ -448,5 +448,55 @@
       "public/models/iphone17-pro.glb": 82689464
     },
     "waived_because": "Four assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg (10.0 MB) and kindle-ux-collection.svg (15.0 MB) are almost certainly embedded raster in an SVG wrapper; re-authoring them to <=500 KB each is WO-8.1, and that outcome is what unblocks Agent 3 WO-3.2 (the V4 large-binary breach). iphone17-pro.glb (82.7 MB) waits on a DRACO/meshopt-compressed variant plus viewer lazy-load (WO-8.1, WO-8.5). frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
+  },
+  "census": {
+    "$description": "contract.md section Z (WO-9.1, decision R-50). The contract->invariants->check bijection, made machine-enforced instead of discipline-enforced. checkCensus parses the clause IDs declared in tokens/contract.md (the bold **A1** / **C1-C10** markers, en-dash normalized) and asserts each one has a census record below; a record names the invariants.json key that holds the clause's data (`invariant`) and the function in check.mjs that evaluates it (`check`), or carries a `structural` waiver naming the build.mjs mechanism that enforces it instead of a check.mjs branch. A clause with no record, a record naming a missing invariants key, or a record naming a check function absent from check.mjs fails Z1. A census record for a clause the contract no longer declares also fails, so the map cannot rot. threshold_scan is Z2: a grep-class scan asserting no threshold literal is hardcoded in the checker (deliverables.md: the gate imports its thresholds, never restates them), with a small allowlist of legitimate constants. Data here, logic in check.mjs, clause in contract.md, one home each.",
+    "id": "Z1",
+    "contract_file": "tokens/contract.md",
+    "checker_file": "tokens/check.mjs",
+    "clauses": {
+      "A1": { "structural": "build.mjs throws on a token missing $value before any check runs (contract.md: violating A1 stops the build). Reaching check.mjs proves it." },
+      "A2": { "invariant": "types", "check": "checkFormat" },
+      "A3": { "invariant": "type_bounds", "check": "checkFormat" },
+      "A4": { "structural": "build.mjs (resolveValue) throws on an unresolved reference or a reference cycle before any check runs (contract.md: violating A4 stops the build)." },
+      "A5": { "invariant": "naming", "check": "checkFormat" },
+      "A6": { "invariant": "naming", "check": "checkFormat" },
+      "B1": { "structural": "build.mjs postcondition: each token is emitted exactly once under .portfolio-root. build.mjs is the single writer; a token cannot be emitted twice from one enumeration." },
+      "B2": { "structural": "build.mjs postcondition: toCss serializes every value to a CSS literal; resolveValue leaves no {reference} unresolved, or A4 would have thrown." },
+      "B3": { "structural": "build.mjs postcondition: each ALIASES entry emits var(--token) and throws if the alias does not resolve to exactly one token." },
+      "B4": { "invariant": "manifest", "check": "checkB4" },
+      "B5": { "invariant": "manifest", "check": "checkManifest" },
+      "L1": { "invariant": "layering", "check": "checkLayering" },
+      "L2": { "invariant": "layering", "check": "checkLayering" },
+      "L3": { "invariant": "layering", "check": "checkLayering" },
+      "N1": { "invariant": "naming", "check": "checkFormat" },
+      "N2": { "invariant": "synonyms", "check": "checkSynonyms" },
+      "C1-C10": { "invariant": "contrast", "check": "checkContrast" },
+      "P1-P3": { "invariant": "parity", "check": "checkParity" },
+      "D1": { "invariant": "duplication", "check": "checkDuplication" },
+      "S1-S5": { "invariant": "scales", "check": "checkScales" },
+      "G1": { "invariant": "shipped", "check": "checkShipped" },
+      "U1": { "invariant": "binding", "check": "checkBinding" },
+      "U2": { "invariant": "uses_graph", "check": "checkUsesGraph" },
+      "U3": { "invariant": "uses_graph", "check": "checkUsesGraph" },
+      "U4": { "invariant": "uses_graph", "check": "checkUsesGraph" },
+      "X1": { "check": "checkRecord", "structural": "the drift ratchet's data home is baseline.json and runs.log, not invariants.json; checkRecord evaluates a baseline against the last logged run, so X1 has a check but no invariants entry by design." },
+      "H1": { "invariant": "clients", "check": "checkClients" },
+      "T1": { "invariant": "registry", "check": "checkTaxonomyRegistry" },
+      "T2": { "invariant": "taxonomy", "check": "checkTaxonomyRegistry" },
+      "T3": { "invariant": "registry", "check": "checkTaxonomyRegistry" },
+      "K1": { "invariant": "asset_budget", "check": "checkAssetBudget" },
+      "Z1": { "invariant": "census", "check": "checkCensus" },
+      "Z2": { "invariant": "census", "check": "checkThresholdScan" }
+    },
+    "threshold_scan": {
+      "$description": "Z2. No threshold literal hardcoded in check.mjs. The scan strips comments, strings, and regex literals, then flags any decimal literal or any integer >= min_integer that is not allowlisted. A threshold a clause compares against (a contrast minimum, a byte ceiling) lives in invariants.json; the checker reads it, never restates it. allow names the legitimate non-threshold constants that remain in checker code, each with its reason.",
+      "id": "Z2",
+      "min_integer": 100,
+      "allow": {
+        "1000": "seconds-to-milliseconds unit conversion in checkScales convert()",
+        "120": "display truncation length for a violation message (slice(0, 120))"
+      }
+    }
   }
 }
