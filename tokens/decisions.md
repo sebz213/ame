@@ -143,7 +143,7 @@ two words for one concept, which is the homonym decay N3 names. The boundary is
 written here so it is not inferred from what happens to be renamed.
 
 **Amended 2026-08-03 (D-46).** Ame now applies to one component name. The viewer
-became the Ame Prototype Viewer under `components/ame-prototype-viewer/`, the
+became the Ame Prototype Viewer under `components/prototype-viewer/`, the
 rename earned by making the machinery model-agnostic (D-46). This is the first
 crossing of the "not component names" boundary above, and it is a global rename
 of that one concept, not a subset: every import site moved in the same change. The
@@ -778,7 +778,7 @@ one hardcoded iPhone: the glb path and five node names were literals in the rend
 code. A "prototype viewer" that renders one device is an N6 defect, a name
 promising more than the code does. The rename is earned by removing the literals.
 
-**The shape now.** `components/ame-prototype-viewer/`:
+**The shape now.** `components/prototype-viewer/`:
 - `model-contract.ts` — the `ModelContract` type and the producer-facing export
   spec (the Blender steps, the node names, the "rename a node and the viewer names
   it back" test). This is instrument 5's home: the definition of a valid input.

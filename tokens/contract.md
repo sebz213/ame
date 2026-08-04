@@ -171,7 +171,7 @@ R-55, R-57.
   registry row keyed by its source path, and every row points at a real file and
   carries exactly one tier drawn from the six `/ame` taxonomy tiers. A row may
   point at a file outside the scan dirs (the prototype viewer
-  `components/ame-prototype-viewer/viewer.tsx`) as long as it resolves and its
+  `components/prototype-viewer/viewer.tsx`) as long as it resolves and its
   tier is valid. A component with no row, a duplicate row, an excluded file that
   still carries a row, or a row with an unknown tier or a dangling source fails.
   This is the identifier-dictionary bijection (STANDARD.md N3) at `/ame`

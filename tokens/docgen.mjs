@@ -219,10 +219,10 @@ const CATALOG_TIERS = { Components: 'components', Sections: 'sections' }
 // The CONTROL SURFACE is derived here from the same extracted props the API table
 // reads, so it cannot drift from the component's real signature; the sample values
 // a control cannot supply (an icon, children, a case record) live in the source
-// mounter (components/ame-docs/mount.tsx), not in this generated data. This writes
-// one spec per mountable row into components/ame-docs/generated/ame-specs.json,
+// mounter (components/docs-ui/mount.tsx), not in this generated data. This writes
+// one spec per mountable row into components/docs-ui/generated/ame-specs.json,
 // which the AmeAutoControls / AmeVariations client components consume by name.
-const SPECS_PATH = 'components/ame-docs/generated/ame-specs.json'
+const SPECS_PATH = 'components/docs-ui/generated/ame-specs.json'
 const round2 = (n) => Math.round(n * 100) / 100
 const unquote = (s) => String(s ?? '').replace(/^['"]|['"]$/g, '')
 
@@ -491,7 +491,7 @@ function catalogFiles(parser) {
     const contract = contractSection(sourceContract(r.source))
 
     // A mountable row (a component that stands up cleanly in a bounded box, marked
-    // `mountable: true` and given a mounter in components/ame-docs/mount.tsx) gets a
+    // `mountable: true` and given a mounter in components/docs-ui/mount.tsx) gets a
     // full auto-controls panel (one control per public prop) and a variation-example
     // matrix, derived here from the extracted props. Its live Controls panel mounts
     // the component, so it does not also print a static Preview.

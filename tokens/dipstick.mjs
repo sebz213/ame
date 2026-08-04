@@ -102,8 +102,8 @@ const cssA = read(emittedA)
 const cssB = read(emittedB)
 const runsLog = (read('tokens/runs.log') ?? '').split('\n').filter((l) => l.trim())
 const pkg = readJson('package.json')
-const viewerContract = read('components/ame-prototype-viewer/model-contract.ts')
-const viewer = read('components/ame-prototype-viewer/viewer.tsx')
+const viewerContract = read('components/prototype-viewer/model-contract.ts')
+const viewer = read('components/prototype-viewer/viewer.tsx')
 
 const base = tokenStats('tokens/base')
 const semantic = tokenStats('tokens/semantic')
@@ -181,7 +181,7 @@ const constraints = [
 ]
 
 const shippedLine = [...runsLog].reverse().find((l) => / shipped /.test(l)) ?? null
-const modelsDir = 'components/ame-prototype-viewer/models'
+const modelsDir = 'components/prototype-viewer/models'
 const registeredContracts = has(modelsDir)
   ? readdirSync(abs(modelsDir)).filter((f) => f.endsWith('.ts')).length
   : 0
@@ -229,7 +229,7 @@ const instruments = [
     id: 'i5',
     name: 'The viewer, plus its input contract',
     status: !viewerContract ? 'absent' : viewer?.includes('model-contract') ? 'present' : 'partial',
-    home: viewerContract ? 'components/ame-prototype-viewer/model-contract.ts' : null,
+    home: viewerContract ? 'components/prototype-viewer/model-contract.ts' : null,
     evidence: {
       registeredContracts,
       viewerReadsContract: Boolean(viewer?.includes('model-contract')),

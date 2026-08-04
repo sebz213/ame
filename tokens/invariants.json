@@ -421,7 +421,7 @@
     "id": "AM1",
     "data": "content/ame/component-registry.json",
     "scan_dirs": ["components/ame", "components/portfolio"],
-    "extra_note": "components/ame-prototype-viewer/viewer.tsx carries a row too (the prototype viewer) though it sits outside scan_dirs; AM1 admits a row whose source resolves and whose tier is valid, so the viewer row passes without being part of the mandatory coverage scan.",
+    "extra_note": "components/prototype-viewer/viewer.tsx carries a row too (the prototype viewer) though it sits outside scan_dirs; AM1 admits a row whose source resolves and whose tier is valid, so the viewer row passes without being part of the mandatory coverage scan.",
     "statuses": ["documented", "generated-only", "deferred"],
     "playground_status": "documented",
     "excluded": {
