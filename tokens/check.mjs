@@ -10,7 +10,7 @@
 
   Run:  node tokens/check.mjs
 */
-import { readdirSync, readFileSync, existsSync, appendFileSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync, appendFileSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildTokens, ALIASES, aliasPaths, cssName, LAYERS, manifest } from './build.mjs'
@@ -448,6 +448,35 @@ const clientless = []
     const mdx = join(reg.docs_dir, r.docPage + '.mdx')
     if (!existsSync(join(REPO, mdx)))
       fail('T3', `${r.source} is documented but ${mdx.replace(/\\/g, '/')} does not exist.`)
+  }
+})()
+
+// ── K1. Per-class asset byte budgets under public/ ──────────────────────────
+// A stated ceiling per asset class (VIOLATION, not drift): a file over its
+// class budget fails, so the 25 MB-SVG / 82 MB-GLB class of regression cannot
+// land silently. Assets that already exceed their ceiling are waived at their
+// current byte size and held there by the ratchet (a waiver only moves down, in
+// the reduction order that owns it). Classes, budgets, and waivers are data in
+// invariants.json > asset_budget; nothing here restates a number.
+;(function checkAssetBudget() {
+  const a = RULES.asset_budget
+  const classOf = (f) => {
+    const dot = f.lastIndexOf('.')
+    const ext = dot === -1 ? '' : f.slice(dot).toLowerCase()
+    for (const [cls, exts] of Object.entries(a.extensions)) if (exts.includes(ext)) return cls
+    return null
+  }
+  for (const f of walkFiles(a.root)) {
+    const cls = classOf(f)
+    if (!cls) continue
+    const size = statSync(join(REPO, f)).size
+    const waived = a.waived[f]
+    if (waived !== undefined) {
+      if (size > waived)
+        fail(a.id, `${f} is ${size} B, above its waived ceiling of ${waived} B. A waiver only ratchets down; shrink it in its reduction order, never grow it.`)
+    } else if (size > a.budgets[cls]) {
+      fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
+    }
   }
 })()
 

@@ -182,6 +182,20 @@ R-36, R-37.
   (WO-10.4); T1 and T3 are the coverage and resolution halves that do not depend
   on it.
 
+### K. Asset weight
+
+- **K1** Every file under `public/` sits within a byte ceiling for its class:
+  SVG, font, image, model. The ceilings, the extension-to-class map, and the
+  per-file waivers are data in `invariants.json > asset_budget`; the check is
+  `checkAssetBudget` in `check.mjs`, evaluated in the gate. A file over its
+  class ceiling is a violation. An asset that already exceeds its ceiling is
+  waived at its current byte size and may not grow past it: the X1 ratchet
+  applied to bytes, so a waiver only moves down, in the reduction order that
+  owns it. This is the performance budget the deliverables standard names as a
+  gate instrument (`deliverables.md`, "the contrast check and performance
+  budget"), so the 25 MB-SVG / 82 MB-GLB class of regression cannot land
+  silently. WO-8.6, decision R-40.
+
 ## What does not belong in this file
 
 Reasoning belongs in `decisions.md`. Measurements belong in `outcomes.md`.

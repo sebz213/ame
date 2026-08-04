@@ -423,5 +423,30 @@
     "source_dir": "components/ui",
     "docs_dir": "content/docs",
     "statuses": ["documented", "generated-only", "deferred"]
+  },
+  "asset_budget": {
+    "$description": "contract.md K1 (WO-8.6, decision R-40). A per-class byte ceiling on everything under public/, so the 25 MB-SVG / 82 MB-GLB class of regression cannot land silently again. A file is classed by its extension; the classes and their byte ceilings are `budgets`. A file over its class ceiling is a K1 VIOLATION, not drift: it is a stated ceiling, not a count that may creep to a baseline. `waived` is the ratchet for assets that already exceed their ceiling and cannot be reduced in this check-adding pass; each names its current byte size and is owned by a reduction order (see waived_because). A waived file passes while it does not GROW past the recorded size, so the ratchet only ever moves down, the same rule X1 gives drift counts. Extensions outside every class (.html) are not assets this clause weighs. Sizes are on-disk bytes: an LFS pointer not materialised in a shallow checkout reads smaller than its ceiling and passes, which is correct because the check weighs what is present.",
+    "id": "K1",
+    "root": "public",
+    "budgets": {
+      "svg": 512000,
+      "font": 512000,
+      "image": 256000,
+      "model": 5242880
+    },
+    "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic DRACO-compressed GLB target, against the 82.7 MB uncompressed model.",
+    "extensions": {
+      "svg": [".svg"],
+      "font": [".woff2", ".woff", ".ttf", ".otf"],
+      "image": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
+      "model": [".glb", ".gltf"]
+    },
+    "waived": {
+      "public/kindle-mascot.svg": 10068158,
+      "public/kindle-ux-collection.svg": 15026420,
+      "public/images/art-covers/frieren-manga.jpg": 920836,
+      "public/models/iphone17-pro.glb": 82689464
+    },
+    "waived_because": "Four assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg (10.0 MB) and kindle-ux-collection.svg (15.0 MB) are almost certainly embedded raster in an SVG wrapper; re-authoring them to <=500 KB each is WO-8.1, and that outcome is what unblocks Agent 3 WO-3.2 (the V4 large-binary breach). iphone17-pro.glb (82.7 MB) waits on a DRACO/meshopt-compressed variant plus viewer lazy-load (WO-8.1, WO-8.5). frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
   }
 }
