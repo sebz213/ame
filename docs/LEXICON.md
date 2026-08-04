@@ -88,7 +88,7 @@ govern. Recorded here so the scope is read from the dictionary, not guessed.
 | This file | governs | not to be confused with | which governs |
 |---|---|---|---|
 | `DECISIONS.md` (R-numbers) | repo-scale judgment calls | `tokens/decisions.md` (D-numbers) | token-scale decisions and corrections |
-| `docs/orders/AUDIT-CLOSEOUT.md` | the repo audit: every STANDARD.md clause with its check output | `tokens/AUDIT.md` | the audit that produced the current token contract |
+| `docs/orders/AUDIT-CLOSEOUT-2.md` | the repo audit: every STANDARD.md clause with its check output | `tokens/AUDIT.md` | the audit that produced the current token contract |
 
 The number prefix is the tell: an `R-` entry is repo scale, a `D-` entry is token
 scale. The two decisions files are two homes for two concerns at two scales, one
