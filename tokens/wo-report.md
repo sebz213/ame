@@ -10,7 +10,7 @@ All five passed before the first edit.
 
 | | Checked | Found |
 |---|---|---|
-| P1 | `tokens/` holds the 11 named entries | present, plus `AUDIT.md` and `outcomes.md` |
+| P1 | `tokens/` holds the 11 named entries | present, plus `audit.md` and `outcomes.md` |
 | P2 | `build.mjs` writes both CSS homes from one string | lines 330 to 331, one `out`. Preserved: the two files are md5-identical at the end (`3ad9a74c…`) |
 | P3 | `check.mjs` loads rules from `invariants.json`, hardcodes no threshold | rules loaded at line 20. The grep found the sRGB transfer-function constants, two float epsilons, and the DTOS `fontWeight` range. The last was a restated bound and moved to `invariants.json > type_bounds` (D-19) |
 | P4 | `build && check` green before any edit | green. CSS captured, 13888 bytes |
