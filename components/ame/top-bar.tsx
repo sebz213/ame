@@ -38,6 +38,9 @@ const DEFAULT_LANGS = ['EN', 'FR', 'DE', 'JP'] as const
 const SWAP_MS = 179.4
 const SPRING_MS = 772.8
 const LOCK_MS = 993.6
+// The margin by which LOCK_MS outlasts SWAP_MS + SPRING_MS (993.6 − 179.4 − 772.8).
+// When the bounce timings are overridden, the lock scales to keep the same guard.
+const LOCK_MARGIN_MS = LOCK_MS - SWAP_MS - SPRING_MS
 
 // The accessibility glyph (viewBox + path) is shared with the portfolio floating
 // pill; it lives in lib/a11y-glyph so the ~600-char path is defined once.
@@ -52,10 +55,21 @@ export function AmeTopBar({
   innerClassName,
   leading,
   onAccessibility,
+  swapMs = SWAP_MS,
+  springMs = SPRING_MS,
+  lockMs,
 }: {
   tone?: Tone
   /** The cycle. First entry is the initial <html lang>. */
   languages?: readonly string[]
+  /** Squash duration of the language bounce, ms. Also the delay before the label
+      swaps (the swap lands at the bottom of the bounce). Defaults to the tuned 179.4. */
+  swapMs?: number
+  /** Spring-back duration of the language bounce, ms. Defaults to the tuned 772.8. */
+  springMs?: number
+  /** How long a second click is locked out, ms. Defaults to swapMs + springMs plus
+      the tuned 41.4 margin, so the guard scales with the bounce timings. */
+  lockMs?: number
   /** Extra classes for the outer strip — e.g. a stacking position over a grain layer. */
   className?: string
   /** Max-width class for the inner content row, so the strip can align to the
@@ -75,6 +89,8 @@ export function AmeTopBar({
   const animating = useRef(false)
   const dark = tone === 'dark'
 
+  const lock = lockMs ?? swapMs + springMs + LOCK_MARGIN_MS
+
   const cycleLanguage = () => {
     if (animating.current) return
     const el = langBtnRef.current
@@ -87,19 +103,19 @@ export function AmeTopBar({
     window.setTimeout(() => {
       setLangIndex(next)
       document.documentElement.lang = languages[next].toLowerCase()
-    }, SWAP_MS)
+    }, swapMs)
     window.setTimeout(() => {
       animating.current = false
-    }, LOCK_MS)
+    }, lock)
 
     if (el) {
       // Cosmetic: squash to a minimum (quick), then spring back out.
       animate(el, {
         scale: 0.55,
-        duration: SWAP_MS,
+        duration: swapMs,
         ease: 'inQuad',
         onComplete: () => {
-          animate(el, { scale: 1, duration: SPRING_MS, ease: 'outElastic(1, 0.5)' })
+          animate(el, { scale: 1, duration: springMs, ease: 'outElastic(1, 0.5)' })
         },
       })
     }

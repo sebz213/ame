@@ -436,7 +436,7 @@
       { "name": "Layouts", "deferred_because": "The composition layer's doc home depends on the Phase 2 docgen token tables and the Phase 3 per-component playgrounds; the tier index content/ame/layouts.mdx records the deferral and its dependencies." },
       { "name": "Components" },
       { "name": "Sections" },
-      { "name": "Pages", "deferred_because": "Documenting a full-page composition depends on the tiers beneath it (Components, Sections) being documented first, which are the Phase 2 docgen and Phase 3 playgrounds; the tier index content/ame/pages.mdx records the deferral. The page compositions are enumerated as registry rows at status deferred." }
+      { "name": "Pages" }
     ]
   },
   "ame_registry": {

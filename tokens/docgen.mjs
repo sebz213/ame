@@ -243,17 +243,30 @@ function catalogFiles(parser) {
       `${symbols[0] ?? title}: a ${r.tier}-tier ame brand component` +
       `${animated ? ', animated' : ''}. Props and source generated from ${r.source}.`
 
+    // A documented animated row shows an interactive playground (its `playground`
+    // field, checked by AM3); a documented static row shows a live preview.
+    const hasPlayground = documented && animated && Boolean(r.playground)
+
     // Generated intro.
     const symbolList = symbols.length ? symbols.map((s) => `\`${s}\``).join(', ') : `\`${title}\``
     let intro =
       `${symbolList} ${symbols.length > 1 ? 'are' : 'is'} part of the ame brand system, ` +
       `in the ${r.tier} tier. The source is \`${r.source}\`. `
-    if (documented) {
+    if (hasPlayground) {
+      intro +=
+        'It is animated, so this page shows an interactive playground wired to its real ' +
+        'animation parameters, the public props, and the full source.'
+    } else if (documented) {
       intro += 'This page shows a live preview, the public props, and the full source.'
+    } else if (animated && r.playground_deferred_because) {
+      intro +=
+        'It is animated but is not sandboxed in a doc page: ' +
+        r.playground_deferred_because +
+        ' This page is its generated catalog entry: the public props and the full source.'
     } else if (animated) {
       intro +=
-        'It is marked animated, so its live playground arrives in Phase 3; this page is ' +
-        'its generated catalog entry: the public props and the full source.'
+        'It is marked animated; this page is its generated catalog entry: the public ' +
+        'props and the full source.'
     } else {
       intro +=
         'This page is its generated catalog entry: the public props and the full source. ' +
@@ -264,7 +277,20 @@ function catalogFiles(parser) {
       ? docs.map((d) => `### ${d.displayName}\n\n${propsTable(d.props)}`).join('\n\n')
       : '_No public component API was extracted from this source._'
 
-    const previewBlock = documented ? `## Preview\n\n<AmePreview name=${attr(r.name)} />\n\n` : ''
+    // The interactive block: a playground for an animated+documented row, a live
+    // preview for a static documented row, a link-out disclosure for an animated
+    // row deferred out of a doc box (the viewer, the full-page overlays), else none.
+    let previewBlock = ''
+    if (hasPlayground) {
+      previewBlock = `## Playground\n\n<AmePlaygroundEmbed name=${attr(r.name)} />\n\n`
+    } else if (documented) {
+      previewBlock = `## Preview\n\n<AmePreview name=${attr(r.name)} />\n\n`
+    } else if (animated && r.playground_deferred_because && r.live_route) {
+      previewBlock =
+        `## Live behavior\n\n` +
+        `No playground is embedded here. ${r.playground_deferred_because} ` +
+        `See it live at [\`${r.live_route}\`](${r.live_route}).\n\n`
+    }
 
     const content =
       `---\n` +
