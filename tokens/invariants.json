@@ -425,15 +425,15 @@
     "statuses": ["documented", "generated-only", "deferred"]
   },
   "ame_taxonomy": {
-    "$description": "contract.md AM2 (DECISIONS R-55, R-57). The six-tier taxonomy of the /ame brand design system (Start, then Using Ame, Foundations, Layouts, Components, Sections, Pages), disjoint from the /system taxonomy (`taxonomy` above). content/ame/meta.json is the one home for which page sits in which tier; this lists the tiers and, for a deliberately deferred tier, the recorded reason. AM2 in check.mjs (checkAmeTaxonomyRegistry) holds every tier non-empty (at least one page under its separator in meta.json) or carrying a deferred_because here, so a tier is never silently absent. Same shape as `taxonomy`; this is its /ame counterpart. tiers also supplies the valid-tier set AM1 checks a registry row's tier against.",
+    "$description": "contract.md AM2 (DECISIONS R-55, R-57, R-65). The seven docs tiers of the /ame brand design system (Start, For developers, Foundations, Layouts, Components, Sections, Pages), disjoint from the /system taxonomy (`taxonomy` above). content/ame/meta.json is the one home for which page sits in which tier; this lists the tiers and, for a deliberately deferred tier, the recorded reason. AM2 in check.mjs (checkAmeTaxonomyRegistry) holds every declared tier non-empty (at least one page under its separator in meta.json) or carrying a deferred_because here, so a tier is never silently absent. A sub-group separator inside a tier (Lockups, Header, Footer) is a visual grouping in meta.json, not a declared tier; AM2 only requires the tiers listed here, so an extra separator is admitted and ignored (R-65 M5). tiers also supplies the valid-tier set AM1 checks a registry row's tier against. The 'For developers' tier (R-65 M4) is the consumer-consumption tier, replacing 'Using Ame': two pages, one on HTML structure and one on binding classes and vars.",
     "id": "AM2",
     "meta": "content/ame/meta.json",
     "docs_dir": "content/ame",
     "tiers": [
       { "name": "Start" },
-      { "name": "Using Ame" },
+      { "name": "For developers" },
       { "name": "Foundations" },
-      { "name": "Layouts", "deferred_because": "The composition layer's doc home depends on the Phase 2 docgen token tables and the Phase 3 per-component playgrounds; the tier index content/ame/layouts.mdx records the deferral and its dependencies." },
+      { "name": "Layouts" },
       { "name": "Components" },
       { "name": "Sections" },
       { "name": "Pages" }

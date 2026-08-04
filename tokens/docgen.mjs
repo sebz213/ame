@@ -169,9 +169,140 @@ function foundationsFiles() {
   return files
 }
 
+// ── Layouts (composition measures, generated from tokens; M3, DECISIONS R-65) ──
+// The composition layer between Foundations (raw scales) and Components: the
+// container caps a page arranges within, and the gutters and gaps that space it.
+// Generated from the same resolved token build as Foundations, so a layout page is
+// a projection of the tokens, never a second home for the numbers (the R-59 rule).
+// Ratios (phi / aspect) have no DTOS token home — they live in lib/phi-tokens.ts on
+// the /system side, which the portfolio surface may not import (invariant U4) — so
+// they are recorded as deferred in the Layouts index (content/ame/layouts.mdx), not
+// faked here.
+function layoutsFiles() {
+  const files = new Map()
+
+  const containers = tokens.filter(
+    (t) => t.path === 'component.header.max-width' || t.path === 'component.accessibility.width',
+  )
+  const insets = tokens.filter(
+    (t) => t.path === 'component.header.edge-inset' || t.path === 'component.header.band-pad-top',
+  )
+  const gutters = tokens.filter((t) => t.layer === 'semantic' && firstSeg(t) === 'space')
+
+  files.set('content/ame/layouts/containers.mdx', foundationsPage({
+    slug: 'containers',
+    title: 'Containers',
+    description: 'The ame container caps: the shell a page composes within and the panel width the overlays share.',
+    sections: [{ heading: 'Max-width caps', tag: 'AmeContainerBox', items: containers }],
+  }))
+
+  files.set('content/ame/layouts/grid.mdx', foundationsPage({
+    slug: 'grid',
+    title: 'Grid and gutters',
+    description: 'The ame composition spacing: the page gutter, the section and work-grid gaps, and the header insets that align the chrome.',
+    sections: [
+      { heading: 'Page gutters and gaps', tag: 'AmeSpaceBar', items: gutters },
+      { heading: 'Header composition insets', tag: 'AmeContainerBox', items: insets },
+    ],
+  }))
+
+  return files
+}
+
 // ── Catalog (component + section props) ─────────────────────────────────────
 const registry = JSON.parse(readFileSync(join(REPO, 'content/ame/component-registry.json'), 'utf8'))
 const CATALOG_TIERS = { Components: 'components', Sections: 'sections' }
+
+// ── Auto-controls + variation specs (M1, M2; DECISIONS R-65) ────────────────
+// A mountable component's page renders one control per public prop (Storybook
+// "Controls" parity) and a labeled set of variation examples (Storybook stories).
+// The CONTROL SURFACE is derived here from the same extracted props the API table
+// reads, so it cannot drift from the component's real signature; the sample values
+// a control cannot supply (an icon, children, a case record) live in the source
+// mounter (components/ame-docs/mount.tsx), not in this generated data. This writes
+// one spec per mountable row into components/ame-docs/generated/ame-specs.json,
+// which the AmeAutoControls / AmeVariations client components consume by name.
+const SPECS_PATH = 'components/ame-docs/generated/ame-specs.json'
+const round2 = (n) => Math.round(n * 100) / 100
+const unquote = (s) => String(s ?? '').replace(/^['"]|['"]$/g, '')
+
+// Map a prop name to a slider display unit, so a duration reads "400ms" and a
+// distance "12px" rather than a bare number. Name-based, deterministic.
+function sliderUnit(name) {
+  if (/ms$|duration|delay/i.test(name)) return 'ms'
+  if (/px$|distance|translate|inset|width|height|radius|gap/i.test(name)) return 'px'
+  if (/speed|scale|rate/i.test(name)) return 'x'
+  return ''
+}
+
+// A sane [min,max,step] for a numeric control from its default. A fractional
+// sub-12 default (a 1.4x speed) gets a fine 0.05 step over ~2.5x its value; an
+// integer-ish default gets 0..~3x rounded to a round ceiling with a proportionate
+// step. Purely a function of the default, so a fresh run reproduces it (parity).
+function sliderRange(def) {
+  const d = Number.isFinite(def) ? def : 0
+  if (d > 0 && d < 12 && !Number.isInteger(d)) {
+    return { min: 0, max: round2(Math.max(d * 2.5, 3)), step: 0.05 }
+  }
+  const base = d > 0 ? d : 100
+  const max = Math.max(Math.ceil((base * 3) / 10) * 10, 10)
+  const step = max >= 1000 ? 20 : max >= 100 ? 5 : max >= 20 ? 2 : 1
+  return { min: 0, max, step }
+}
+
+// One control descriptor from one extracted prop, or null if the prop's type maps
+// to no control kind (a function, an icon, a React node, an array/object): those
+// are supplied by the mounter, not driven. enum/union of short literals → select;
+// boolean → toggle; number → slider; string → text.
+function deriveControl(name, p) {
+  const t = p.type || {}
+  const rawDef = p.defaultValue && p.defaultValue.value != null ? p.defaultValue.value : undefined
+  const label = name
+  if ((t.name === 'enum' || t.name === 'union') && Array.isArray(t.value) && t.value.length) {
+    const options = t.value.map((v) => unquote(v.value)).filter((v) => v && v !== 'undefined')
+    if (options.length >= 2 && options.every((o) => /^[\w.-]+$/.test(o))) {
+      return { prop: name, kind: 'select', label, options, initial: rawDef != null ? unquote(rawDef) : options[0] }
+    }
+    return null
+  }
+  if (t.name === 'boolean') {
+    return { prop: name, kind: 'toggle', label, initial: rawDef === 'true' || rawDef === true }
+  }
+  if (t.name === 'number') {
+    const d = rawDef != null ? Number(rawDef) : NaN
+    const r = sliderRange(d)
+    return { prop: name, kind: 'slider', label, ...r, unit: sliderUnit(name), initial: Number.isFinite(d) ? d : r.min }
+  }
+  if (t.name === 'string') {
+    return { prop: name, kind: 'text', label, initial: rawDef != null ? String(rawDef) : '' }
+  }
+  return null
+}
+
+// The full control panel for one row: every public prop that maps to a control
+// kind and is not in the row's controls_omit (props the mounter manages: a
+// controlled activeId, an items array, a preview flag forced on). Sorted by name
+// so the panel order is stable across runs.
+function deriveControls(props, omit) {
+  const skip = new Set(omit || [])
+  return Object.keys(props)
+    .sort()
+    .filter((n) => !skip.has(n))
+    .map((n) => deriveControl(n, props[n]))
+    .filter(Boolean)
+}
+
+// Variation groups: one per SELECT (enum/union) control, giving one labeled
+// instance per enum value — the "one example per prop enum value" of a Storybook
+// story matrix. Boolean/number props are states, not variants, and are left to the
+// authored-states layer in the variations component (CLAUDE.md 12: do not invent a
+// variant a component lacks). A component with no enum prop yields no groups, and
+// its Examples box shows the single default form, labeled.
+function deriveVariations(controls) {
+  return controls
+    .filter((c) => c.kind === 'select')
+    .map((c) => ({ prop: c.prop, values: c.options }))
+}
 
 function docgenParser() {
   return rdt.withCompilerOptions(
@@ -281,6 +412,45 @@ function contractSection(c) {
   return lines.join('\n')
 }
 
+// The generated first paragraph of a catalog page: what the component is, its tier
+// and source, and which interactive surfaces the page carries. Pulled out of
+// catalogFiles so that function stays within one screen (STANDARD.md M2).
+function catalogIntro({ symbols, title, r, hasPlayground, documented, mountable, animated }) {
+  const symbolList = symbols.length ? symbols.map((s) => `\`${s}\``).join(', ') : `\`${title}\``
+  let intro =
+    `${symbolList} ${symbols.length > 1 ? 'are' : 'is'} part of the ame brand system, ` +
+    `in the ${r.tier} tier. The source is \`${r.source}\`. `
+  if (hasPlayground) {
+    intro +=
+      'It is animated, so this page opens with an interactive playground wired to its real ' +
+      'animation parameters' +
+      (mountable
+        ? ', then a controls panel over its full prop surface and a set of variation examples, '
+        : ', ') +
+      'the public props, and the full source.'
+  } else if (documented && mountable) {
+    intro +=
+      'This page shows a controls panel over its full prop surface, a set of variation ' +
+      'examples, the public props, and the full source.'
+  } else if (documented) {
+    intro += 'This page shows a live preview, the public props, and the full source.'
+  } else if (animated && r.playground_deferred_because) {
+    intro +=
+      'It is animated but is not sandboxed in a doc page: ' +
+      r.playground_deferred_because +
+      ' This page is its generated catalog entry: the public props and the full source.'
+  } else if (animated) {
+    intro +=
+      'It is marked animated; this page is its generated catalog entry: the public ' +
+      'props and the full source.'
+  } else {
+    intro +=
+      'This page is its generated catalog entry: the public props and the full source. ' +
+      'A live preview is not mounted this phase.'
+  }
+  return intro
+}
+
 function catalogFiles(parser) {
   const rows = registry.components.filter((r) => CATALOG_TIERS[r.tier])
   // One TS program over every catalog source: far cheaper than one per file.
@@ -294,6 +464,7 @@ function catalogFiles(parser) {
   }
 
   const files = new Map()
+  const specs = {}
   for (const r of rows) {
     const dir = CATALOG_TIERS[r.tier]
     const title = humanize(r.name)
@@ -301,6 +472,7 @@ function catalogFiles(parser) {
     const symbols = docs.map((d) => d.displayName)
     const animated = r.animated === true
     const documented = r.status === 'documented'
+    const mountable = r.mountable === true
 
     const description =
       `${symbols[0] ?? title}: a ${r.tier}-tier ame brand component` +
@@ -310,31 +482,7 @@ function catalogFiles(parser) {
     // field, checked by AM3); a documented static row shows a live preview.
     const hasPlayground = documented && animated && Boolean(r.playground)
 
-    // Generated intro.
-    const symbolList = symbols.length ? symbols.map((s) => `\`${s}\``).join(', ') : `\`${title}\``
-    let intro =
-      `${symbolList} ${symbols.length > 1 ? 'are' : 'is'} part of the ame brand system, ` +
-      `in the ${r.tier} tier. The source is \`${r.source}\`. `
-    if (hasPlayground) {
-      intro +=
-        'It is animated, so this page shows an interactive playground wired to its real ' +
-        'animation parameters, the public props, and the full source.'
-    } else if (documented) {
-      intro += 'This page shows a live preview, the public props, and the full source.'
-    } else if (animated && r.playground_deferred_because) {
-      intro +=
-        'It is animated but is not sandboxed in a doc page: ' +
-        r.playground_deferred_because +
-        ' This page is its generated catalog entry: the public props and the full source.'
-    } else if (animated) {
-      intro +=
-        'It is marked animated; this page is its generated catalog entry: the public ' +
-        'props and the full source.'
-    } else {
-      intro +=
-        'This page is its generated catalog entry: the public props and the full source. ' +
-        'A live preview is not mounted this phase.'
-    }
+    const intro = catalogIntro({ symbols, title, r, hasPlayground, documented, mountable, animated })
 
     // The API section is the props tables for the symbols that HAVE props; a
     // symbol with none (a prop-less component, or a plain exported const like a
@@ -348,13 +496,30 @@ function catalogFiles(parser) {
 
     const contract = contractSection(sourceContract(r.source))
 
+    // A mountable row (a component that stands up cleanly in a bounded box, marked
+    // `mountable: true` and given a mounter in components/ame-docs/mount.tsx) gets a
+    // full auto-controls panel (one control per public prop) and a variation-example
+    // matrix, derived here from the extracted props. Its live Controls panel mounts
+    // the component, so it does not also print a static Preview.
+    let controlsBlock = ''
+    let examplesBlock = ''
+    if (mountable) {
+      const props = withProps[0]?.props ?? {}
+      const controls = deriveControls(props, r.controls_omit)
+      const variations = deriveVariations(controls)
+      specs[r.name] = { controls, variations }
+      controlsBlock = `## Controls\n\n<AmeAutoControls name=${attr(r.name)} />\n\n`
+      examplesBlock = `## Examples\n\n<AmeVariations name=${attr(r.name)} />\n\n`
+    }
+
     // The interactive block: a playground for an animated+documented row, a live
-    // preview for a static documented row, a link-out disclosure for an animated
+    // preview for a static documented row that is NOT mountable (a mountable one
+    // shows its live Controls panel instead), a link-out disclosure for an animated
     // row deferred out of a doc box (the viewer, the full-page overlays), else none.
     let previewBlock = ''
     if (hasPlayground) {
       previewBlock = `## Playground\n\n<AmePlaygroundEmbed name=${attr(r.name)} />\n\n`
-    } else if (documented) {
+    } else if (documented && !mountable) {
       previewBlock = `## Preview\n\n<AmePreview name=${attr(r.name)} />\n\n`
     } else if (animated && r.playground_deferred_because && r.live_route) {
       previewBlock =
@@ -371,18 +536,21 @@ function catalogFiles(parser) {
       `${MARKER}\n\n` +
       `${intro}\n\n` +
       `${previewBlock}` +
+      `${controlsBlock}` +
+      `${examplesBlock}` +
       `## API\n\n${api}\n\n` +
       `## Consumption contract\n\n${contract}\n\n` +
       `## Source\n\n<ComponentSource path=${attr(r.source)} />\n`
 
     files.set(`content/ame/${dir}/${r.name}.mdx`, content)
   }
+  files.set(SPECS_PATH, JSON.stringify(specs, null, 2) + '\n')
   return files
 }
 
 // ── Assemble, then write or check ───────────────────────────────────────────
 function generate() {
-  const files = new Map([...foundationsFiles()])
+  const files = new Map([...foundationsFiles(), ...layoutsFiles()])
   const parser = docgenParser()
   for (const [k, v] of catalogFiles(parser)) files.set(k, v)
   return files
