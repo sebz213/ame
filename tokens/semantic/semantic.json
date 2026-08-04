@@ -104,14 +104,7 @@
     "state-duration": { "$type": "duration", "$value": "{duration.instant}" },
     "surface-duration": { "$type": "duration", "$value": "{duration.moderate}", "$description": "Glass tone cross-fade." },
     "exit-duration": { "$type": "duration", "$value": "{duration.slow}" },
-    "reduced-duration": { "$type": "duration", "$value": "{duration.reduced}" },
     "enter-ease": { "$type": "cubicBezier", "$value": "{ease.enter}" },
-    "spring-ease": { "$type": "cubicBezier", "$value": "{ease.spring}" },
-    "overshoot-ease": {
-      "$type": "cubicBezier",
-      "$value": "{ease.out-back}",
-      "$description": "A single clean overshoot on a control's transform. The role surfaces bind, so no surface reaches ease.out-back directly (invariant U1)."
-    },
     "slide-ease": { "$type": "cubicBezier", "$value": "{ease.slide}", "$description": "The nav pill's slide." },
     "slide-duration": { "$type": "duration", "$value": "{duration.slow}", "$description": "The nav pill's slide." },
     "squish-duration": { "$type": "duration", "$value": "{duration.squish}", "$description": "The segmented-pill squish bounce (nav, 3D/2D toggle, accessibility Segmented)." },

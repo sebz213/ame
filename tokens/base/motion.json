@@ -20,18 +20,12 @@
     "cycle": {
       "$value": { "value": 2180, "unit": "ms" },
       "$description": "One full logo-bounce cycle: enter, hold, exit, gap. The splash reveal runs exactly one of these, reversed. logo-bounce.tsx LOGO_CYCLE_MS must equal it (invariant P4)."
-    },
-    "reduced": {
-      "$value": { "value": 0.01, "unit": "ms" },
-      "$description": "The prefers-reduced-motion clamp. A floor that collapses every role duration at once, not a tempo."
     }
   },
 
   "ease": {
     "$type": "cubicBezier",
     "$description": "The CSS curves, as DTOS control-point arrays. anime.js spring-family eases are not cubic beziers, are not CSS-emitted, and are therefore not tokens; their inventory is in decisions.md.",
-    "out-back": { "$value": [0.34, 1.56, 0.64, 1], "$description": "Single clean overshoot." },
-    "spring": { "$value": [0.22, 1, 0.36, 1], "$description": "The glass and mobile-menu spring." },
     "slide": { "$value": [1, 0, 0.4, 1], "$description": "Nav pill slide." },
     "enter": { "$value": [0.2, 0, 0, 1], "$description": "Card and message enter." },
     "accel": { "$value": [0.4, 0, 1, 1], "$description": "Mobile-menu close." }
