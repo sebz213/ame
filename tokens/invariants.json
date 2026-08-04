@@ -424,6 +424,36 @@
     "docs_dir": "content/docs",
     "statuses": ["documented", "generated-only", "deferred"]
   },
+  "ame_taxonomy": {
+    "$description": "contract.md AM2 (DECISIONS R-55, R-57). The six-tier taxonomy of the /ame brand design system (Start, then Using Ame, Foundations, Layouts, Components, Sections, Pages), disjoint from the /system taxonomy (`taxonomy` above). content/ame/meta.json is the one home for which page sits in which tier; this lists the tiers and, for a deliberately deferred tier, the recorded reason. AM2 in check.mjs (checkAmeTaxonomyRegistry) holds every tier non-empty (at least one page under its separator in meta.json) or carrying a deferred_because here, so a tier is never silently absent. Same shape as `taxonomy`; this is its /ame counterpart. tiers also supplies the valid-tier set AM1 checks a registry row's tier against.",
+    "id": "AM2",
+    "meta": "content/ame/meta.json",
+    "docs_dir": "content/ame",
+    "tiers": [
+      { "name": "Start" },
+      { "name": "Using Ame" },
+      { "name": "Foundations" },
+      { "name": "Layouts", "deferred_because": "The composition layer's doc home depends on the Phase 2 docgen token tables and the Phase 3 per-component playgrounds; the tier index content/ame/layouts.mdx records the deferral and its dependencies." },
+      { "name": "Components" },
+      { "name": "Sections", "deferred_because": "A section page is worth reading only with its live surface beside it (the nav squish, the top-bar bounce, the curtain), which is a Phase 3 playground, and its props/source tables are the Phase 2 docgen; the tier index content/ame/sections.mdx records the deferral. The section components themselves are enumerated as registry rows at status deferred." },
+      { "name": "Pages", "deferred_because": "Documenting a full-page composition depends on the tiers beneath it (Components, Sections) being documented first, which are the Phase 2 docgen and Phase 3 playgrounds; the tier index content/ame/pages.mdx records the deferral. The page compositions are enumerated as registry rows at status deferred." }
+    ]
+  },
+  "ame_registry": {
+    "$description": "contract.md AM1, AM3 (DECISIONS R-57). The /ame brand registry as the single home the /ame docs and gate checks read, parallel to and disjoint from `registry` (the /system registry; no component in both, clause H). Rows live in content/ame/component-registry.json. AM1 (checkAmeTaxonomyRegistry): every .tsx file under scan_dirs, minus the excluded set, has exactly one registry row keyed by source, that row points at a real file, and its tier is one of ame_taxonomy.tiers; a row may also point at a file outside scan_dirs (the viewer under extra_note) as long as it resolves and carries a valid tier. AM3: every row with animated true AND status equal to playground_status ('documented') must name a `playground` field resolving to an existing file; this session every animated row is status 'deferred', so AM3 passes vacuously and binds in Phase 3. excluded is the exemption set: context providers and pure-logic sinks that are not documentable UI, named with the reason, the same shape as the vendored-ui exemption (registry's components/ui scope note).",
+    "id": "AM1",
+    "data": "content/ame/component-registry.json",
+    "scan_dirs": ["components/ame", "components/portfolio"],
+    "extra_note": "components/ame-prototype-viewer/viewer.tsx carries a row too (the prototype viewer) though it sits outside scan_dirs; AM1 admits a row whose source resolves and whose tier is valid, so the viewer row passes without being part of the mandatory coverage scan.",
+    "statuses": ["documented", "deferred"],
+    "playground_status": "documented",
+    "excluded": {
+      "components/portfolio/portfolio-theme.tsx": "PortfolioThemeProvider / usePortfolioTheme — a React context provider and its hook, not a rendered UI component. It supplies theme state to the tree; there is no visual surface to document or give a playground.",
+      "components/portfolio/a11y-prefs.tsx": "PortfolioA11yProvider / usePortfolioA11y and A11Y_DEFAULTS — a React context provider, its hook, and its default record. State plumbing, not a documentable surface (the visible accessibility UI is portfolio-accessibility.tsx, which carries its own row).",
+      "components/portfolio/session-activity.tsx": "PortfolioSessionActivity — a pure side-effect sink that returns null (a useEffect logging session activity). It renders nothing, so it is not a documentable UI component."
+    },
+    "excluded_because": "Three files under the scan dirs are not documentable brand components: two are context providers and one is a render-null side-effect sink. Documenting them would assert a UI surface where there is none, the inverse of the frontier-stub disclosure rule (CLAUDE.md 12). Each is named here with its reason, the same exemption pattern registry gives vendored components/ui. A fourth file added under the scan dirs that is a real component gets a row or fails AM1; adding a provider here is a deliberate, recorded act."
+  },
   "asset_budget": {
     "$description": "contract.md K1 (WO-8.6, decision R-40). A per-class byte ceiling on everything under public/, so the 25 MB-SVG / 82 MB-GLB class of regression cannot land silently again. A file is classed by its extension; the classes and their byte ceilings are `budgets`. A file over its class ceiling is a K1 VIOLATION, not drift: it is a stated ceiling, not a count that may creep to a baseline. `waived` is the ratchet for assets that already exceed their ceiling and cannot be reduced in this check-adding pass; each names its current byte size and is owned by a reduction order (see waived_because). A waived file passes while it does not GROW past the recorded size, so the ratchet only ever moves down, the same rule X1 gives drift counts. Extensions outside every class (.html) are not assets this clause weighs. Sizes are on-disk bytes: an LFS pointer not materialised in a shallow checkout reads smaller than its ceiling and passes, which is correct because the check weighs what is present.",
     "id": "K1",
@@ -485,6 +515,9 @@
       "T1": { "invariant": "registry", "check": "checkTaxonomyRegistry" },
       "T2": { "invariant": "taxonomy", "check": "checkTaxonomyRegistry" },
       "T3": { "invariant": "registry", "check": "checkTaxonomyRegistry" },
+      "AM1": { "invariant": "ame_registry", "check": "checkAmeTaxonomyRegistry" },
+      "AM2": { "invariant": "ame_taxonomy", "check": "checkAmeTaxonomyRegistry" },
+      "AM3": { "invariant": "ame_registry", "check": "checkAmeTaxonomyRegistry" },
       "K1": { "invariant": "asset_budget", "check": "checkAssetBudget" },
       "Z1": { "invariant": "census", "check": "checkCensus" },
       "Z2": { "invariant": "census", "check": "checkThresholdScan" }

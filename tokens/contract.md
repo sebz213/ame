@@ -182,6 +182,41 @@ R-36, R-37.
   (WO-10.4); T1 and T3 are the coverage and resolution halves that do not depend
   on it.
 
+### AM. The /ame brand taxonomy and registry
+
+The `/ame` brand design system's structure, checked. `/ame` is a second, disjoint
+documentation area from the `/system` workshop: no component is documented in both
+(clause H, DECISIONS R-55). Its own registry
+(`content/ame/component-registry.json`) is the single home its docs and these
+checks read; its taxonomy's home is `content/ame/meta.json`. Data in
+`invariants.json > ame_registry` and `> ame_taxonomy`; evaluated in
+`checkAmeTaxonomyRegistry` in `check.mjs`. Decisions R-55, R-57. These are the
+T1/T2/T3 clauses at `/ame` scope.
+
+- **AM1** Every `.tsx` file under `components/ame/` and `components/portfolio/`,
+  minus the recorded exclusion set (`ame_registry.excluded`: context providers
+  and pure-logic sinks that are not documentable UI), has exactly one `/ame`
+  registry row keyed by its source path, and every row points at a real file and
+  carries exactly one tier drawn from the six `/ame` taxonomy tiers. A row may
+  point at a file outside the scan dirs (the prototype viewer
+  `components/ame-prototype-viewer/viewer.tsx`) as long as it resolves and its
+  tier is valid. A component with no row, a duplicate row, an excluded file that
+  still carries a row, or a row with an unknown tier or a dangling source fails.
+  This is the identifier-dictionary bijection (STANDARD.md N3) at `/ame`
+  component scope: one component, one home, one tier.
+
+- **AM2** Every declared `/ame` tier is non-empty (at least one page under its
+  separator in `meta.json`) or carries a recorded `deferred_because`. A tier is
+  populated or deferred with a reason, never silently absent. STANDARD.md H3 at
+  `/ame` docs-taxonomy scope; the T2 clause for the brand area.
+
+- **AM3** Every `/ame` registry row that is `animated: true` AND at status
+  `documented` resolves to a `playground` reference that exists. This session
+  every animated row is at status `deferred`, so AM3 passes vacuously; it binds
+  in Phase 3, when a documented animated component must name a live playground.
+  Stated now so the clause, its data, and its check land together, not bolted on
+  when Phase 3 arrives.
+
 ### K. Asset weight
 
 - **K1** Every file under `public/` sits within a byte ceiling for its class:

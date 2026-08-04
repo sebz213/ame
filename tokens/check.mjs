@@ -468,6 +468,87 @@ const clientless = []
   }
 })()
 
+// ── AM. The /ame brand taxonomy and registry ─────────────────────────────────
+// AM1 registry coverage, AM2 tier population, AM3 animated->playground. Parallel
+// to T1/T2/T3 but for the /ame brand design system (DECISIONS R-55, R-57),
+// disjoint from /system (no component documented in both, clause H). The /ame
+// registry (content/ame/component-registry.json) is the single home the /ame
+// docs and these checks read; the taxonomy's home is content/ame/meta.json.
+// Violations, not drift: these are stated clauses, not counts.
+;(function checkAmeTaxonomyRegistry() {
+  const reg = RULES.ame_registry
+  const tax = RULES.ame_taxonomy
+  const tierNames = new Set(tax.tiers.map((t) => t.name))
+
+  // AM1 — every .tsx under the scan dirs (minus the excluded set) has exactly
+  // one registry row; every row points at a real file and carries exactly one
+  // valid tier; no source is claimed twice. A row may point at a file outside
+  // the scan dirs (the prototype viewer) as long as it resolves and its tier is
+  // valid; such a row is admitted but is not part of the mandatory coverage.
+  let rows = []
+  try {
+    rows = JSON.parse(read(reg.data)).components
+  } catch {
+    fail('AM1', `${reg.data} is missing or not valid JSON; the /ame registry is the single home the checks read.`)
+    return
+  }
+  const excluded = new Set(Object.keys(reg.excluded))
+  const scanned = reg.scan_dirs
+    .flatMap((d) => walkFiles(d))
+    .filter((f) => f.endsWith('.tsx') && !excluded.has(f))
+  const bySource = new Map()
+  for (const r of rows) {
+    if (!r.source) {
+      fail('AM1', `a /ame registry row (name "${r.name ?? '?'}") has no source path`)
+      continue
+    }
+    if (bySource.has(r.source))
+      fail('AM1', `${r.source} has more than one /ame registry row; a component has exactly one entry.`)
+    bySource.set(r.source, r)
+    if (!tierNames.has(r.tier))
+      fail('AM1', `${r.source} has tier "${r.tier}", not one of the /ame taxonomy tiers (${[...tierNames].join(', ')}).`)
+    if (!existsSync(join(REPO, r.source)))
+      fail('AM1', `/ame registry row ${r.source} points at a file that does not exist.`)
+    if (excluded.has(r.source))
+      fail('AM1', `${r.source} is in the /ame excluded set (a provider or pure-logic sink) yet carries a registry row; remove the row or the exclusion.`)
+  }
+  for (const f of scanned)
+    if (!bySource.has(f))
+      fail('AM1', `${f} has no /ame registry row; every component under ${reg.scan_dirs.join(', ')} needs exactly one, or an entry in ame_registry.excluded.`)
+
+  // AM2 — every declared /ame tier is non-empty (at least one page under its
+  // separator in meta.json) or carries a recorded deferred_because.
+  const meta = JSON.parse(read(tax.meta) || '{}')
+  const pages = Array.isArray(meta.pages) ? meta.pages : []
+  const perTier = new Map()
+  let current = null
+  for (const item of pages) {
+    const sep = /^---(.+?)---$/.exec(item)
+    if (sep) {
+      current = sep[1].trim()
+      if (!perTier.has(current)) perTier.set(current, 0)
+    } else if (current) perTier.set(current, perTier.get(current) + 1)
+  }
+  for (const t of tax.tiers) {
+    const count = perTier.get(t.name) ?? 0
+    if (count === 0 && !t.deferred_because)
+      fail(
+        tax.id,
+        `/ame tier "${t.name}" has no page in ${tax.meta} and no deferred_because; a tier is populated or deferred with a reason, never silently absent.`,
+      )
+  }
+
+  // AM3 — every row that is animated AND documented resolves to a playground
+  // reference. This session all animated rows are status 'deferred', so the loop
+  // body never runs (vacuous); AM3 binds in Phase 3, when a documented animated
+  // component must name a `playground` file that exists.
+  for (const r of rows) {
+    if (r.animated !== true || r.status !== reg.playground_status) continue
+    if (!r.playground || !existsSync(join(REPO, r.playground)))
+      fail('AM3', `${r.source} is an animated, documented /ame component but names no playground that resolves; an animated documented component must reference a playground (Phase 3).`)
+  }
+})()
+
 // ── K1. Per-class asset byte budgets under public/ ──────────────────────────
 // A stated ceiling per asset class (VIOLATION, not drift): a file over its
 // class budget fails, so the 25 MB-SVG / 82 MB-GLB class of regression cannot
