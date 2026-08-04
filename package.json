@@ -8,6 +8,7 @@
     "start": "next start",
     "ame": "node tokens/ame.mjs",
     "lint": "eslint app components lib hooks tokens/*.mjs",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "tokens:build": "node tokens/build.mjs",
     "tokens:check": "node tokens/check.mjs",
