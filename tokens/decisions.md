@@ -142,6 +142,14 @@ migration: `--port-text-primary` has 51 call sites. Renaming a subset would leav
 two words for one concept, which is the homonym decay N3 names. The boundary is
 written here so it is not inferred from what happens to be renamed.
 
+**Amended 2026-08-03 (D-46).** Ame now applies to one component name. The viewer
+became the Ame Prototype Viewer under `components/ame-prototype-viewer/`, the
+rename earned by making the machinery model-agnostic (D-46). This is the first
+crossing of the "not component names" boundary above, and it is a global rename
+of that one concept, not a subset: every import site moved in the same change. The
+boundary otherwise stands. `AME-VIEWER-ORDER.md`'s binding docs call this decision
+"D-7"; that is the pre-renumber name for this entry (see D-22).
+
 ## D-11 The deliverable standard is copied, with its escape characters removed
 
 `tokens/deliverables.md` reproduces the operator's Case Study Deliverable
@@ -760,3 +768,67 @@ utility strip and footer switch to their existing on-dark tones by route/theme, 
 the nav's selected label now reads `surface.glass-fg-on-light` (always ink on its
 bright pill) instead of the themed text token, which is what its own comment always
 intended. Contrast on the ink ground clears Apple's 4.5:1 floor at every surface.
+
+## D-46 The viewer became the Ame Prototype Viewer, model-agnostic by a contract
+
+2026-08-03. Executes `docs/orders/AME-VIEWER-ORDER.md` (WO-V1 through WO-V6).
+
+`components/iphone-viewer.tsx` was a 2,265-line viewer that could render exactly
+one hardcoded iPhone: the glb path and five node names were literals in the render
+code. A "prototype viewer" that renders one device is an N6 defect, a name
+promising more than the code does. The rename is earned by removing the literals.
+
+**The shape now.** `components/ame-prototype-viewer/`:
+- `model-contract.ts` — the `ModelContract` type and the producer-facing export
+  spec (the Blender steps, the node names, the "rename a node and the viewer names
+  it back" test). This is instrument 5's home: the definition of a valid input.
+- `models/iphone-17-pro.ts` — the single registered instance. Every node name lives
+  here once, in `nodes`; `requiredNodes` derives from it. A new device is a new file
+  here, and the render code does not change.
+- `load-model.ts` — loading plus validation. `validateModel` traverses the scene,
+  computes `requiredNodes` minus found, and throws one error naming the contract id
+  and each missing node. No silent fallback.
+- `viewer.tsx` — the machinery, exporting `AmePrototypeViewer` with a required
+  `model: ModelContract` prop. It greps clean of all five node names and the glb
+  path; it reads them from the prop.
+
+**The route-name call.** `app/prototypes/iphone/` keeps its name: it renders the
+iPhone contract specifically, so the name still states its concept. What changed is
+what it renders. It used to embed the standalone HTML twin through an `<iframe>`;
+it now renders `<AmePrototypeViewer model={iPhone17Pro} />`, which is the machinery
+the twin duplicated.
+
+**Three call sites, not one.** The order's P2 expected the iphone route to import
+the component; it did not — it embedded the twin. The real React import sites were
+`app/(portfolio)/portfolio/page.tsx` and `app/prototypes/ambient-engine/page.tsx`.
+Both were updated to import the contract and pass it as `model`, and the route was
+converted to render the component. N3: the rename moved every site in one change.
+
+**upAxis and unitScale are disclosed premises, not load-checks.** Node presence is
+machine-checked at load; upAxis (`y`) and unitScale (`1`) are stated by the contract
+and not re-verified by the viewer. They were measured once from the glb on
+2026-07-29 (Display extent 0.0664 x 0.1444 units against 66.4 x 144.4 mm). The doc
+block says so rather than implying all fields are checked. A false claim of checking
+is worse than a disclosed gap.
+
+**The twin is deleted.** `public/iphone-viewer.html` was a 45 KB second
+implementation of the concept (H4). Delete is the order's default and there was no
+reason to freeze it: the route that referenced it now renders the live component, so
+nothing is left pointing at a frozen file.
+
+**viewer.tsx stays large, and here is the next split.** At 2,378 lines it is over
+M2's 500. This pass extracted the contract, the model instance, and load+validation;
+it did not break up the render machinery, because that is a second reviewable diff,
+not a rider on the rename (STANDARD clause 9). The planned next split, recorded so it
+is a named work item not a vague intent: lift the material factories and the
+scratch/dither overlay builders (the `make*Material` functions and
+`createPhysicalScratchOverlay`, roughly the first 560 lines) into `materials.ts`, and
+the renderer/scene/light setup into `scene.ts`, each hiding one decision (M1). The
+node-name coupling that made the file un-decomposable is already gone; what remains is
+length, not entanglement. Recorded in DECISIONS.md R-8 as the viewer's current
+rationale.
+
+**The prior partial contract folded in.** `components/iphone-viewer-contract.ts`
+(a flat `MODEL_PATH` / `REQUIRED_NODES` / `assertModelContract` export from the WO-5
+runbook pass) was the earlier attempt. Its facts moved into the three new files and
+it was deleted; keeping it would have been a second home for the node names.

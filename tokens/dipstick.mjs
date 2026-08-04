@@ -102,8 +102,8 @@ const cssA = read(emittedA)
 const cssB = read(emittedB)
 const runsLog = (read('tokens/runs.log') ?? '').split('\n').filter((l) => l.trim())
 const pkg = readJson('package.json')
-const viewerContract = read('components/iphone-viewer-contract.ts')
-const viewer = read('components/iphone-viewer.tsx')
+const viewerContract = read('components/ame-prototype-viewer/model-contract.ts')
+const viewer = read('components/ame-prototype-viewer/viewer.tsx')
 
 const base = tokenStats('tokens/base')
 const semantic = tokenStats('tokens/semantic')
@@ -181,8 +181,9 @@ const constraints = [
 ]
 
 const shippedLine = [...runsLog].reverse().find((l) => / shipped /.test(l)) ?? null
-const requiredNodes = viewerContract
-  ? (/REQUIRED_NODES\s*=\s*\[([\s\S]*?)\]/.exec(viewerContract)?.[1].match(/'[^']+'/g) ?? []).length
+const modelsDir = 'components/ame-prototype-viewer/models'
+const registeredContracts = has(modelsDir)
+  ? readdirSync(abs(modelsDir)).filter((f) => f.endsWith('.ts')).length
   : 0
 
 const instruments = [
@@ -227,11 +228,11 @@ const instruments = [
   {
     id: 'i5',
     name: 'The viewer, plus its input contract',
-    status: !viewerContract ? 'absent' : viewer?.includes('iphone-viewer-contract') ? 'present' : 'partial',
-    home: viewerContract ? 'components/iphone-viewer-contract.ts' : null,
+    status: !viewerContract ? 'absent' : viewer?.includes('model-contract') ? 'present' : 'partial',
+    home: viewerContract ? 'components/ame-prototype-viewer/model-contract.ts' : null,
     evidence: {
-      requiredNodes,
-      viewerImportsIt: Boolean(viewer?.includes('iphone-viewer-contract')),
+      registeredContracts,
+      viewerReadsContract: Boolean(viewer?.includes('model-contract')),
     },
   },
   {
