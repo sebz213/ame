@@ -155,43 +155,15 @@ These hold before and after any change to any token, not of any one token.
   scale is consumed whole by the check that admits nothing outside it, so the
   checker is a real client. The count of clientless tokens must not grow.
 
-### T. Taxonomy and the component registry
-
-The `/system` workshop's structure, checked. The component registry
-(`components/docs/component-registry.json`) is the single home docs and checks
-read; the taxonomy's home is `content/docs/meta.json`. Data in
-`invariants.json > registry` and `> taxonomy`; evaluated in `check.mjs`. Decisions
-R-36, R-37.
-
-- **T1** Every `components/ui/*.tsx` file has exactly one registry row, keyed by
-  its source path, and every row points at a real file under `components/ui` and
-  carries exactly one tier drawn from the seven taxonomy tiers. A component with
-  no row, a duplicate row, or a row with an unknown tier or a dangling source
-  fails. This is the identifier-dictionary bijection (STANDARD.md N3) at
-  component scope: one component, one home, one tier.
-
-- **T2** Every declared tier is non-empty (at least one page under its separator
-  in `meta.json`) or carries a recorded `deferred_because`. A tier is populated
-  or deferred with a reason, never silently absent. STANDARD.md H3 (a route with
-  zero inbound links is a second home waiting) at docs-taxonomy scope.
-
-- **T3** Every registry row at status `documented` names a `docPage` that
-  resolves to an existing `content/docs/<docPage>.mdx`. A row claiming a page the
-  tree does not hold fails. The docgen-sync check (WO-10.6 (c), generated tables
-  match a fresh run) is deferred with the docgen that would produce them
-  (WO-10.4); T1 and T3 are the coverage and resolution halves that do not depend
-  on it.
-
 ### AM. The /ame brand taxonomy and registry
 
-The `/ame` brand design system's structure, checked. `/ame` is a second, disjoint
-documentation area from the `/system` workshop: no component is documented in both
-(clause H, DECISIONS R-55). Its own registry
-(`content/ame/component-registry.json`) is the single home its docs and these
-checks read; its taxonomy's home is `content/ame/meta.json`. Data in
-`invariants.json > ame_registry` and `> ame_taxonomy`; evaluated in
-`checkAmeTaxonomyRegistry` in `check.mjs`. Decisions R-55, R-57. These are the
-T1/T2/T3 clauses at `/ame` scope.
+The `/ame` brand design system's structure, checked. `/ame` is the sole
+documentation area (the former `/system` workshop was removed with its
+`content/docs` tree). Its registry (`content/ame/component-registry.json`) is the
+single home its docs and these checks read; its taxonomy's home is
+`content/ame/meta.json`. Data in `invariants.json > ame_registry` and
+`> ame_taxonomy`; evaluated in `checkAmeTaxonomyRegistry` in `check.mjs`. Decisions
+R-55, R-57.
 
 - **AM1** Every `.tsx` file under `components/ame/` and `components/portfolio/`,
   minus the recorded exclusion set (`ame_registry.excluded`: context providers
@@ -208,7 +180,7 @@ T1/T2/T3 clauses at `/ame` scope.
 - **AM2** Every declared `/ame` tier is non-empty (at least one page under its
   separator in `meta.json`) or carries a recorded `deferred_because`. A tier is
   populated or deferred with a reason, never silently absent. STANDARD.md H3 at
-  `/ame` docs-taxonomy scope; the T2 clause for the brand area.
+  `/ame` docs-taxonomy scope.
 
 - **AM3** Every `/ame` registry row that is `animated: true` AND at status
   `documented` resolves to a `playground` reference that exists. This session
