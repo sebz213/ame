@@ -11,7 +11,8 @@
     "test": "vitest run",
     "tokens:build": "node tokens/build.mjs",
     "tokens:check": "node tokens/check.mjs",
-    "build": "node tokens/build.mjs && node tokens/check.mjs && next build && node tokens/check.mjs --shipped"
+    "docgen": "node tokens/docgen.mjs",
+    "build": "node tokens/build.mjs && node tokens/docgen.mjs --check && node tokens/check.mjs && next build && node tokens/check.mjs --shipped"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.34",
@@ -86,6 +87,7 @@
     "@types/react-dom": "19.2.3",
     "eslint": "^10.8.0",
     "postcss": "^8.5",
+    "react-docgen-typescript": "^2.4.0",
     "tailwindcss": "^4.2.0",
     "tw-animate-css": "1.3.3",
     "typescript": "5.7.3",

@@ -435,7 +435,7 @@
       { "name": "Foundations" },
       { "name": "Layouts", "deferred_because": "The composition layer's doc home depends on the Phase 2 docgen token tables and the Phase 3 per-component playgrounds; the tier index content/ame/layouts.mdx records the deferral and its dependencies." },
       { "name": "Components" },
-      { "name": "Sections", "deferred_because": "A section page is worth reading only with its live surface beside it (the nav squish, the top-bar bounce, the curtain), which is a Phase 3 playground, and its props/source tables are the Phase 2 docgen; the tier index content/ame/sections.mdx records the deferral. The section components themselves are enumerated as registry rows at status deferred." },
+      { "name": "Sections" },
       { "name": "Pages", "deferred_because": "Documenting a full-page composition depends on the tiers beneath it (Components, Sections) being documented first, which are the Phase 2 docgen and Phase 3 playgrounds; the tier index content/ame/pages.mdx records the deferral. The page compositions are enumerated as registry rows at status deferred." }
     ]
   },
@@ -445,7 +445,7 @@
     "data": "content/ame/component-registry.json",
     "scan_dirs": ["components/ame", "components/portfolio"],
     "extra_note": "components/ame-prototype-viewer/viewer.tsx carries a row too (the prototype viewer) though it sits outside scan_dirs; AM1 admits a row whose source resolves and whose tier is valid, so the viewer row passes without being part of the mandatory coverage scan.",
-    "statuses": ["documented", "deferred"],
+    "statuses": ["documented", "generated-only", "deferred"],
     "playground_status": "documented",
     "excluded": {
       "components/portfolio/portfolio-theme.tsx": "PortfolioThemeProvider / usePortfolioTheme — a React context provider and its hook, not a rendered UI component. It supplies theme state to the tree; there is no visual surface to document or give a playground.",
