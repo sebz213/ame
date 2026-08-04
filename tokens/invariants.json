@@ -401,5 +401,27 @@
       "isBasedOnUrl": "isBasedOn"
     },
     "proficiency_levels": ["Beginner", "Expert"]
+  },
+  "taxonomy": {
+    "$description": "STANDARD.md T2 / contract.md T2 (WO-10.2, WO-10.6 (b), decision R-36). The seven docs tiers of the /system workshop, named in docs/LEXICON.md. content/docs/meta.json is the one home for which page sits in which tier; this lists the tiers and, for a deliberately deferred tier, the recorded reason. T2 in check.mjs holds every tier non-empty (at least one page under its separator in meta.json) or carrying a deferred_because here, so a tier is never silently absent. STANDARD.md H3 (a route with zero inbound links is a second home waiting) is the repo-scale kin; this is the docs-taxonomy evaluation of the same idea.",
+    "id": "T2",
+    "meta": "content/docs/meta.json",
+    "docs_dir": "content/docs",
+    "tiers": [
+      { "name": "Start" },
+      { "name": "Using Ame" },
+      { "name": "Foundations" },
+      { "name": "Layouts", "deferred_because": "The composition layer's doc home depends on the authored judgment layer (WO-10.5) and the docgen token tables (WO-10.4), both deferred. The ramps exist as code in lib/*-tokens.ts with playgrounds; the tier index content/docs/layouts.mdx records the deferral." },
+      { "name": "Components" },
+      { "name": "Sections" },
+      { "name": "Pages", "deferred_because": "Full-page compositions wait on old-content intake (WO-10.9, blocked on the owner supplying the content location); test fixtures wait on the visual-regression rig (WO-10.7, WO-11.7). The tier index content/docs/pages.mdx records both dependencies." }
+    ]
+  },
+  "registry": {
+    "$description": "contract.md T1, T3 (WO-10.3, WO-10.6 (a) and (d), decision R-37). The component registry as the single home docs and checks read. Rows live in components/docs/component-registry.json (data), typed and re-exported by components/docs/demo-registry.ts (view). T1: every components/ui/*.tsx file has exactly one registry row (by source), with exactly one tier drawn from taxonomy.tiers. T3: every row at status 'documented' names a docPage that resolves to an existing content/docs/<docPage>.mdx. The docgen-sync check (WO-10.6 (c)) is deferred with T1/T3: no docgen exists this session (WO-10.4).",
+    "data": "components/docs/component-registry.json",
+    "source_dir": "components/ui",
+    "docs_dir": "content/docs",
+    "statuses": ["documented", "generated-only", "deferred"]
   }
 }

@@ -34,6 +34,25 @@ global (N3) and its entry here moves with it.
 | **metis-marketing** | The ink-theme portfolio home: route `app/(portfolio)/metis-marketing/` and component `metis-marketing-splash.tsx` (`MetisMarketingSplash`). It renders the same home component as `/portfolio`, opening dark with the Métis splash and mark. |
 | **mmarketing** | Superseded name for **metis-marketing**. Renamed in full (route, component file, exported symbols, `DARK_ROUTES`) because it read as a typo, which fails Feitelson's derive-the-same-meaning test outright (R-20). Retained here only as the former spelling; no code uses it. |
 
+## Docs taxonomy tiers
+
+The `/system` workshop is organized into seven named tiers (WO-10.2, DECISIONS
+R-36). The order runs base to composition, the same direction as the token
+layering (base to semantic/component to surface), so the taxonomy teaches the
+architecture by shape. The tier names are the vocabulary; `content/docs/meta.json`
+is the one home for which page sits in which tier, and the component registry
+(`components/docs/component-registry.json`) carries each component's tier.
+
+| Tier | The one concept it names |
+|---|---|
+| **Start** | The single entry point: the Overview page that says what the system is and how it is organized (`content/docs/index.mdx`). |
+| **Using Ame** | The consumer-consumption tier: how a consumer binds the system, installs a component, and reads a value by name (`content/docs/using-ame.mdx`). |
+| **Foundations** | The raw token scales: colors, typography, layout. The three token pages live here. |
+| **Layouts** | The composition layer between foundations and components (phi-spacing, type ramp as grid, concentricity). Deferred with a recorded reason in its tier index (WO-10.5, WO-10.4). |
+| **Components** | One node per component. The 5 documented components live here; the rest of `components/ui/` are registry rows carrying this tier at status `deferred`. |
+| **Sections** | Composed regions: multiple components arranged into one showcase. The hero showcase lives here. |
+| **Pages** | Full-page compositions (case studies, prototypes) and bare test fixtures. Deferred with a recorded reason (WO-10.9 intake, WO-10.7 fixtures). |
+
 ## The two token homes
 
 "Design tokens" has two homes in this tree, and they are two concepts, not one

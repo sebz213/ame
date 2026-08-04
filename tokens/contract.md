@@ -155,6 +155,33 @@ These hold before and after any change to any token, not of any one token.
   scale is consumed whole by the check that admits nothing outside it, so the
   checker is a real client. The count of clientless tokens must not grow.
 
+### T. Taxonomy and the component registry
+
+The `/system` workshop's structure, checked. The component registry
+(`components/docs/component-registry.json`) is the single home docs and checks
+read; the taxonomy's home is `content/docs/meta.json`. Data in
+`invariants.json > registry` and `> taxonomy`; evaluated in `check.mjs`. Decisions
+R-36, R-37.
+
+- **T1** Every `components/ui/*.tsx` file has exactly one registry row, keyed by
+  its source path, and every row points at a real file under `components/ui` and
+  carries exactly one tier drawn from the seven taxonomy tiers. A component with
+  no row, a duplicate row, or a row with an unknown tier or a dangling source
+  fails. This is the identifier-dictionary bijection (STANDARD.md N3) at
+  component scope: one component, one home, one tier.
+
+- **T2** Every declared tier is non-empty (at least one page under its separator
+  in `meta.json`) or carries a recorded `deferred_because`. A tier is populated
+  or deferred with a reason, never silently absent. STANDARD.md H3 (a route with
+  zero inbound links is a second home waiting) at docs-taxonomy scope.
+
+- **T3** Every registry row at status `documented` names a `docPage` that
+  resolves to an existing `content/docs/<docPage>.mdx`. A row claiming a page the
+  tree does not hold fails. The docgen-sync check (WO-10.6 (c), generated tables
+  match a fresh run) is deferred with the docgen that would produce them
+  (WO-10.4); T1 and T3 are the coverage and resolution halves that do not depend
+  on it.
+
 ## What does not belong in this file
 
 Reasoning belongs in `decisions.md`. Measurements belong in `outcomes.md`.
