@@ -47,7 +47,7 @@
     },
 
     "topbar": {
-      "height": { "$type": "dimension", "$value": { "value": 44, "unit": "px" }, "$description": "Utility strip height, 44px (on the 4px grid; also the 44px min tap target)." },
+      "height": { "$type": "dimension", "$value": { "value": 38, "unit": "px" }, "$description": "Utility strip painted height, 38px. The a11y and language buttons carry their own hit area (p-1.5 around the glyph/label); this is the strip, not the tap target." },
       "bg": { "$type": "color", "$value": "{background.utility}" },
       "bg-on-dark": { "$type": "color", "$value": "{background.ink}", "$description": "The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site." },
       "fg": {
@@ -70,6 +70,16 @@
         "$type": "dimension",
         "$value": { "value": 1728, "unit": "px" },
         "$description": "The header shell cap on wide screens (utility bar + nav band). Wider than the max-w-5xl (1024px) content column on purpose, so the logo→icons composition breathes on ultrawide instead of stranding a narrow strip. site-header.tsx and portfolio-top-bar.tsx read var(--component-header-max-width)."
+      },
+      "edge-inset": {
+        "$type": "dimension",
+        "$value": { "value": 111, "unit": "px" },
+        "$description": "Desktop (md+) inset pulling the header logo and both icon clusters in from the header band's edges, and the top bar's right cluster by the same amount so the icon columns line up. One home: site-header.tsx (md:px), portfolio-top-bar.tsx (md:pr on the strip's inner row), and the cookie banner's right edge all read var(--component-header-edge-inset). Mobile keeps the gutter."
+      },
+      "band-pad-top": {
+        "$type": "dimension",
+        "$value": { "value": 18, "unit": "px" },
+        "$description": "Fixed top padding of the header band, the gap between the top bar and the nav row. One home: portfolio.css .port-head-band padding-top reads var(--component-header-band-pad-top). The band's bottom padding still collapses on scroll; only the top is pinned."
       }
     },
 

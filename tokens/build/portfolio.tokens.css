@@ -285,7 +285,7 @@
   --component-nav-pill-shadow-on-dark: inset 0px 0px 0px 1px rgb(16 19 25 / 0.06), 0px 1px 4px 0px rgb(16 19 25 / 0.3);
 
   /* topbar */
-  --component-topbar-height: 44px;  /* Utility strip height, 44px (on the 4px grid; also the 44px min tap target). */
+  --component-topbar-height: 38px;  /* Utility strip painted height, 38px. The a11y and language buttons carry their own hit area (p-1.5 around the glyph/label); this is the strip, not the tap target. */
   --component-topbar-bg: #eeeeeb;
   --component-topbar-bg-on-dark: #101319;  /* The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site. */
   --component-topbar-fg: oklch(0.52 0 0);  /* EN label and a11y glyph. The tightest contrast pair in the system; see invariant C1. */
@@ -296,6 +296,8 @@
 
   /* header */
   --component-header-max-width: 1728px;  /* The header shell cap on wide screens (utility bar + nav band). Wider than the max-w-5xl (1024px) content column on purpose, so the logo→icons composition breathes on ultrawide instead of stranding a narrow strip. site-header.tsx and portfolio-top-bar.tsx read var(--component-header-max-width). */
+  --component-header-edge-inset: 111px;  /* Desktop (md+) inset pulling the header logo and both icon clusters in from the header band's edges, and the top bar's right cluster by the same amount so the icon columns line up. One home: site-header.tsx (md:px), portfolio-top-bar.tsx (md:pr on the strip's inner row), and the cookie banner's right edge all read var(--component-header-edge-inset). Mobile keeps the gutter. */
+  --component-header-band-pad-top: 18px;  /* Fixed top padding of the header band, the gap between the top bar and the nav row. One home: portfolio.css .port-head-band padding-top reads var(--component-header-band-pad-top). The band's bottom padding still collapses on scroll; only the top is pinned. */
 
   /* header-logo */
   --component-header-logo-height: 2.850553rem;  /* Comb-mark height in the site header (2.79466rem reduced 15% to 2.375461rem, then increased 20%). Single home: site-header.tsx reads var(--component-header-logo-height); no source literal duplicates it. */

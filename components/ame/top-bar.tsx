@@ -49,6 +49,7 @@ export function AmeTopBar({
   languages = DEFAULT_LANGS,
   className,
   maxWidth = 'max-w-5xl',
+  innerClassName,
   leading,
   onAccessibility,
 }: {
@@ -60,6 +61,9 @@ export function AmeTopBar({
   /** Max-width class for the inner content row, so the strip can align to the
       consuming site's header shell. Defaults to the content width. */
   maxWidth?: string
+  /** Extra classes for the inner content row — e.g. a consuming site's desktop edge
+      inset on the right-aligned cluster (md:pr-[…]). */
+  innerClassName?: string
   /** Optional control(s) placed at the start of the right-aligned cluster. Rides
       the same --tb-fg tone. */
   leading?: ReactNode
@@ -118,7 +122,7 @@ export function AmeTopBar({
         ...barVars,
       }}
     >
-      <div className={`mx-auto flex h-full ${maxWidth} items-center justify-end gap-5 px-[var(--space-gutter)]`}>
+      <div className={`mx-auto flex h-full ${maxWidth} items-center justify-end gap-5 px-[var(--space-gutter)]${innerClassName ? ` ${innerClassName}` : ''}`}>
         {/* Consumer-supplied control (the portfolio's light/dark toggle), leftmost
             in the right-aligned cluster. */}
         {leading}
