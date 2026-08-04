@@ -1,0 +1,56 @@
+# The `code` half of the split gate (STANDARD.md C4; DECISIONS.md R-46).
+#
+# Everything that must be green on the current tree: the token build and check
+# (contrast, layering, parity, drift, the K1 asset budget, and the T1–T3 registry
+# and taxonomy checks all live in check.mjs), lint, the test suite (which runs the
+# D5 JSON-LD structured-data check), and next build. The one thing this job does
+# NOT run is the shipped placeholder check — that is the `content-readiness`
+# workflow, which is red by design until case-study copy lands.
+#
+# No threshold is restated here. Each step calls a script whose numbers live in
+# tokens/invariants.json; the reporting boundary moved, no rule left invariants.
+name: code
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  code:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The iPhone model is an LFS pointer in history; next build needs the
+          # real file only at runtime, not to compile, but fetching it keeps the
+          # checkout honest about what the tree contains.
+          lfs: true
+
+      # No `version:` here on purpose. The action reads `packageManager` from
+      # package.json, which is also what pnpm reads locally, so the version has
+      # one home. Pinning it here too would let CI and the working tree drift onto
+      # different pnpm versions without either file looking wrong.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Token build + the full invariant gate (contrast, drift, K1 asset budget,
+      # T1–T3 registry/taxonomy).
+      - name: tokens build and check
+        run: node tokens/build.mjs && node tokens/check.mjs
+
+      - name: lint
+        run: pnpm lint
+
+      # The test suite includes tests/json-ld.test.tsx — the D5 structured-data
+      # graph check (R-30).
+      - name: test
+        run: pnpm test
+
+      - name: next build
+        run: npx next build
