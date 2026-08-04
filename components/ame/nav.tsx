@@ -33,7 +33,7 @@ export function AmeNav({
   className,
 }: {
   items: AmeNavItem[]
-  /** Controlled selection — the id of the active item. */
+  /** Controlled selection: the id of the active item. */
   activeId: string
   onNavigate?: (id: string) => void
   tone?: 'light' | 'dark'

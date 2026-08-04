@@ -46,7 +46,7 @@ export function AmeFooter({
   contact?: ReactNode
   copyright: ReactNode
   legalLinks?: AmeFooterLink[]
-  /** Right-aligned in the end row — e.g. a locale link. */
+  /** Right-aligned in the end row, e.g. a locale link. */
   endSlot?: ReactNode
   className?: string
 }) {

@@ -70,12 +70,12 @@ export function AmeTopBar({
   /** How long a second click is locked out, ms. Defaults to swapMs + springMs plus
       the tuned 41.4 margin, so the guard scales with the bounce timings. */
   lockMs?: number
-  /** Extra classes for the outer strip — e.g. a stacking position over a grain layer. */
+  /** Extra classes for the outer strip, e.g. a stacking position over a grain layer. */
   className?: string
   /** Max-width class for the inner content row, so the strip can align to the
       consuming site's header shell. Defaults to the content width. */
   maxWidth?: string
-  /** Extra classes for the inner content row — e.g. a consuming site's desktop edge
+  /** Extra classes for the inner content row, e.g. a consuming site's desktop edge
       inset on the right-aligned cluster (md:pr-[…]). */
   innerClassName?: string
   /** Optional control(s) placed at the start of the right-aligned cluster. Rides
