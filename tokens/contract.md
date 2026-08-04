@@ -115,7 +115,7 @@ These hold before and after any change to any token, not of any one token.
   is its one evaluation site. A placeholder says on its face that the page is
   unfinished, so a red G1 is the standard working, not a bug to route around.
 
-### U. Binding paths
+### U. Binding paths and the uses-graph
 
 - **U1** No file under `app/(portfolio)/` or `components/portfolio/` reads a
   base-tier custom property through `var()`. Surfaces bind semantic and
@@ -123,6 +123,24 @@ These hold before and after any change to any token, not of any one token.
   from the token tree when the check runs, so adding a base token extends the
   tripwire with no list to maintain. An alias is not a base name: an alias is a
   spelling a surface is meant to bind. Counted like the scales, target 0.
+
+- **U2** No file under `app/` or `components/` reads a base-tier custom property.
+  U1 is this rule on the portfolio surface; U2 is the same rule on the rest of
+  the tree, so together they cover every surface. The base-name set is derived,
+  not restated (base and semantic share first segments, so a prefix list would
+  misclassify a semantic token). Vendored `components/ui` is out of scope (R-8).
+  Five reads in `components/ame/` (the shared chrome, R-12) are waived by name in
+  `invariants.json` with the reason and the follow-up order; a sixth read fails.
+
+- **U3** No `lib/` module imports from `app/`. In the layered uses-graph `lib`
+  sits below `app`, so a `lib`→`app` edge would make the graph cyclic. This is
+  Parnas's acyclic uses-graph as a machine check (STANDARD.md M).
+
+- **U4** No file under `app/(portfolio)/` or `components/portfolio/` imports a
+  `lib/*-tokens` module. The portfolio DTOS token system and the `lib/*-tokens`
+  `/system` design system are two homes for "design tokens", adjudicated as two
+  concepts (DECISIONS R-25). A portfolio-surface import of a `lib/*-tokens`
+  module would merge them into a hidden third binding; U4 keeps the two two.
 
 ### X. The record
 

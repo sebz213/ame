@@ -34,6 +34,33 @@ global (N3) and its entry here moves with it.
 | **metis-marketing** | The ink-theme portfolio home: route `app/(portfolio)/metis-marketing/` and component `metis-marketing-splash.tsx` (`MetisMarketingSplash`). It renders the same home component as `/portfolio`, opening dark with the Métis splash and mark. |
 | **mmarketing** | Superseded name for **metis-marketing**. Renamed in full (route, component file, exported symbols, `DARK_ROUTES`) because it read as a typo, which fails Feitelson's derive-the-same-meaning test outright (R-20). Retained here only as the former spelling; no code uses it. |
 
+## The two token homes
+
+"Design tokens" has two homes in this tree, and they are two concepts, not one
+(DECISIONS R-25). Each governs a different surface, so a change to one is not a
+change to the other.
+
+- **`tokens/` (the DTOS pipeline)** governs the **portfolio surface**: the routes
+  under `app/(portfolio)/` and the components under `components/portfolio/`. It is
+  Neue Haas on `.portfolio-root`, emitted as CSS custom properties, and it is the
+  contract-checked home (`tokens/contract.md`). Its type ramp lives in
+  `tokens/base/type.json`; its motion in `tokens/base/motion.json`.
+
+- **`lib/*-tokens.ts` (seven TypeScript modules)** governs the **`/system`
+  workshop and the root shell**: `app/page.tsx`, `components/docs/`,
+  `components/playgrounds/`, and the `components/ui` primitives they document. It
+  is Inter, expressed as Tailwind class strings on TypeScript objects, and it is
+  the playgrounds' source of truth. Its type ramp is `lib/typography-tokens.ts`;
+  its motion `lib/motion-tokens.ts`.
+
+They are legitimately separate because they render different surfaces in
+different faces, and where their role names coincide the values deliberately
+differ: the portfolio `type.body-size` is 15px Neue Haas, the `/system`
+`TYPOGRAPHY.body` is 16px Inter, and the two motion doctrines contradict (the
+portfolio allows springs and overshoot, `lib/motion-tokens.ts` forbids them). The
+boundary is enforced, not just described: no portfolio-surface file may import a
+`lib/*-tokens` module (invariant U4), so the two homes cannot silently merge.
+
 ## File pairs that differ only by scope
 
 Two pairs of files carry near-identical names distinguished only by the scale they

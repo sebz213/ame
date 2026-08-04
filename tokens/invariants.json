@@ -332,6 +332,33 @@
     ],
     "target": 0
   },
+  "uses_graph": {
+    "$description": "U2 to U4. The Parnas acyclic, layered uses-graph, extended off the portfolio surface that U1 already guards. The base-name set is DERIVED from the token tree at check time (the base tier names itself), never a prefix list: base and semantic share first segments (--border, --font, --duration each appear in BOTH tiers), so a prefix would misclassify a semantic token as base. Vendored components/ui is out of scope (R-8), the portfolio surface is U1's, and the emitted token CSS is the supplier, not a consumer. Source: STANDARD.md M (Parnas 1972, the acyclic uses-graph); DECISIONS R-26.",
+    "base_read": {
+      "id": "U2",
+      "$description": "No file in the app/components tree reads a base-tier custom property. U1 is this rule on the portfolio surface; U2 is the same rule on the rest of the tree (the /system shell and the shared ame chrome). Base binds base; a surface binds semantic or component.",
+      "scan": ["app", "components"],
+      "extensions": [".ts", ".tsx", ".css"],
+      "exclude_prefixes": ["app/(portfolio)", "components/portfolio", "components/ui"],
+      "waived": {
+        "components/ame/nav.tsx": ["--radius-pill", "--duration-slow", "--font-size-13", "--color-ink"],
+        "components/ame/footer.tsx": ["--font-leading-relaxed"]
+      },
+      "waived_because": "components/ame/* are the shared chrome (AmeNav, AmeFooter; R-12), tone-portable across the portfolio and the metis-marketing sister ground. Repointing these five base reads onto semantic or component roles is a scoped change: each replacement must resolve on BOTH grounds, and the marketing site syncs the generated CSS, so the repoint is a consumer migration owed to a dedicated order, not this check-adding pass (CLAUDE.md 9, the honest deferral). U2 waives the five known reads by name and blocks a sixth from landing. Follow-up: a dedicated order repoints components/ame off base and removes these waivers."
+    },
+    "lib_no_app": {
+      "id": "U3",
+      "$description": "No lib/ module imports from app/. lib sits below app in the layered uses-graph, so a lib->app edge would make the graph cyclic. Matches @/app, @/app/*, and relative ../app paths.",
+      "from": "lib",
+      "forbidden_import": "app"
+    },
+    "surface_no_system_tokens": {
+      "id": "U4",
+      "$description": "No portfolio surface imports a lib/*-tokens design-token module. The portfolio DTOS token system and the lib/*-tokens /system design system are two homes for 'design tokens', adjudicated as two concepts in DECISIONS R-25. A portfolio-surface import of a lib/*-tokens module would merge them into a hidden third binding; this keeps the two concepts two.",
+      "surfaces": ["app/(portfolio)", "components/portfolio"],
+      "forbidden_import_pattern": "^@/lib/[a-z0-9-]+-tokens$"
+    }
+  },
   "clients": {
     "$description": "H1. A token nothing consumes is a clause with one signature. A client is: a var() in portfolio source, another token's reference, an alias, or a named invariant that reads the token. The count of clientless tokens is a measurement, recorded in outcomes.md, and must not grow.",
     "sources": [
@@ -361,5 +388,18 @@
     "max_lines_per_function": 100,
     "max_depth": 4,
     "max_params": 6
+  },
+  "structured_data": {
+    "$description": "STANDARD.md D5 (WO-7.4, decision R-30). The data for the JSON-LD entity-graph checks. Evaluated by tests/json-ld.test.tsx, not check.mjs, the same way `lint` is evaluated by ESLint: this file is the one home for the values, the checker reads them. The blacklist is superseded/replaced Schema.org properties that must never appear in an emitted node; every property maps to its live replacement, which the check names when it fails. proficiency_levels is the closed vocabulary a TechArticle's proficiencyLevel may draw from.",
+    "blacklist": {
+      "fileFormat": "encodingFormat",
+      "language": "inLanguage",
+      "reviews": "review",
+      "runtime": "runtimePlatform",
+      "requirements": "softwareRequirements",
+      "sampleType": "codeSampleType",
+      "isBasedOnUrl": "isBasedOn"
+    },
+    "proficiency_levels": ["Beginner", "Expert"]
   }
 }

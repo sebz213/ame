@@ -284,6 +284,58 @@ const bindingStrays = []
   drift[b.id] = bindingStrays.length
 })()
 
+// ── U2 to U4. The layered, acyclic uses-graph (Parnas), off the portfolio ────
+// surface U1 already guards. Violations, not drift: these are stated edges the
+// uses-graph forbids, each with an explicit waiver list where a known edge is
+// deferred rather than fixed in this pass.
+;(function checkUsesGraph() {
+  const g = RULES.uses_graph
+  // Every import/re-export source and every dynamic import() target in a file.
+  const importsOf = (src) =>
+    [
+      ...src.matchAll(/from\s*['"]([^'"]+)['"]/g),
+      ...src.matchAll(/import\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
+    ].map((m) => m[1])
+
+  // U2 — the base-var tripwire, extended past the portfolio surface. The base
+  // name set is derived, never restated: the base tier names itself (as in U1).
+  const b = g.base_read
+  const baseNames = new Set(tokens.filter((t) => t.layer === 'base').map((t) => t.cssName))
+  const inScope = (f) =>
+    b.extensions.some((e) => f.endsWith(e)) &&
+    !b.exclude_prefixes.some((p) => f.startsWith(p))
+  const u2files = b.scan.flatMap((s) => walkFiles(s)).filter(inScope)
+  for (const f of u2files) {
+    const waived = new Set(b.waived[f] ?? [])
+    for (const m of read(f).matchAll(/var\((--[a-z0-9_-]+)/g))
+      if (baseNames.has(m[1]) && !waived.has(m[1]))
+        fail(
+          b.id,
+          `${f} reads base token ${m[1]} directly; a surface binds semantic or component, never base. Repoint it or waive it in invariants.json > uses_graph.base_read.waived.`,
+        )
+  }
+
+  // U3 — no lib -> app import (the uses-graph stays acyclic; lib is below app).
+  const u3 = g.lib_no_app
+  const toApp = (s) =>
+    s === '@/' + u3.forbidden_import ||
+    s.startsWith('@/' + u3.forbidden_import + '/') ||
+    new RegExp('(^|/)\\.\\./' + u3.forbidden_import + '(/|$)').test(s)
+  for (const f of walkFiles(u3.from).filter((f) => /\.(ts|tsx|mjs|js)$/.test(f)))
+    for (const s of importsOf(read(f)))
+      if (toApp(s))
+        fail(u3.id, `${f} imports from ${s}; lib is below app in the uses-graph, so a lib->app import makes it cyclic.`)
+
+  // U4 — the portfolio surface must not import a lib/*-tokens module (the two
+  // token homes stay two concepts, R-25).
+  const u4 = g.surface_no_system_tokens
+  const pat = new RegExp(u4.forbidden_import_pattern)
+  for (const f of u4.surfaces.flatMap((s) => walkFiles(s)).filter((f) => /\.(ts|tsx)$/.test(f)))
+    for (const s of importsOf(read(f)))
+      if (pat.test(s))
+        fail(u4.id, `${f} imports ${s}; the portfolio surface binds the DTOS token pipeline, not the lib/*-tokens /system system (two concepts, R-25).`)
+})()
+
 // ── H. Client census ────────────────────────────────────────────────────────
 const clientless = []
 ;(function checkClients() {
