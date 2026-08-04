@@ -218,6 +218,69 @@ function propsTable(props) {
   return [head, ...rows].join('\n')
 }
 
+// ── Consumption contract (the API for a token-driven / prop-less component) ──
+// A brand component with no props is not API-less: its real contract is the CSS
+// custom properties it binds by name, the React context it needs, and the DOM
+// props it forwards. That contract is derived from the component source so it
+// cannot be faked or drift, and it stands in for a props table where there is
+// none (DECISIONS R-64). The provider map is the two excluded provider files
+// (invariants.json > ame_registry.excluded; DECISIONS R-57).
+const PROVIDERS = {
+  usePortfolioTheme: '`PortfolioThemeProvider` (`components/portfolio/portfolio-theme.tsx`)',
+  usePortfolioA11y: '`PortfolioA11yProvider` (`components/portfolio/a11y-prefs.tsx`)',
+}
+
+function sourceContract(source) {
+  const src = readFileSync(join(REPO, source), 'utf8')
+  // The `var(--…)` custom properties the source binds by name.
+  const reads = [...new Set([...src.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map((m) => m[1]))].sort()
+  // React context this component reads (from the provider hooks it calls).
+  const requires = Object.keys(PROVIDERS)
+    .filter((h) => new RegExp(`\\b${h}\\b`).test(src))
+    .sort()
+    .map((h) => PROVIDERS[h])
+  // Whether it spreads a DOM props type onto its root element.
+  const forwards = /:\s*SVGProps</.test(src)
+    ? 'svg'
+    : /:\s*(?:React\.)?(?:HTMLAttributes|ComponentPropsWithoutRef|ComponentProps)</.test(src)
+      ? 'html'
+      : null
+  return { reads, requires, forwards }
+}
+
+function contractSection(c) {
+  const lines = [
+    'Render this component inside the `.portfolio-root` ame token scope — the `/ame` ' +
+      'docs layout and every portfolio surface provide it, and it is where the tokens below ' +
+      'resolve.',
+    '',
+  ]
+  if (c.reads.length) {
+    lines.push('**Binds these tokens** — the CSS custom properties it reads by name through `var()`:', '')
+    lines.push(c.reads.map((v) => `\`${v}\``).join(', '))
+  } else {
+    lines.push(
+      '**Binds no tokens by name.** It inherits type and color from the ame scope and reads no ' +
+        'custom property directly.',
+    )
+  }
+  lines.push('')
+  lines.push(
+    c.requires.length
+      ? `**Requires React context:** ${c.requires.join(', ')}.`
+      : '**Requires no React context.**',
+  )
+  if (c.forwards) {
+    lines.push('')
+    lines.push(
+      c.forwards === 'svg'
+        ? '**Forwards DOM props:** standard `<svg>` attributes are spread onto the root element.'
+        : '**Forwards DOM props:** standard HTML attributes are spread onto the root element.',
+    )
+  }
+  return lines.join('\n')
+}
+
 function catalogFiles(parser) {
   const rows = registry.components.filter((r) => CATALOG_TIERS[r.tier])
   // One TS program over every catalog source: far cheaper than one per file.
@@ -273,9 +336,17 @@ function catalogFiles(parser) {
         'A live preview is not mounted this phase.'
     }
 
-    const api = docs.length
-      ? docs.map((d) => `### ${d.displayName}\n\n${propsTable(d.props)}`).join('\n\n')
-      : '_No public component API was extracted from this source._'
+    // The API section is the props tables for the symbols that HAVE props; a
+    // symbol with none (a prop-less component, or a plain exported const like a
+    // duration) gets no empty table. When nothing on the page has props, the API
+    // is the consumption contract below, and this says so rather than showing a
+    // fake empty table (DECISIONS R-64).
+    const withProps = docs.filter((d) => Object.keys(d.props).length)
+    const api = withProps.length
+      ? withProps.map((d) => `### ${d.displayName}\n\n${propsTable(d.props)}`).join('\n\n')
+      : 'This component exposes no configurable props; its API is the consumption contract below.'
+
+    const contract = contractSection(sourceContract(r.source))
 
     // The interactive block: a playground for an animated+documented row, a live
     // preview for a static documented row, a link-out disclosure for an animated
@@ -300,7 +371,8 @@ function catalogFiles(parser) {
       `${MARKER}\n\n` +
       `${intro}\n\n` +
       `${previewBlock}` +
-      `## Props\n\n${api}\n\n` +
+      `## API\n\n${api}\n\n` +
+      `## Consumption contract\n\n${contract}\n\n` +
       `## Source\n\n<ComponentSource path=${attr(r.source)} />\n`
 
     files.set(`content/ame/${dir}/${r.name}.mdx`, content)
