@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you reference this portfolio or the Ame design token system, please cite it as below."
+title: "Ame: a portfolio and the design system that ships it"
+authors:
+  - family-names: Chery
+    given-names: Sebastien
+version: 0.1.0
+date-released: 2026-08-03
+license: MIT
+# repository-code and url are omitted while the repository is private (DECISIONS
+# R-3) and the site is not yet deployed. A private or dead URL is a worse signal
+# than an absent one (the same call R-28 makes for JSON-LD codeRepository); both
+# fields are added in the commit that makes the repo public or ships the site.
