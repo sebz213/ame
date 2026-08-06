@@ -180,6 +180,7 @@ const NAME_OK = new RegExp(RULES.naming.segment)
 const contrastResults = []
 ;(function checkContrast() {
   const darkGround = RULES.contrast.darkGround ?? {}
+  const validRoles = new Set(RULES.contrast.roles ?? [])
   for (const p of RULES.contrast.pairs) {
     const fg = byPath.get(p.fg)
     const bg = byPath.get(p.bg)
@@ -187,34 +188,37 @@ const contrastResults = []
       fail(p.id, `pair references a token that does not exist (${p.fg} on ${p.bg})`)
       continue
     }
+    // Every pair declares a role. Without this, a new row with no role would default to
+    // unclassified and skip the dark cross silently, the same hole the reading-twin
+    // check closes one level down. An unclassified row fails, so the author has to say
+    // which kind it is, and a reading one then has its dark twin enforced.
+    if (!validRoles.has(p.role))
+      fail(p.id, `${p.id} has no valid role; every contrast pair declares one of ${[...validRoles].join(', ')}`)
+
     const ratio = contrast(fg.value, bg.value)
     contrastResults.push({ ...p, ratio })
     if (ratio < p.min)
       fail(p.id, `${p.fg} on ${p.bg} is ${ratio.toFixed(2)}:1, below the required ${p.min}:1`)
 
-    // Cross the theme-following reading pairs with the dark state. A foreground that
-    // has an -on-dark counterpart, over a ground with a dark form in darkGround, is
-    // checked again as it resolves under [data-theme=dark], against the same min. The
-    // twin is derived (the -on-dark suffix plus darkGround), so a new reading pair is
-    // covered in both themes without a second row. Chrome rows (topbar) and already
-    // backdrop-fixed rows (-on-dark / -on-light) carry no ground mapping, so they are
-    // left as-is rather than crossed into an incoherent pair.
-    const darkFgPath = byPath.has(`${p.fg}-on-dark`) ? `${p.fg}-on-dark` : null
-    const darkBgPath = darkGround[p.bg]
-    const twinned = Boolean(darkFgPath && darkBgPath)
-    if (twinned) {
-      const dfg = byPath.get(darkFgPath)
-      const dbg = byPath.get(darkBgPath)
-      const dratio = contrast(dfg.value, dbg.value)
-      contrastResults.push({ id: `${p.id}-dark`, fg: darkFgPath, bg: darkBgPath, min: p.min, ratio: dratio })
-      if (dratio < p.min)
-        fail(p.id, `${darkFgPath} on ${darkBgPath} (dark) is ${dratio.toFixed(2)}:1, below the required ${p.min}:1`)
+    // A reading pair is theme-following and is checked under [data-theme=dark] too: its
+    // foreground resolves to the -on-dark token and its ground to the dark form in
+    // darkGround. The twin is derived from that suffix and map, so a new reading pair is
+    // covered in both themes without a second row. A reading pair that cannot build the
+    // twin (a missing or misspelled -on-dark sibling, or a ground with no dark form)
+    // fails rather than passing quietly. fixed, chrome, and backdrop rows are not
+    // crossed; the role check above keeps a row from being unclassified.
+    if (p.role === 'reading') {
+      const darkFgPath = `${p.fg}-on-dark`
+      const darkBgPath = darkGround[p.bg]
+      if (!byPath.has(darkFgPath) || !darkBgPath) {
+        fail(p.id, `${p.id} is role:reading but cannot cross to dark: ${p.fg} has no -on-dark sibling, or ${p.bg} has no darkGround entry`)
+      } else {
+        const dratio = contrast(byPath.get(darkFgPath).value, byPath.get(darkBgPath).value)
+        contrastResults.push({ id: `${p.id}-dark`, fg: darkFgPath, bg: darkBgPath, min: p.min, ratio: dratio })
+        if (dratio < p.min)
+          fail(p.id, `${darkFgPath} on ${darkBgPath} (dark) is ${dratio.toFixed(2)}:1, below the required ${p.min}:1`)
+      }
     }
-    // A row marked role:reading must cross. Without this, a missing or misspelled
-    // -on-dark sibling produces no twin and the gate stays green, the silent-failure
-    // case the derived cross can't otherwise tell apart from a chrome or fixed row.
-    if (p.role === 'reading' && !twinned)
-      fail(p.id, `${p.id} is a reading pair but produced no dark twin: ${p.fg} has no -on-dark sibling, or ${p.bg} has no darkGround entry`)
   }
 })()
 

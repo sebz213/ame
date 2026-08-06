@@ -121,8 +121,9 @@
     }
   },
   "contrast": {
-    "$description": "C1 to C10, foreground over background, WCAG 2.2 relative-luminance ratio computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA. Each theme-following reading pair (a foreground with an -on-dark counterpart, over a ground listed in darkGround) is evaluated a second time as it resolves under [data-theme=dark], and checked against the same min (reported Cn-dark). The dark twin is derived from the -on-dark suffix and darkGround, so a new reading pair is covered in both themes without a second row. This closes the gap where C1's 7:1 held only the light half. A row marked role:reading must produce a twin; a missing or misspelled -on-dark sibling fails the check rather than passing quietly (the silence the derived cross cannot otherwise tell apart from a chrome or theme-fixed row).",
+    "$description": "C1 to C10, foreground over background, WCAG 2.2 relative-luminance ratio computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA. Each theme-following reading pair (a foreground with an -on-dark counterpart, over a ground listed in darkGround) is evaluated a second time as it resolves under [data-theme=dark], and checked against the same min (reported Cn-dark). The dark twin is derived from the -on-dark suffix and darkGround, so a new reading pair is covered in both themes without a second row. This closes the gap where C1's 7:1 held only the light half. Every pair declares a role (reading, fixed, chrome, or backdrop); a pair with no role fails, so a new row cannot default to unclassified and skip the cross silently. A role:reading pair must produce a twin; a missing or misspelled -on-dark sibling fails the check rather than passing quietly.",
     "darkGround": { "background.page": "background.ink" },
+    "roles": ["reading", "fixed", "chrome", "backdrop"],
     "pairs": [
       {
         "id": "C1",
@@ -149,43 +150,50 @@
         "id": "C4",
         "fg": "text.brand",
         "bg": "background.page",
-        "min": 4.5
+        "min": 4.5,
+        "role": "fixed"
       },
       {
         "id": "C5",
         "fg": "text.danger",
         "bg": "background.page",
-        "min": 4.5
+        "min": 4.5,
+        "role": "fixed"
       },
       {
         "id": "C6",
         "fg": "text.on-brand",
         "bg": "text.brand",
-        "min": 4.5
+        "min": 4.5,
+        "role": "fixed"
       },
       {
         "id": "C7",
         "fg": "component.topbar.fg",
         "bg": "component.topbar.bg",
-        "min": 4.5
+        "min": 4.5,
+        "role": "chrome"
       },
       {
         "id": "C8",
         "fg": "surface.glass-fg-on-dark",
         "bg": "background.ink",
-        "min": 4.5
+        "min": 4.5,
+        "role": "backdrop"
       },
       {
         "id": "C9",
         "fg": "surface.glass-fg-muted-on-dark",
         "bg": "background.ink",
-        "min": 4.5
+        "min": 4.5,
+        "role": "backdrop"
       },
       {
         "id": "C10",
         "fg": "surface.glass-fg-muted-on-light",
         "bg": "background.page",
-        "min": 4.5
+        "min": 4.5,
+        "role": "backdrop"
       }
     ]
   },
