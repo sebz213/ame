@@ -179,6 +179,7 @@ const NAME_OK = new RegExp(RULES.naming.segment)
 // ── C. Contrast ─────────────────────────────────────────────────────────────
 const contrastResults = []
 ;(function checkContrast() {
+  const darkGround = RULES.contrast.darkGround ?? {}
   for (const p of RULES.contrast.pairs) {
     const fg = byPath.get(p.fg)
     const bg = byPath.get(p.bg)
@@ -190,6 +191,24 @@ const contrastResults = []
     contrastResults.push({ ...p, ratio })
     if (ratio < p.min)
       fail(p.id, `${p.fg} on ${p.bg} is ${ratio.toFixed(2)}:1, below the required ${p.min}:1`)
+
+    // Cross the theme-following reading pairs with the dark state. A foreground that
+    // has an -on-dark counterpart, over a ground with a dark form in darkGround, is
+    // checked again as it resolves under [data-theme=dark], against the same min. The
+    // twin is derived (the -on-dark suffix plus darkGround), so a new reading pair is
+    // covered in both themes without a second row. Chrome rows (topbar) and already
+    // backdrop-fixed rows (-on-dark / -on-light) carry no ground mapping, so they are
+    // left as-is rather than crossed into an incoherent pair.
+    const darkFgPath = byPath.has(`${p.fg}-on-dark`) ? `${p.fg}-on-dark` : null
+    const darkBgPath = darkGround[p.bg]
+    if (darkFgPath && darkBgPath) {
+      const dfg = byPath.get(darkFgPath)
+      const dbg = byPath.get(darkBgPath)
+      const dratio = contrast(dfg.value, dbg.value)
+      contrastResults.push({ id: `${p.id}-dark`, fg: darkFgPath, bg: darkBgPath, min: p.min, ratio: dratio })
+      if (dratio < p.min)
+        fail(p.id, `${darkFgPath} on ${darkBgPath} (dark) is ${dratio.toFixed(2)}:1, below the required ${p.min}:1`)
+    }
   }
 })()
 
