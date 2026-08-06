@@ -22,7 +22,7 @@ import { A11Y_VIEWBOX, A11Y_PATH } from '@/lib/a11y-glyph'
   marketing site are the SAME bar on two grounds rather than two components.
 
   Its one dependency is animejs — ame's animation library, the same one the
-  portfolio uses. The consuming site provides it (Métis installs the same version);
+  portfolio uses. The consuming site provides it (Mētis installs the same version);
   everything else is React and ame tokens. No app-specific imports, so both sites
   consume this component from one source.
 */
