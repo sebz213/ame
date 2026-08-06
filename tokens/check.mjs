@@ -201,7 +201,8 @@ const contrastResults = []
     // left as-is rather than crossed into an incoherent pair.
     const darkFgPath = byPath.has(`${p.fg}-on-dark`) ? `${p.fg}-on-dark` : null
     const darkBgPath = darkGround[p.bg]
-    if (darkFgPath && darkBgPath) {
+    const twinned = Boolean(darkFgPath && darkBgPath)
+    if (twinned) {
       const dfg = byPath.get(darkFgPath)
       const dbg = byPath.get(darkBgPath)
       const dratio = contrast(dfg.value, dbg.value)
@@ -209,6 +210,11 @@ const contrastResults = []
       if (dratio < p.min)
         fail(p.id, `${darkFgPath} on ${darkBgPath} (dark) is ${dratio.toFixed(2)}:1, below the required ${p.min}:1`)
     }
+    // A row marked role:reading must cross. Without this, a missing or misspelled
+    // -on-dark sibling produces no twin and the gate stays green, the silent-failure
+    // case the derived cross can't otherwise tell apart from a chrome or fixed row.
+    if (p.role === 'reading' && !twinned)
+      fail(p.id, `${p.id} is a reading pair but produced no dark twin: ${p.fg} has no -on-dark sibling, or ${p.bg} has no darkGround entry`)
   }
 })()
 

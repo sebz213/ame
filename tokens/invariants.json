@@ -121,26 +121,29 @@
     }
   },
   "contrast": {
-    "$description": "C1 to C10, foreground over background, WCAG 2.2 relative-luminance ratio computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA. Each theme-following reading pair (a foreground with an -on-dark counterpart, over a ground listed in darkGround) is evaluated a second time as it resolves under [data-theme=dark], and checked against the same min (reported Cn-dark). The dark twin is derived from the -on-dark suffix and darkGround, so a new reading pair is covered in both themes without a second row. This closes the gap where C1's 7:1 held only the light half.",
+    "$description": "C1 to C10, foreground over background, WCAG 2.2 relative-luminance ratio computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA. Each theme-following reading pair (a foreground with an -on-dark counterpart, over a ground listed in darkGround) is evaluated a second time as it resolves under [data-theme=dark], and checked against the same min (reported Cn-dark). The dark twin is derived from the -on-dark suffix and darkGround, so a new reading pair is covered in both themes without a second row. This closes the gap where C1's 7:1 held only the light half. A row marked role:reading must produce a twin; a missing or misspelled -on-dark sibling fails the check rather than passing quietly (the silence the derived cross cannot otherwise tell apart from a chrome or theme-fixed row).",
     "darkGround": { "background.page": "background.ink" },
     "pairs": [
       {
         "id": "C1",
         "fg": "text.body",
         "bg": "background.page",
-        "min": 7
+        "min": 7,
+        "role": "reading"
       },
       {
         "id": "C2",
         "fg": "text.heading",
         "bg": "background.page",
-        "min": 7
+        "min": 7,
+        "role": "reading"
       },
       {
         "id": "C3",
         "fg": "text.secondary",
         "bg": "background.page",
-        "min": 4.5
+        "min": 4.5,
+        "role": "reading"
       },
       {
         "id": "C4",
