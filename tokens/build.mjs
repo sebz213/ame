@@ -405,11 +405,17 @@ function main() {
   mkdirSync(join(ROOT, 'build'), { recursive: true })
   writeFileSync(join(ROOT, 'build', 'portfolio.tokens.css'), out)
   writeFileSync(join(ROOT, '..', 'app', '(portfolio)', 'portfolio.tokens.css'), out)
+  // The consumed home. The portfolio and Metis both bind ame-tokens/tokens.css
+  // through the package boundary (workspace link / install), not a local copy.
+  // Emitted from the same string as the B4 pair, so it stays byte-identical.
+  mkdirSync(join(ROOT, '..', 'packages', 'ame-tokens'), { recursive: true })
+  writeFileSync(join(ROOT, '..', 'packages', 'ame-tokens', 'tokens.css'), out)
 
   console.log(
     `Built ${tokens.length} tokens + ${Object.keys(ALIASES).length} aliases\n` +
       `  -> tokens/build/portfolio.tokens.css\n` +
-      `  -> app/(portfolio)/portfolio.tokens.css`,
+      `  -> app/(portfolio)/portfolio.tokens.css\n` +
+      `  -> packages/ame-tokens/tokens.css`,
   )
   return doc
 }

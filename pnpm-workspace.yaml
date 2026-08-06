@@ -1,5 +1,10 @@
-# pnpm settings. Not a monorepo: pnpm 10+ reads its configuration from this
-# file, so this is where the build-script allowlist lives.
+# pnpm settings. A small workspace: this repo (the portfolio) plus packages/*,
+# which holds ame-tokens, the token layer the portfolio and Metis both consume.
+# pnpm 10+ reads its configuration from this file, so this is also where the
+# build-script allowlist lives.
+#
+packages:
+  - 'packages/*'
 #
 # `allowBuilds` is pnpm 11's key and takes a boolean per package. The pnpm 10
 # spelling, an `onlyBuiltDependencies` list, is read by `pnpm config get` and
