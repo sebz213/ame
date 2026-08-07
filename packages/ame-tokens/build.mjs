@@ -324,6 +324,15 @@ export function buildTokens(root = ROOT) {
   }
 }
 
+/**
+ * The base-name set, derived from a built token list. The base tier names
+ * itself, so U1/U2 and the shipped consumer check all derive the set here
+ * rather than restate a prefix list. A surface binds semantic and component
+ * names; reading one of these base primitives directly is the U1 violation.
+ */
+export const deriveBaseNames = (tokens) =>
+  new Set(tokens.filter((t) => t.layer === 'base').map((t) => t.cssName))
+
 // ── Render ──────────────────────────────────────────────────────────────────
 // The CSS string, from the resolved tokens. Pure: no I/O. main() writes it, and
 // check.mjs (B4) rebuilds it in memory to byte-compare against the committed

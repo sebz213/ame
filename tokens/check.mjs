@@ -13,7 +13,7 @@
 import { readdirSync, readFileSync, existsSync, appendFileSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildTokens, renderCss, ALIASES, aliasPaths, cssName, LAYERS, manifest } from 'ame-tokens/build.mjs'
+import { buildTokens, renderCss, deriveBaseNames, ALIASES, aliasPaths, cssName, LAYERS, manifest } from 'ame-tokens/build.mjs'
 import { contrast } from './contrast.mjs'
 import { ratchetExceeded } from './ratchet.mjs'
 
@@ -321,7 +321,7 @@ const bindingStrays = []
 ;(function checkBinding() {
   const b = RULES.binding
   // Derived, not restated: the base tier names itself.
-  const baseNames = new Set(tokens.filter((t) => t.layer === 'base').map((t) => t.cssName))
+  const baseNames = deriveBaseNames(tokens)
   const files = b.surfaces
     .flatMap((s) => walkFiles(s))
     .filter((f) => b.extensions.some((e) => f.endsWith(e)) && !b.exclude.includes(f))
@@ -347,7 +347,7 @@ const bindingStrays = []
   // U2 — the base-var tripwire, extended past the portfolio surface. The base
   // name set is derived, never restated: the base tier names itself (as in U1).
   const b = g.base_read
-  const baseNames = new Set(tokens.filter((t) => t.layer === 'base').map((t) => t.cssName))
+  const baseNames = deriveBaseNames(tokens)
   const inScope = (f) =>
     b.extensions.some((e) => f.endsWith(e)) &&
     !b.exclude_prefixes.some((p) => f.startsWith(p))

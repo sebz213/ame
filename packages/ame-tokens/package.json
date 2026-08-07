@@ -9,7 +9,16 @@
     "./build.mjs": "./build.mjs",
     "./package.json": "./package.json"
   },
+  "bin": {
+    "ame-tokens-check": "./check.mjs"
+  },
   "files": [
-    "tokens.css"
+    "tokens.css",
+    "build.mjs",
+    "check.mjs",
+    "ame.json",
+    "base",
+    "semantic",
+    "component"
   ]
 }
