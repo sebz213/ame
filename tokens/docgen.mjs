@@ -35,7 +35,7 @@ import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 import rdt from 'react-docgen-typescript'
-import { buildTokens } from './build.mjs'
+import { buildTokens } from 'ame-tokens/build.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const REPO = join(HERE, '..')
@@ -92,7 +92,7 @@ function foundationsPage({ slug, title, description, sections }) {
     `---\n\n` +
     `${MARKER}\n\n` +
     `${description} Every value on this page is the token's own, generated from ` +
-    `\`tokens/{base,semantic,component}/*.json\` through \`tokens/build.mjs\`. It ` +
+    `\`packages/ame-tokens/{base,semantic,component}/*.json\` through \`packages/ame-tokens/build.mjs\`. It ` +
     `cannot drift from the source: the token is the one home, and this page is a ` +
     `generated view of it.\n\n` +
     `${body}\n`

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 // The token pipeline is untyped ESM JavaScript; TypeScript infers its types
 // under allowJs. These are the pure, exported helpers check.mjs also imports.
-import { resolveValue, toCss, buildTokens } from '../tokens/build.mjs'
+import { resolveValue, toCss, buildTokens } from 'ame-tokens/build.mjs'
 import { contrast } from '../tokens/contrast.mjs'
 import { ratchetExceeded } from '../tokens/ratchet.mjs'
 

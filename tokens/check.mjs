@@ -13,7 +13,7 @@
 import { readdirSync, readFileSync, existsSync, appendFileSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildTokens, ALIASES, aliasPaths, cssName, LAYERS, manifest } from './build.mjs'
+import { buildTokens, renderCss, ALIASES, aliasPaths, cssName, LAYERS, manifest } from 'ame-tokens/build.mjs'
 import { contrast } from './contrast.mjs'
 import { ratchetExceeded } from './ratchet.mjs'
 
@@ -25,7 +25,7 @@ const violations = []
 const drift = {}
 const fail = (id, msg) => violations.push(`${id}  ${msg}`)
 
-const { doc, tokens } = buildTokens(ROOT)
+const { doc, tokens } = buildTokens()
 const byPath = new Map(tokens.map((t) => [t.path, t]))
 
 // ── file helpers ────────────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ const NAME_OK = new RegExp(RULES.naming.segment)
 // ── B5. The emitted header carries the manifest version ─────────────────────
 ;(function checkManifest() {
   const m = RULES.manifest
-  const declared = JSON.parse(read(join('tokens', m.file)) || '{}').version
+  const declared = manifest.version
   if (!declared) {
     fail('B5', `${m.file} declares no version`)
     return
@@ -131,21 +131,22 @@ const NAME_OK = new RegExp(RULES.naming.segment)
   }
 })()
 
-// ── B4. The two emitted CSS homes are byte-identical ────────────────────────
-// build.mjs writes both from one string, so they agree at build time; this
-// proves they still agree on disk, catching a hand-edit to either copy that a
-// rebuild has not overwritten. The emitted pair is data in invariants.json >
+// ── B4. The committed CSS home matches a fresh build from source ─────────────
+// One home now: the package the portfolio and Metis bind. There is no second
+// copy to diff against, so instead of comparing two files this rebuilds the CSS
+// from source in memory (the same renderCss build.mjs writes) and byte-compares
+// the committed file to it. A source edit that was never rebuilt, or a hand-edit
+// to the committed file, fails here. The home is data in invariants.json >
 // manifest.emitted, the same list B5 reads.
 ;(function checkB4() {
-  const [a, b] = RULES.manifest.emitted
-  const pa = join(REPO, a)
-  const pb = join(REPO, b)
-  if (!existsSync(pa) || !existsSync(pb)) {
-    fail('B4', `an emitted token CSS home is missing (${!existsSync(pa) ? a : b}); run node tokens/build.mjs`)
+  const [home] = RULES.manifest.emitted
+  const p = join(REPO, home)
+  if (!existsSync(p)) {
+    fail('B4', `the emitted token CSS home is missing (${home}); run node packages/ame-tokens/build.mjs`)
     return
   }
-  if (!readFileSync(pa).equals(readFileSync(pb)))
-    fail('B4', `${a} and ${b} are not byte-identical; rebuild with node tokens/build.mjs so the versioned artifact and its mirror agree.`)
+  if (renderCss(tokens) !== readFileSync(p, 'utf8'))
+    fail('B4', `${home} does not match a fresh build from source; run node packages/ame-tokens/build.mjs to regenerate it.`)
 })()
 
 // ── L. Layering ─────────────────────────────────────────────────────────────

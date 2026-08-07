@@ -123,7 +123,7 @@ Four disclosed deviations, up from three:
    same way.
 3. `$extensions` inheritance is not specified. This build applies the `$type`
    rules to it, so a semantic token referencing `font.tracking.tight` emits `em`.
-4. **New:** `tokens/ame.json` sits outside the token grammar entirely. It is a
+4. **New:** `packages/ame-tokens/ame.json` sits outside the token grammar entirely. It is a
    manifest, not a token file, and no DTOS construct carries a package version.
    The build reads it and stamps both artifacts; B5 checks the stamp.
 

@@ -94,20 +94,18 @@ const driftFromCheck = Object.fromEntries(
 )
 
 // ── facts, each from its single home ────────────────────────────────────────
-const manifest = readJson('tokens/ame.json')
+const manifest = readJson('packages/ame-tokens/ame.json')
 const version = manifest?.version ?? 'unversioned'
-const emittedA = 'tokens/build/portfolio.tokens.css'
-const emittedB = 'packages/ame-tokens/tokens.css'
-const cssA = read(emittedA)
-const cssB = read(emittedB)
+const emitted = 'packages/ame-tokens/tokens.css'
+const css = read(emitted)
 const runsLog = (read('tokens/runs.log') ?? '').split('\n').filter((l) => l.trim())
 const pkg = readJson('package.json')
 const viewerContract = read('components/prototype-viewer/model-contract.ts')
 const viewer = read('components/prototype-viewer/viewer.tsx')
 
-const base = tokenStats('tokens/base')
-const semantic = tokenStats('tokens/semantic')
-const component = tokenStats('tokens/component')
+const base = tokenStats('packages/ame-tokens/base')
+const semantic = tokenStats('packages/ame-tokens/semantic')
+const component = tokenStats('packages/ame-tokens/component')
 
 const stamp = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
 
@@ -118,28 +116,28 @@ const constraints = [
     id: 'c1',
     name: 'Global tokens',
     status: base.tokens > 0 ? 'present' : 'absent',
-    home: base.tokens > 0 ? 'tokens/base/' : null,
+    home: base.tokens > 0 ? 'packages/ame-tokens/base/' : null,
     evidence: { files: base.files, tokens: base.tokens, groups: base.groups },
   },
   {
     id: 'c2',
     name: 'Semantic tokens',
     status: semantic.tokens > 0 ? 'present' : 'absent',
-    home: semantic.tokens > 0 ? 'tokens/semantic/' : null,
+    home: semantic.tokens > 0 ? 'packages/ame-tokens/semantic/' : null,
     evidence: { tokens: semantic.tokens, references: semantic.refs },
   },
   {
     id: 'c3',
     name: 'Component tokens',
     status: component.tokens > 0 ? 'present' : 'absent',
-    home: component.tokens > 0 ? 'tokens/component/' : null,
+    home: component.tokens > 0 ? 'packages/ame-tokens/component/' : null,
     evidence: { tokens: component.tokens, literals: component.literals },
   },
   {
     id: 'c4',
     name: 'Named composites',
     status: driftFromCheck.H1 > 0 ? 'partial' : semantic.shadows.length > 0 ? 'present' : 'absent',
-    home: 'tokens/semantic/',
+    home: 'packages/ame-tokens/semantic/',
     evidence: {
       shadows: semantic.shadows.length,
       roleSets: ['type', 'motion'].filter((r) => semantic.roles.includes(r)),
@@ -159,21 +157,20 @@ const constraints = [
   {
     id: 'c6',
     name: 'Platform artifacts',
-    status: cssA && cssB ? 'present' : 'absent',
-    home: cssA ? emittedA : null,
+    status: css ? 'present' : 'absent',
+    home: css ? emitted : null,
     evidence: {
-      buildBytes: bytes(emittedA),
-      consumedBytes: bytes(emittedB),
-      parity: run.status === 0 && bytes(emittedA) === bytes(emittedB),
-      properties: cssA ? (cssA.match(/^\s*--[a-z0-9_-]+:/gim) ?? []).length : 0,
-      header: cssA ? cssA.split('\n')[0] : null,
+      bytes: bytes(emitted),
+      parity: run.status === 0,
+      properties: css ? (css.match(/^\s*--[a-z0-9_-]+:/gim) ?? []).length : 0,
+      header: css ? css.split('\n')[0] : null,
     },
   },
   {
     id: 'c7',
     name: 'Package boundary',
     status: manifest ? 'present' : 'absent',
-    home: manifest ? 'tokens/ame.json' : null,
+    home: manifest ? 'packages/ame-tokens/ame.json' : null,
     evidence: manifest
       ? { name: manifest.name, version: manifest.version, format: manifest.format }
       : { measured: 'ame.json is absent; system.version reads unversioned' },
@@ -208,10 +205,10 @@ const instruments = [
   {
     id: 'i3',
     name: 'The transform pipeline',
-    status: has('tokens/build.mjs') ? 'present' : 'absent',
-    home: has('tokens/build.mjs') ? 'tokens/build.mjs' : null,
+    status: has('packages/ame-tokens/build.mjs') ? 'present' : 'absent',
+    home: has('packages/ame-tokens/build.mjs') ? 'packages/ame-tokens/build.mjs' : null,
     evidence: {
-      header: cssA ? cssA.split('\n')[0] : null,
+      header: css ? css.split('\n')[0] : null,
       parity: constraints[5].evidence.parity,
     },
   },

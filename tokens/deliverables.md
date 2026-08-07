@@ -119,13 +119,13 @@ are the constraint half.
 
 | | Deliverable | Home | Rename test breaks | Status |
 |---|---|---|---|---|
-| 1 | Global tokens | `tokens/base/` | Every semantic token referencing it; `build.mjs` throws on the unresolved reference before any CSS is written. | present |
-| 2 | Semantic tokens | `tokens/semantic/` | Every component token and every surface reading the generated name; the emitted property disappears and the rule falls back to nothing. | present |
-| 3 | Component tokens | `tokens/component/` | The one element scoped to it. 16 of them are currently read by no element, which is the H1 count, not a rename risk. | present |
-| 4 | Named composites | `tokens/semantic/` (`elevation.*` shadows, `type.*` and `motion.*` roles) | Every surface binding the role. The `motion.*` set now binds; most of `type.*` does not. | partial |
+| 1 | Global tokens | `packages/ame-tokens/base/` | Every semantic token referencing it; `build.mjs` throws on the unresolved reference before any CSS is written. | present |
+| 2 | Semantic tokens | `packages/ame-tokens/semantic/` | Every component token and every surface reading the generated name; the emitted property disappears and the rule falls back to nothing. | present |
+| 3 | Component tokens | `packages/ame-tokens/component/` | The one element scoped to it. 16 of them are currently read by no element, which is the H1 count, not a rename risk. | present |
+| 4 | Named composites | `packages/ame-tokens/semantic/` (`elevation.*` shadows, `type.*` and `motion.*` roles) | Every surface binding the role. The `motion.*` set now binds; most of `type.*` does not. | partial |
 | 5 | Component APIs | `components/ui/`, `components/portfolio/` | Every call site, by prop name and value string. Not measured beyond file count; no API-surface extraction exists. | partial |
-| 6 | Platform artifacts | `tokens/build/portfolio.tokens.css` and `packages/ame-tokens/tokens.css` | The `@import 'ame-tokens/tokens.css'` in `portfolio.css` and `ame.css`, and every `var()` on the surface. Parity between the two homes is postcondition B4; the version stamp is B5. | present |
-| 7 | Package boundary | `tokens/ame.json` | Nothing yet: no consumer names `ame@x.y.z` in a manifest. The version is stamped on both artifacts and checked by B5, so the binding is auditable before it is bound. | present |
+| 6 | Platform artifacts | `packages/ame-tokens/tokens.css` | The `@import 'ame-tokens/tokens.css'` in `portfolio.css` and `ame.css`, and every `var()` on the surface. One home now: B4 rebuilds it from source in memory and byte-compares the committed file; the version stamp is B5. | present |
+| 7 | Package boundary | `packages/ame-tokens/ame.json` | Nothing yet: no consumer names `ame@x.y.z` in a manifest. The version is stamped on the artifact and checked by B5, so the binding is auditable before it is bound. | present |
 
 The binding-path consequence in the section above is invariant **U1**, evaluated
 in `check.mjs`: no surface reads a base-tier custom property. It measured 16

@@ -41,10 +41,9 @@
     ]
   },
   "manifest": {
-    "$description": "B5. Both emitted CSS homes stamp the manifest version on their first line. The version's single home is ame.json; build.mjs writes the header, check.mjs extracts it with the pattern below and compares. A stale artifact and a bumped manifest cannot agree by accident.",
-    "file": "ame.json",
+    "$description": "B4, B5. One emitted CSS home now (the package the portfolio and Metis bind); no second copy to drift from. It stamps the manifest version on its first line (B5, extracted with the pattern below), and B4 rebuilds the CSS from source in memory and byte-compares the committed file to it, so a source edit that was never rebuilt cannot pass. The version's single home is packages/ame-tokens/ame.json.",
+    "file": "packages/ame-tokens/ame.json",
     "emitted": [
-      "tokens/build/portfolio.tokens.css",
       "packages/ame-tokens/tokens.css"
     ],
     "pattern": "^/\\* ame@([0-9]+\\.[0-9]+\\.[0-9]+) "
