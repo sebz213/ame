@@ -97,7 +97,7 @@ const driftFromCheck = Object.fromEntries(
 const manifest = readJson('tokens/ame.json')
 const version = manifest?.version ?? 'unversioned'
 const emittedA = 'tokens/build/portfolio.tokens.css'
-const emittedB = 'app/(portfolio)/portfolio.tokens.css'
+const emittedB = 'packages/ame-tokens/tokens.css'
 const cssA = read(emittedA)
 const cssB = read(emittedB)
 const runsLog = (read('tokens/runs.log') ?? '').split('\n').filter((l) => l.trim())

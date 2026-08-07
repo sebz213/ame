@@ -42,8 +42,8 @@ There is no third behaviour: the build does not repair, warn, or guess.
   emitted value contains an unresolved reference.
 - **B3** Every alias in `ALIASES` resolves to exactly one token and emits
   `var(--that-token)`. An alias adds a spelling, never a second home for a value.
-- **B4** `app/(portfolio)/portfolio.tokens.css` is byte-identical to the
-  versioned artifact under `build/`.
+- **B4** `packages/ame-tokens/tokens.css` (the published home the portfolio and
+  Metis bind) is byte-identical to the versioned artifact under `build/`.
 - **B5** Both emitted files stamp the manifest version on their first line:
   `/* ame@<version> · <format> · generated, do not edit */`. The version's single
   home is `ame.json`. A shipped artifact and a bumped manifest cannot silently

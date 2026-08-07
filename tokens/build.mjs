@@ -10,7 +10,9 @@
 
   Output:
     build/portfolio.tokens.css              versioned artifact
-    ../app/(portfolio)/portfolio.tokens.css consumed by portfolio.css
+    ../packages/ame-tokens/tokens.css       the published home, byte-identical
+                                            mirror, bound by the portfolio (and
+                                            Metis) through the package boundary
 
   This file transforms. It does not judge: every consistency condition is
   checked in check.mjs and nowhere else.
@@ -404,17 +406,16 @@ function main() {
 
   mkdirSync(join(ROOT, 'build'), { recursive: true })
   writeFileSync(join(ROOT, 'build', 'portfolio.tokens.css'), out)
-  writeFileSync(join(ROOT, '..', 'app', '(portfolio)', 'portfolio.tokens.css'), out)
-  // The consumed home. The portfolio and Metis both bind ame-tokens/tokens.css
-  // through the package boundary (workspace link / install), not a local copy.
-  // Emitted from the same string as the B4 pair, so it stays byte-identical.
+  // The consumed home, and the B4 mirror of the versioned artifact above. The
+  // portfolio and Metis both bind ame-tokens/tokens.css through the package
+  // boundary (workspace link / install), not a local copy. Emitted from the
+  // same string as the versioned artifact, so B4 holds the two byte-identical.
   mkdirSync(join(ROOT, '..', 'packages', 'ame-tokens'), { recursive: true })
   writeFileSync(join(ROOT, '..', 'packages', 'ame-tokens', 'tokens.css'), out)
 
   console.log(
     `Built ${tokens.length} tokens + ${Object.keys(ALIASES).length} aliases\n` +
       `  -> tokens/build/portfolio.tokens.css\n` +
-      `  -> app/(portfolio)/portfolio.tokens.css\n` +
       `  -> packages/ame-tokens/tokens.css`,
   )
   return doc

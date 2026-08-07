@@ -124,7 +124,7 @@ are the constraint half.
 | 3 | Component tokens | `tokens/component/` | The one element scoped to it. 16 of them are currently read by no element, which is the H1 count, not a rename risk. | present |
 | 4 | Named composites | `tokens/semantic/` (`elevation.*` shadows, `type.*` and `motion.*` roles) | Every surface binding the role. The `motion.*` set now binds; most of `type.*` does not. | partial |
 | 5 | Component APIs | `components/ui/`, `components/portfolio/` | Every call site, by prop name and value string. Not measured beyond file count; no API-surface extraction exists. | partial |
-| 6 | Platform artifacts | `tokens/build/portfolio.tokens.css` and `app/(portfolio)/portfolio.tokens.css` | The `@import` in `portfolio.css`, and every `var()` on the surface. Parity between the two homes is postcondition B4; the version stamp is B5. | present |
+| 6 | Platform artifacts | `tokens/build/portfolio.tokens.css` and `packages/ame-tokens/tokens.css` | The `@import 'ame-tokens/tokens.css'` in `portfolio.css` and `ame.css`, and every `var()` on the surface. Parity between the two homes is postcondition B4; the version stamp is B5. | present |
 | 7 | Package boundary | `tokens/ame.json` | Nothing yet: no consumer names `ame@x.y.z` in a manifest. The version is stamped on both artifacts and checked by B5, so the binding is auditable before it is bound. | present |
 
 The binding-path consequence in the section above is invariant **U1**, evaluated

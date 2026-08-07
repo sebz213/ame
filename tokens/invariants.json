@@ -45,7 +45,7 @@
     "file": "ame.json",
     "emitted": [
       "tokens/build/portfolio.tokens.css",
-      "app/(portfolio)/portfolio.tokens.css"
+      "packages/ame-tokens/tokens.css"
     ],
     "pattern": "^/\\* ame@([0-9]+\\.[0-9]+\\.[0-9]+) "
   },
@@ -339,9 +339,7 @@
       ".tsx",
       ".css"
     ],
-    "exclude": [
-      "app/(portfolio)/portfolio.tokens.css"
-    ],
+    "exclude": [],
     "target": 0
   },
   "uses_graph": {

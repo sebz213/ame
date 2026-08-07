@@ -58,7 +58,7 @@ export default tseslint.config(
       'node_modules/**',
       '.next/**',
       'tokens/build/**',
-      'app/(portfolio)/portfolio.tokens.css',
+      'packages/ame-tokens/tokens.css',
       // Vendored shadcn/ui primitives. Their names and shape are upstream's
       // call, not this repo's, the same exemption R-8 and invariants.json >
       // synonyms.symbol_exclude already grant components/ui (decision R-23).

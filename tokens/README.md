@@ -39,7 +39,7 @@ first), and [`RUNBOOK.md`](../RUNBOOK.md) (the three operator procedures).
 ## Running it
 
 ```bash
-pnpm ame build      # emits build/portfolio.tokens.css and the copy portfolio.css imports
+pnpm ame build      # emits build/portfolio.tokens.css and packages/ame-tokens/tokens.css (the published home)
 pnpm ame check      # every invariant; exit 1 on a violation or on drift growth
 pnpm ame dipstick   # a dated export of what all 13 deliverables currently are
 pnpm build          # the gate: build, check, next build, check --shipped
