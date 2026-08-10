@@ -1,3 +1,6 @@
 *.glb filter=lfs diff=lfs merge=lfs -text
+# Assets over the V4 5 MB line live in LFS, not in the pack. Listed by path
+# because git matches names, not sizes; V4 is the size rule these paths satisfy.
+public/screens/*.svg filter=lfs diff=lfs merge=lfs -text
 public/kindle-mascot.svg filter=lfs diff=lfs merge=lfs -text
 public/kindle-ux-collection.svg filter=lfs diff=lfs merge=lfs -text
