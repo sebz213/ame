@@ -85,6 +85,18 @@ These hold before and after any change to any token, not of any one token.
   composited over its background before measuring. The pairs and their minimums
   are in `invariants.json`; the measured ratios are in `outcomes.md`.
 
+### CV. Contrast coverage
+
+- **CV1** A pair a surface renders is a pair a C clause measures. Where a rule
+  states both a foreground and a background from tokens, that pair is declared in
+  `contrast.pairs` or waived with a reason. C1–C10 fix the ratio of each declared
+  pair; this fixes the set of pairs, so a new reading combination cannot ship
+  unmeasured. Pair order does not matter: the WCAG ratio is symmetric. Reach, so
+  the clause does not overclaim: only a foreground and background stated together,
+  in one rule or one inline style object, are visible to it. A background on a
+  container with the colour inherited by a child is a rendered pair this clause
+  cannot see.
+
 ### P. Parity
 
 - **P1–P3** A value with a second home in hand-written source. The token is the

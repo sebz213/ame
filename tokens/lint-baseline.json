@@ -1,9 +1,9 @@
 {
   "$description": "The WARNING census from eslint.config.mjs, per rule (WO-6.3, decision R-23). These are the structural smells the config reports at warning severity: they do not block, but the counts only ever move down, the same ratchet rule baseline.json holds for token drift (X1). Lower a number only in the change that earns it. The ERROR-severity rules (no-cond-assign, no-param-reassign, prefer-const, complexity) are absent here because they are held at zero by the gate, not baselined. Automated CI enforcement of these counts is deferred to Phase 4 (Agent 3 WO-3.5); this file is the record it will read. Scope excludes vendored components/ui (R-8).",
-  "$measured": "2026-08-03",
-  "max-lines-per-function": 40,
+  "$measured": "2026-08-10",
+  "max-lines-per-function": 33,
   "max-depth": 2,
   "@typescript-eslint/naming-convention": 6,
   "max-params": 0,
-  "total": 48
+  "total": 41
 }

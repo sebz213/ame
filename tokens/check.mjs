@@ -227,6 +227,72 @@ const contrastResults = []
   }
 })()
 
+// ── CV1. Every rendered pair is a declared pair ──────────────────────────────
+// C1-C10 measure the pairs someone declared. This measures the other direction:
+// a surface stating a foreground and a background together, from tokens, that no
+// C clause covers. The declared set is read off contrastResults, which already
+// holds the derived -dark twins, so nothing about the pair list is restated here.
+// Order is normalized because the WCAG ratio is symmetric.
+;(function checkContrastCoverage() {
+  const cv = RULES.contrast_coverage
+  const byCss = new Map(tokens.map((t) => [cssName(t.path), t.path]))
+  // A var() name is a token, or an alias standing for one token per theme.
+  const resolveVar = (name, theme) => {
+    const direct = byCss.get(name)
+    if (direct) return direct
+    const alias = ALIASES[name]
+    if (!alias) return null
+    return typeof alias === 'string' ? alias : (alias[theme] ?? null)
+  }
+  const key = (a, b) => [a, b].sort().join('  with  ')
+  const declared = new Set(contrastResults.map((r) => key(r.fg, r.bg)))
+  const waived = new Set(Object.keys(cv.waived))
+  const VAR = /var\((--[a-z0-9_-]+)/
+
+  const found = new Map()
+  const consider = (fgRaw, bgRaw, where) => {
+    const fv = fgRaw.match(VAR)
+    const bv = bgRaw.match(VAR)
+    if (!fv || !bv) return
+    for (const theme of ['light', 'dark']) {
+      const fp = resolveVar(fv[1], theme)
+      const bp = resolveVar(bv[1], theme)
+      if (!fp || !bp || fp === bp) continue
+      const k = key(fp, bp)
+      if (declared.has(k) || waived.has(k)) continue
+      if (!found.has(k)) found.set(k, { fp, bp, where })
+    }
+  }
+
+  const files = cv.surfaces
+    .flatMap((s) => walkFiles(s))
+    .filter((f) => cv.extensions.some((e) => f.endsWith(e)))
+  for (const f of files) {
+    const src = read(f)
+    if (f.endsWith('.css')) {
+      // One declaration block at a time: a pair is only visible when a single
+      // rule states both halves.
+      for (const block of src.split('}')) {
+        const fg = block.match(/(?:^|[;{\s])color\s*:\s*([^;]+)/)
+        const bg = block.match(/(?:^|[;{\s])background(?:-color)?\s*:\s*([^;]+)/)
+        if (fg && bg) consider(fg[1], bg[1], f)
+      }
+    } else {
+      for (const m of src.matchAll(/style=\{\{[\s\S]*?\}\}/g)) {
+        const fg = m[0].match(/(?:^|[,{\s])color\s*:\s*([^,}]+)/)
+        const bg = m[0].match(/(?:^|[,{\s])background(?:Color)?\s*:\s*([^,}]+)/)
+        if (fg && bg) consider(fg[1], bg[1], f)
+      }
+    }
+  }
+
+  for (const [, v] of found)
+    fail(
+      cv.id,
+      `${v.where} renders ${v.fp} on ${v.bp}, a contrast pair no C clause measures. Add it to invariants.json > contrast.pairs (which puts it under the ratio check), or waive it in contrast_coverage.waived with a reason.`,
+    )
+})()
+
 // ── P. Parity with hand-written source ──────────────────────────────────────
 ;(function checkParity() {
   for (const e of RULES.parity.entries) {
