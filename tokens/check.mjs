@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /*
   The verifier. Every consistency condition in contract.md is evaluated here and
-  nowhere else: not in build.mjs, not restated in prose, not asserted twice.
+  nowhere else in this repo: not in build.mjs, not restated in prose, not
+  asserted twice. One deliberate exception, so the header does not overclaim:
+  packages/ame-tokens/check.mjs re-implements B4, B5, and U1 as the portable
+  subset a consumer runs against the installed package, in the consumer's tree.
+  Different subject, same clauses; it travels, this file does not (decision D-20).
 
   Two severities:
     VIOLATION  a stated clause is broken. Exit 1.
@@ -221,6 +225,72 @@ const contrastResults = []
       }
     }
   }
+})()
+
+// ── CV1. Every rendered pair is a declared pair ──────────────────────────────
+// C1-C10 measure the pairs someone declared. This measures the other direction:
+// a surface stating a foreground and a background together, from tokens, that no
+// C clause covers. The declared set is read off contrastResults, which already
+// holds the derived -dark twins, so nothing about the pair list is restated here.
+// Order is normalized because the WCAG ratio is symmetric.
+;(function checkContrastCoverage() {
+  const cv = RULES.contrast_coverage
+  const byCss = new Map(tokens.map((t) => [cssName(t.path), t.path]))
+  // A var() name is a token, or an alias standing for one token per theme.
+  const resolveVar = (name, theme) => {
+    const direct = byCss.get(name)
+    if (direct) return direct
+    const alias = ALIASES[name]
+    if (!alias) return null
+    return typeof alias === 'string' ? alias : (alias[theme] ?? null)
+  }
+  const key = (a, b) => [a, b].sort().join('  with  ')
+  const declared = new Set(contrastResults.map((r) => key(r.fg, r.bg)))
+  const waived = new Set(Object.keys(cv.waived))
+  const VAR = /var\((--[a-z0-9_-]+)/
+
+  const found = new Map()
+  const consider = (fgRaw, bgRaw, where) => {
+    const fv = fgRaw.match(VAR)
+    const bv = bgRaw.match(VAR)
+    if (!fv || !bv) return
+    for (const theme of ['light', 'dark']) {
+      const fp = resolveVar(fv[1], theme)
+      const bp = resolveVar(bv[1], theme)
+      if (!fp || !bp || fp === bp) continue
+      const k = key(fp, bp)
+      if (declared.has(k) || waived.has(k)) continue
+      if (!found.has(k)) found.set(k, { fp, bp, where })
+    }
+  }
+
+  const files = cv.surfaces
+    .flatMap((s) => walkFiles(s))
+    .filter((f) => cv.extensions.some((e) => f.endsWith(e)))
+  for (const f of files) {
+    const src = read(f)
+    if (f.endsWith('.css')) {
+      // One declaration block at a time: a pair is only visible when a single
+      // rule states both halves.
+      for (const block of src.split('}')) {
+        const fg = block.match(/(?:^|[;{\s])color\s*:\s*([^;]+)/)
+        const bg = block.match(/(?:^|[;{\s])background(?:-color)?\s*:\s*([^;]+)/)
+        if (fg && bg) consider(fg[1], bg[1], f)
+      }
+    } else {
+      for (const m of src.matchAll(/style=\{\{[\s\S]*?\}\}/g)) {
+        const fg = m[0].match(/(?:^|[,{\s])color\s*:\s*([^,}]+)/)
+        const bg = m[0].match(/(?:^|[,{\s])background(?:Color)?\s*:\s*([^,}]+)/)
+        if (fg && bg) consider(fg[1], bg[1], f)
+      }
+    }
+  }
+
+  for (const [, v] of found)
+    fail(
+      cv.id,
+      `${v.where} renders ${v.fp} on ${v.bp}, a contrast pair no C clause measures. Add it to invariants.json > contrast.pairs (which puts it under the ratio check), or waive it in contrast_coverage.waived with a reason.`,
+    )
 })()
 
 // ── P. Parity with hand-written source ──────────────────────────────────────
@@ -530,6 +600,123 @@ const clientless = []
         fail(a.id, `${f} is ${size} B, above its waived ceiling of ${waived} B. A waiver only ratchets down; shrink it in its reduction order, never grow it.`)
     } else if (size > a.budgets[cls]) {
       fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
+    }
+  }
+})()
+
+// ── W1, W2. CI references a script that exists, with a least-privilege token ──
+// A path spelled in a CI step binds the tree exactly the way a var() binds a
+// token, and it was the one binding here nothing checked: both workflows ran
+// `node tokens/build.mjs` long after the script moved, and stayed green because
+// an unpushed workflow never runs. This resolves what CI actually spells — script
+// paths, and the package.json script names CI prefers to spell instead — against
+// the tree now, rather than at first push. Data in invariants.json > workflows.
+;(function checkWorkflows() {
+  const w = RULES.workflows
+  const manifest = JSON.parse(read(w.manifest) || '{}')
+  const scripts = manifest.scripts || {}
+  const ignore = new Set(w.ignore)
+  const builtins = new Set(w.runner_builtins)
+  const exists = (p) => existsSync(join(REPO, p))
+  const isPath = (s) => w.path_extensions.some((e) => s.endsWith(e))
+
+  // Every path-shaped token in a command, and every `<runner> <script>` name.
+  const inspect = (cmd, where) => {
+    for (const m of cmd.matchAll(/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+/g)) {
+      const p = m[0]
+      if (!isPath(p) || ignore.has(p)) continue
+      if (!exists(p))
+        fail(w.id, `${where} runs "${p}", which is not in the tree. Point it at the script's real home, or record the path in invariants.json > workflows.ignore.`)
+    }
+    for (const r of w.runners)
+      for (const m of cmd.matchAll(new RegExp('\\b' + r.replace(/ /g, '\\s+') + '\\s+([a-z][a-z0-9:._-]*)', 'g')))
+        if (!(m[1] in scripts) && !builtins.has(m[1]))
+          fail(w.id, `${where} runs "${r} ${m[1]}", which is not a script in ${w.manifest}. Add the script, or call the tool directly.`)
+  }
+
+  // package.json scripts bind paths too, and CI now defers to them, so a stale
+  // path there is the same defect one level down.
+  for (const [name, cmd] of Object.entries(scripts)) inspect(cmd, `${w.manifest} script "${name}"`)
+
+  const dir = join(REPO, w.dir)
+  if (!existsSync(dir)) {
+    fail(w.id, `${w.dir} does not exist; STANDARD.md C4 requires CI to run the build and checks on every push.`)
+    return
+  }
+  for (const f of readdirSync(dir)) {
+    if (!w.workflow_extensions.some((e) => f.endsWith(e))) continue
+    const rel = w.dir + '/' + f
+    const src = read(rel)
+    const lines = src.split('\n')
+
+    // `run:` values, single-line and block-scalar. Comments are not executed, so
+    // they are not weighed here; only what CI actually runs.
+    for (let i = 0; i < lines.length; i++) {
+      const one = lines[i].match(/^\s*(?:-\s*)?run:\s*(?![|>])(\S.*)$/)
+      if (one) { inspect(one[1].split('#')[0], rel); continue }
+      if (!/^\s*(?:-\s*)?run:\s*[|>]/.test(lines[i])) continue
+      const indent = lines[i].search(/\S/)
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim() === '') continue
+        if (lines[j].search(/\S/) <= indent) break
+        inspect(lines[j], rel)
+      }
+    }
+
+    // A `with:` input naming a file (node-version-file, and its siblings for
+    // other runtimes) is a path CI spells, so it is verified like any other.
+    // These live in `with:` blocks rather than `run:`, and carry no extension,
+    // so the run-line scan above cannot see them.
+    for (const m of src.matchAll(/^\s*[a-z-]+-file:\s*(\S+)\s*$/gm)) {
+      const p = m[1].replace(/^['"]|['"]$/g, '')
+      if (!ignore.has(p) && !existsSync(join(REPO, p)))
+        fail(w.id, `${rel} points at "${p}", which is not in the tree.`)
+    }
+
+    // A runtime version written here is a version with one home per workflow.
+    for (const [key, instead] of Object.entries(w.banned_version_keys))
+      if (new RegExp('^\\s*' + key + ':', 'm').test(src))
+        fail(w.version_key_id, `${rel} spells "${key}:" inline; a runtime version belongs in one home the whole repo reads. Use ${instead}.`)
+
+    if (!new RegExp('permissions:[\\s\\S]*?' + w.required_permission.replace(/:\s*/, ':\\s*')).test(src))
+      fail(w.permissions_id, `${rel} declares no least-privilege token; add "permissions:\\n  ${w.required_permission}" so a workflow that only reads the tree cannot write to it.`)
+  }
+})()
+
+// ── VN1, VN2. Code the author did not write is traceable to a source ─────────
+// The manifest and the tree hold each other: a vendored file that nobody recorded
+// fails, and a recorded path that no longer exists fails. VN2 keeps the root
+// itself to one home, since three separate configs exempt it by name and a rename
+// that missed one would quietly change what the standard covers.
+;(function checkVendored() {
+  const v = RULES.vendored
+  const manifest = read(v.manifest)
+  if (!manifest) {
+    fail(v.id, `${v.manifest} is missing; every vendored root needs a manifest naming where its files came from.`)
+    return
+  }
+  const listed = new Set(manifest.match(/[A-Za-z0-9_./-]+\.tsx?/g) ?? [])
+
+  for (const root of v.roots) {
+    const onDisk = walkFiles(root).filter((f) => v.extensions.some((e) => f.endsWith(e)))
+    for (const f of onDisk)
+      if (!listed.has(f))
+        fail(v.id, `${f} sits under the vendored root ${root} but is not recorded in ${v.manifest}. Record where it came from, or move it out of the vendored root.`)
+    for (const p of listed)
+      if (p.startsWith(root + '/') && !existsSync(join(REPO, p)))
+        fail(v.id, `${v.manifest} lists ${p}, which is not in the tree. Remove the stale entry.`)
+
+    // VN2. The root is exempted by name in several configs; they must agree.
+    // Matched as a quoted entry, not a substring: these files discuss the root
+    // in prose too, and a comment mentioning it is not an exemption granting it.
+    const quoted = new RegExp(`['"\`]${root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(/\\*\\*)?['"\`]`)
+    for (const file of v.exempting_files)
+      if (!quoted.test(read(file)))
+        fail(v.root_id, `${file} no longer names the vendored root ${root} as an entry; its exemption and ${v.manifest} disagree about what is vendored.`)
+    for (const keyPath of v.exempting_keys) {
+      const list = keyPath.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), RULES)
+      if (!Array.isArray(list) || !list.includes(root))
+        fail(v.root_id, `invariants.json > ${keyPath} no longer lists the vendored root ${root}; the exemptions and ${v.manifest} disagree about what is vendored.`)
     }
   }
 })()

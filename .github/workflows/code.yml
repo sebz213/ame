@@ -15,6 +15,11 @@ on:
   push:
   pull_request:
 
+# CI reads the tree and nothing else. No step here writes to the repository,
+# so the token it gets should not be able to (clause W2).
+permissions:
+  contents: read
+
 jobs:
   code:
     runs-on: ubuntu-latest
@@ -32,17 +37,34 @@ jobs:
       # different pnpm versions without either file looking wrong.
       - uses: pnpm/action-setup@v4
 
+      # Same reasoning as the pnpm note above, applied to Node. The version was
+      # spelled `node-version-file: .nvmrc` here AND in content-readiness.yml, so the two
+      # jobs could drift onto different runtimes without either file looking
+      # wrong. `.nvmrc` is the one home, and nvm/fnm read it locally, so the
+      # runtime a contributor uses and the one CI uses are the same string.
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
       # Token build + the full invariant gate (contrast, drift, K1 asset budget,
-      # T1–T3 registry/taxonomy).
-      - name: tokens build and check
-        run: node tokens/build.mjs && node tokens/check.mjs
+      # T1–T3 registry/taxonomy). Every step names a package.json script, never
+      # a script path: the path has one home (package.json) and moving a script
+      # cannot leave CI pointing at a file that no longer exists. Clause W1
+      # checks that the scripts these names resolve to still exist.
+      - name: tokens build
+        run: pnpm tokens:build
+
+      # The docs are generated from the token source; --check fails when the
+      # committed docs disagree with a fresh generation. `pnpm build` has always
+      # run this, so CI omitting it let a docs drift pass CI and fail the build.
+      - name: docgen check
+        run: pnpm docgen:check
+
+      - name: tokens check
+        run: pnpm tokens:check
 
       - name: lint
         run: pnpm lint

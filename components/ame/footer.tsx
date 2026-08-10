@@ -78,7 +78,7 @@ export function AmeFooter({
           <div className="flex flex-col" style={{ gap: 'var(--space-grid-gap)', marginBottom: 'var(--space-section-gap)' }}>
             {logo}
             {intro && (
-              <div className="max-w-sm" style={{ lineHeight: 'var(--font-leading-relaxed)' }}>
+              <div className="max-w-sm" style={{ lineHeight: 'var(--type-body-leading)' }}>
                 {intro}
               </div>
             )}

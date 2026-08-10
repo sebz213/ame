@@ -197,6 +197,14 @@
       }
     ]
   },
+  "contrast_coverage": {
+    "$description": "contract.md CV1 (decision R-71). C1-C10 prove the ratio of every pair someone declared; this proves nobody is rendering a pair they forgot to declare. It reads the surfaces for a rule that sets BOTH a foreground and a background from tokens, resolves each through cssName and the alias map (so --port-text-primary is measured as text.body in light and text.body-on-dark in dark), and requires the resulting pair to be one checkContrast already measured. Pair order is normalized because the WCAG ratio is symmetric: background.page on text.brand is C4 read backwards, not a new pair. The fix for a violation is to add the pair to contrast.pairs, which puts it under C-clause measurement automatically — so this clause proves coverage and the C clauses prove ratios, one home each. Known reach, stated rather than implied: it only sees a foreground and background stated in the SAME rule or the same inline style object. A background set on a container with the colour inherited by a child is a real rendered pair this cannot see, so a pass means no DECLARABLE pair was missed, not that every rendered pair is covered.",
+    "id": "CV1",
+    "surfaces": ["app", "components"],
+    "extensions": [".css", ".tsx"],
+    "waived": {},
+    "waived_because": "Empty: every co-located pair the scan resolves today is already declared. An entry needs a dated decision naming why a rendered pair legitimately carries no contrast requirement — decorative text over an image, or a foreground the design intends to be invisible."
+  },
   "parity": {
     "$description": "P1 to P3. A value with a second home in hand-written source. The token is the home; the literal must equal it. Each entry names the file, the pattern that finds the literal, and the token it must match.",
     "entries": [
@@ -332,12 +340,21 @@
     "id": "U1",
     "surfaces": [
       "app/(portfolio)",
-      "components/portfolio"
+      "components/portfolio",
+      "app/ame",
+      "components/ame",
+      "components/docs-ui",
+      "components/mdx",
+      "content",
+      "lib",
+      "hooks"
     ],
+    "surfaces_because": "U1 always read .ts and .tsx, but only under the two portfolio directories, so the /ame area was a surface the tripwire did not watch. It bound five base primitives through inline style: --color-ink, --radius-pill, --duration-slow, --font-size-13 (nav.tsx) and --font-leading-relaxed (footer.tsx). Each was repointed at the role that already held its value, and the two roles that did not exist yet were added (type.body-leading, component.nav.pill-fg), so the count is 0 across the widened scope and needed no baseline. Two directories stay out and are named rather than silently absent: components/ui is vendored and its names are upstream's call (R-8), and app/prototypes renders outside the token scope on purpose, binding its own --ambient-* namespace (R-66).",
     "extensions": [
       ".ts",
       ".tsx",
-      ".css"
+      ".css",
+      ".mdx"
     ],
     "exclude": [],
     "target": 0
@@ -472,6 +489,36 @@
     },
     "waived_because": "Ten assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg (10.0 MB) and kindle-ux-collection.svg (15.0 MB) are almost certainly embedded raster in an SVG wrapper; re-authoring them to <=500 KB each is WO-8.1, and that outcome is what unblocks Agent 3 WO-3.2 (the V4 large-binary breach). iphone17-pro.glb (82.7 MB) waits on a DRACO/meshopt-compressed variant plus viewer lazy-load (WO-8.1, WO-8.5). frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. screens/6-10.svg (3.8-8.1 MB) are the Kindle Japan product screens feeding the case-study PanelWall hero: embedded raster in an SVG wrapper, they wait on a raster re-export (WebP/PNG) that both clears the ceiling and cuts the wall's ~15-20s first-paint. screens/activating.svg (0.6 MB) is the same family (the Activating-state screen, exact source bytes kept unminified so the render is identical to the design file) and waits on the same raster re-export. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
   },
+  "workflows": {
+    "$description": "STANDARD.md section W (decision R-69). A path spelled inside a CI step is a binding like any other, and until now it was the only binding in this repo that nothing verified. The break it closes, found on this branch: both workflows ran `node tokens/build.mjs` for the whole life of a branch that had already moved that script to packages/ame-tokens/build.mjs. Nothing went red, because the workflows had never been pushed and so had never run — the same vacuous pass V7 has while no tag exists. W1 verifies every script path and script name a workflow or a package.json script spells, against the tree, at gate time instead of at first-push time. W2 asserts each workflow declares a least-privilege token. Data here, logic in checkWorkflows in check.mjs, clause in STANDARD.md section W.",
+    "id": "W1",
+    "permissions_id": "W2",
+    "dir": ".github/workflows",
+    "manifest": "package.json",
+    "workflow_extensions": [".yml", ".yaml"],
+    "path_extensions": [".mjs", ".js", ".cjs", ".ts", ".json"],
+    "runners": ["pnpm", "npm run", "yarn"],
+    "runner_builtins": ["install", "i", "add", "remove", "update", "exec", "dlx", "run", "why", "store", "config", "link", "publish", "pack", "audit", "outdated", "list", "ls", "rebuild", "prune", "import", "setup", "env", "licenses", "deploy"],
+    "runner_builtins_because": "A runner's own subcommand is not a package.json script; `pnpm install` must not be read as a missing script. A name is checked against scripts first, so a builtin that is also a script here (test, start) is still verified as the script it is.",
+    "required_permission": "contents: read",
+    "version_key_id": "W4",
+    "banned_version_keys": {
+      "node-version": "node-version-file, pointing at .nvmrc"
+    },
+    "banned_version_keys_because": "A runtime version written into a workflow is a version with as many homes as there are workflows. It was spelled `node-version: 24` in both of this repo's jobs, which could drift onto different runtimes with neither file looking wrong — while the pnpm comment three lines above explained why pnpm's version is read from package.json instead. The -file form gives the version one home that CI and a local nvm/fnm both read. W1 verifies the file that form points at actually exists, so the indirection cannot become a dangling reference.",
+    "ignore": [],
+    "ignore_because": "No referenced path is exempt today. An entry here needs a dated decision naming why a path a CI step spells legitimately does not exist in the tree — a file an earlier step generates before use is the one plausible case."
+  },
+  "vendored": {
+    "$description": "STANDARD.md section VN (decision R-72). Both this tree and the comparison tree it was measured against carry code their author did not write; only one recorded where it came from. components/ui holds 61 files copied from the shadcn/ui registry with no upstream revision, no manifest, and a blanket lint carve-out (R-8) standing in for a written boundary. VN1 holds VENDORED.md and the tree to each other by machine: every file under a root is listed, every listed path exists, so a component cannot be added without recording it. VN2 asserts the root has one home — the string components/ui is spelled in three enforcement places (eslint ignores, synonyms.symbol_exclude, uses_graph.exclude_prefixes), and a rename that missed one would silently un-exempt or over-exempt the directory. What VN1 cannot do is verify the files match upstream; that needs the revision the import never recorded, which VENDORED.md states as an open gap rather than inventing.",
+    "id": "VN1",
+    "root_id": "VN2",
+    "manifest": "VENDORED.md",
+    "roots": ["components/ui"],
+    "extensions": [".ts", ".tsx"],
+    "exempting_files": ["eslint.config.mjs"],
+    "exempting_keys": ["synonyms.symbol_exclude", "uses_graph.base_read.exclude_prefixes"]
+  },
   "census": {
     "$description": "contract.md section Z (WO-9.1, decision R-50). The contract->invariants->check bijection, made machine-enforced instead of discipline-enforced. checkCensus parses the clause IDs declared in tokens/contract.md (the bold **A1** / **C1-C10** markers, en-dash normalized) and asserts each one has a census record below; a record names the invariants.json key that holds the clause's data (`invariant`) and the function in check.mjs that evaluates it (`check`), or carries a `structural` waiver naming the build.mjs mechanism that enforces it instead of a check.mjs branch. A clause with no record, a record naming a missing invariants key, or a record naming a check function absent from check.mjs fails Z1. A census record for a clause the contract no longer declares also fails, so the map cannot rot. threshold_scan is Z2: a grep-class scan asserting no threshold literal is hardcoded in the checker (deliverables.md: the gate imports its thresholds, never restates them), with a small allowlist of legitimate constants. Data here, logic in check.mjs, clause in contract.md, one home each.",
     "id": "Z1",
@@ -495,6 +542,7 @@
       "N1": { "invariant": "naming", "check": "checkFormat" },
       "N2": { "invariant": "synonyms", "check": "checkSynonyms" },
       "C1-C10": { "invariant": "contrast", "check": "checkContrast" },
+      "CV1": { "invariant": "contrast_coverage", "check": "checkContrastCoverage" },
       "P1-P3": { "invariant": "parity", "check": "checkParity" },
       "D1": { "invariant": "duplication", "check": "checkDuplication" },
       "S1-S5": { "invariant": "scales", "check": "checkScales" },

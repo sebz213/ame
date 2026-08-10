@@ -43,7 +43,12 @@
       "pill-bg": { "$type": "color", "$value": "{nav.bg}" },
       "pill-bg-on-dark": { "$type": "color", "$value": "{nav.bg-on-dark}" },
       "pill-shadow": { "$type": "shadow", "$value": "{elevation.pill}" },
-      "pill-shadow-on-dark": { "$type": "shadow", "$value": "{elevation.pill-on-dark}" }
+      "pill-shadow-on-dark": { "$type": "shadow", "$value": "{elevation.pill-on-dark}" },
+      "pill-fg": {
+        "$type": "color",
+        "$value": "{text.body}",
+        "$description": "The selected nav label, which sits on the bright pill in both themes (pill-bg is white 72%, pill-bg-on-dark white 92%), so it stays dark and takes no -on-dark counterpart. The unselected labels sit on the glass and read --port-glass-fg-muted instead."
+      }
     },
 
     "topbar": {
