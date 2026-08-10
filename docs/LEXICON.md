@@ -33,6 +33,12 @@ global (N3) and its entry here moves with it.
 | **placeholder** | A `[[TOKEN]]`-shaped copy marker standing in for content not yet written. A placeholder says on its face that a page is unfinished, so G1 blocks any placeholder from reaching a deployed route (STANDARD.md C5). |
 | **metis-marketing** | The ink-theme portfolio home: route `app/(portfolio)/metis-marketing/` and component `metis-marketing-splash.tsx` (`MetisMarketingSplash`). It renders the same home component as `/portfolio`, opening dark with the Metis splash and mark. |
 | **mmarketing** | Superseded name for **metis-marketing**. Renamed in full (route, component file, exported symbols, `DARK_ROUTES`) because it read as a typo, which fails Feitelson's derive-the-same-meaning test outright (R-20). Retained here only as the former spelling; no code uses it. |
+| **woven** | The verification feature: an intake-to-receipt pipeline for AI-generated deliverables. Home `packages/woven/`, versioned `woven@0.1.0` on a clock independent of `ame@x.y.z` (R-74). Written **Woven** in prose; the lowercase word is the banned metaphor verb for abstract work, and the coherence gate matches it case-sensitively so the name passes and the metaphor does not. |
+| **instrument** | A derived, parity-checked statistic over rendered canon, emitting DRIFT readings. Built from the tree, byte-rebuildable from shipped embeddings, so it cannot go stale the way a golden screenshot does. An instrument measures and never decides; a policy over its readings is what produces a verdict. |
+| **convergence** | Resemblance to a reference cloud, read by an instrument. A reading, never a verdict. Its pair is **conformance**: compliance with stated rules, decided by clauses, output VIOLATION or pass. The two never share a meaning. |
+| **battery** | A fixed, versioned prompt set run against outside generators by dated recipe. Two exist: ambient (what the crowd makes) and counterfactual (what a machine makes of Ame's own assignment). Editing a prompt without bumping the battery version is a violation, because an undated recipe cannot be re-run. |
+| **receipt** | The signed record of one asset's verdicts, readings, and attestations, pinned to the clause-pack and instrument versions it was judged under. Its three ranks stay typographically apart: clause verdicts reproduce, band verdicts reproduce as arithmetic, attestations verify only as signatures. |
+| **attestation** | A signed human judgment, recorded where determinism does not reach. Verifiable as a signature, reproducible never — which is what separates it from a verdict, and why it is never blended into one. |
 
 ## Docs taxonomy tiers
 
@@ -93,3 +99,24 @@ govern. Recorded here so the scope is read from the dictionary, not guessed.
 The number prefix is the tell: an `R-` entry is repo scale, a `D-` entry is token
 scale. The two decisions files are two homes for two concerns at two scales, one
 home each (R-2).
+
+## Concept pairs kept apart
+
+Words that are easy to collapse and expensive to confuse. Recorded as pairs so the
+distinction is read from the dictionary rather than reconstructed each time.
+
+| This | does | not to be confused with | which |
+|---|---|---|---|
+| the **gate** | decides conformance: compliance with stated rules, output VIOLATION or pass | the **instrument** | reads convergence: resemblance to a reference cloud, output a DRIFT reading |
+| the **dipstick** | reports what the token system *holds*, by reading the tokens | the **instrument** | reports what the rendered system *resembles*, by reading what those tokens paint |
+| **verify** = reproduce | re-run a clause pack against the asset bytes and get the same verdict | **verify** = confirm | check that a signature belongs to a reviewer's key |
+
+Neither half of the first pair substitutes for the other, and the quadrants are
+why: an asset can pass every clause and still sit off-system (the gap no clause
+reaches), or resemble the canon closely while binding the wrong tokens (the gap no
+resemblance sees). The instrument exists because of the first gap, the gate because
+of the second.
+
+The receipt never uses the bare word "verify". Each rank names which sense it
+means, because a receipt that flattens three ranks into one checkmark lies about
+its best one.
