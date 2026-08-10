@@ -212,6 +212,7 @@
   --type-heading-synthesis: 0.0156em;  /* The live header weight synthesis. Every h1 to h3 on the surface is a stroked 400, not a 460 cut. */
   --type-lead-size: 18px;
   --type-lead-leading: 1.6;
+  --type-body-leading: 1.55;  /* Line-height for running body copy set in a measure-limited column. dense-leading is the tighter role for stacked rows; this is the one a paragraph reads. */
   --type-body-size: 15px;
   --type-body-tracking: 0.05em;
   --type-body-synthesis: 0.013em;  /* The live body weight synthesis, set on .portfolio-root. */
@@ -277,6 +278,7 @@
   --component-nav-pill-bg-on-dark: rgb(255 255 255 / 0.92);
   --component-nav-pill-shadow: inset 0px 0px 0px 1px rgb(16 19 25 / 0.04), 0px 1px 3px 0px rgb(16 19 25 / 0.1);
   --component-nav-pill-shadow-on-dark: inset 0px 0px 0px 1px rgb(16 19 25 / 0.06), 0px 1px 4px 0px rgb(16 19 25 / 0.3);
+  --component-nav-pill-fg: #101319;  /* The selected nav label, which sits on the bright pill in both themes (pill-bg is white 72%, pill-bg-on-dark white 92%), so it stays dark and takes no -on-dark counterpart. The unselected labels sit on the glass and read --port-glass-fg-muted instead. */
 
   /* topbar */
   --component-topbar-height: 38px;  /* Utility strip painted height, 38px. The a11y and language buttons carry their own hit area (p-1.5 around the glyph/label); this is the strip, not the tap target. */

@@ -71,7 +71,7 @@ export function AmeNav({
       ref={barRef}
       data-backdrop={tone === 'dark' ? 'dark' : undefined}
       className={`port-glass port-glass-quiet relative flex items-center${className ? ` ${className}` : ''}`}
-      style={{ borderRadius: 'var(--radius-pill)', padding: NAV_PAD }}
+      style={{ borderRadius: 'var(--component-pill-radius)', padding: NAV_PAD }}
       aria-label={ariaLabel}
     >
       {/* The pill. aria-hidden — it is the visual echo of aria-current below. */}
@@ -80,14 +80,14 @@ export function AmeNav({
           className="port-glass-pill pointer-events-none absolute"
           aria-hidden
           style={{
-            borderRadius: 'var(--radius-pill)',
+            borderRadius: 'var(--component-pill-radius)',
             translate: `${pill.x}px 0`,
             width: pill.w,
             top: NAV_PAD,
             bottom: NAV_PAD,
             left: 0,
             transition:
-              'translate var(--duration-slow) var(--motion-enter-ease), width var(--duration-slow) var(--motion-enter-ease)',
+              'translate var(--motion-slide-duration) var(--motion-enter-ease), width var(--motion-slide-duration) var(--motion-enter-ease)',
           }}
         />
       )}
@@ -103,12 +103,14 @@ export function AmeNav({
             style={{
               height: NAV_ITEM_H,
               paddingInline: 'var(--space-grid-gap)',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: 'var(--font-size-13)',
+              borderRadius: 'var(--component-pill-radius)',
+              fontSize: 'var(--type-meta-size)',
               letterSpacing: 'var(--type-body-tracking)',
-              // The selected label sits on the bright pill, so it stays dark; the
+              // The selected label sits on the bright pill, so it stays dark in
+              // both tones (component.nav.pill-fg holds that, and takes no
+              // -on-dark counterpart because the pill itself never darkens); the
               // others take the muted glass foreground (tone-aware, holds 0.78).
-              color: i === activeIndex ? 'var(--color-ink)' : 'var(--port-glass-fg-muted)',
+              color: i === activeIndex ? 'var(--component-nav-pill-fg)' : 'var(--port-glass-fg-muted)',
             }}
           >
             {item.label}

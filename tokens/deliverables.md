@@ -121,7 +121,7 @@ are the constraint half.
 |---|---|---|---|---|
 | 1 | Global tokens | `packages/ame-tokens/base/` | Every semantic token referencing it; `build.mjs` throws on the unresolved reference before any CSS is written. | present |
 | 2 | Semantic tokens | `packages/ame-tokens/semantic/` | Every component token and every surface reading the generated name; the emitted property disappears and the rule falls back to nothing. | present |
-| 3 | Component tokens | `packages/ame-tokens/component/` | The one element scoped to it. 16 of them are currently read by no element, which is the H1 count, not a rename risk. | present |
+| 3 | Component tokens | `packages/ame-tokens/component/` | The one element scoped to it. 9 of them are read by no element (part of the H1 count, measured 2026-08-10 — the live number is `baseline.json`, not this row), which is not a rename risk. | present |
 | 4 | Named composites | `packages/ame-tokens/semantic/` (`elevation.*` shadows, `type.*` and `motion.*` roles) | Every surface binding the role. The `motion.*` set now binds; most of `type.*` does not. | partial |
 | 5 | Component APIs | `components/ui/`, `components/portfolio/` | Every call site, by prop name and value string. Not measured beyond file count; no API-surface extraction exists. | partial |
 | 6 | Platform artifacts | `packages/ame-tokens/tokens.css` | The `@import 'ame-tokens/tokens.css'` in `portfolio.css` and `ame.css`, and every `var()` on the surface. One home now: B4 rebuilds it from source in memory and byte-compares the committed file; the version stamp is B5. | present |
@@ -150,4 +150,6 @@ number rather than a claim.
   `space.control-pad`, `border.*`, `background.card`, `motion.state-duration`,
   `motion.exit-duration`. These describe values the markup currently sets through
   Tailwind classes. Binding them is a component rewrite, not a token change. The
-  count is baselined at 35 so it cannot grow, and D-18 records the reason.
+  count was baselined at 35 so it could not grow, and D-18 records the reason. It
+  has since fallen to 18 (`baseline.json`, measured 2026-08-10), which holds the
+  live number; the 35 above is what this pass left behind, not a current reading.

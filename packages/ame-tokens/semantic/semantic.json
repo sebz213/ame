@@ -70,6 +70,11 @@
     },
     "lead-size": { "$type": "dimension", "$value": "{font.size.18}" },
     "lead-leading": { "$type": "number", "$value": "{font.leading.loose}" },
+    "body-leading": {
+      "$type": "number",
+      "$value": "{font.leading.relaxed}",
+      "$description": "Line-height for running body copy set in a measure-limited column. dense-leading is the tighter role for stacked rows; this is the one a paragraph reads."
+    },
     "body-size": { "$type": "dimension", "$value": "{font.size.15}" },
     "body-tracking": { "$type": "number", "$value": "{font.tracking.body}" },
     "body-synthesis": {
