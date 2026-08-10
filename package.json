@@ -12,8 +12,10 @@
     "test": "vitest run",
     "tokens:build": "node packages/ame-tokens/build.mjs",
     "tokens:check": "node tokens/check.mjs",
+    "tokens:check:shipped": "node tokens/check.mjs --shipped",
     "docgen": "node tokens/docgen.mjs",
-    "build": "node packages/ame-tokens/build.mjs && node tokens/docgen.mjs --check && node tokens/check.mjs && next build && node tokens/check.mjs --shipped"
+    "docgen:check": "node tokens/docgen.mjs --check",
+    "build": "pnpm tokens:build && pnpm docgen:check && pnpm tokens:check && next build && pnpm tokens:check:shipped"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.12",

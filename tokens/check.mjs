@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /*
   The verifier. Every consistency condition in contract.md is evaluated here and
-  nowhere else: not in build.mjs, not restated in prose, not asserted twice.
+  nowhere else in this repo: not in build.mjs, not restated in prose, not
+  asserted twice. One deliberate exception, so the header does not overclaim:
+  packages/ame-tokens/check.mjs re-implements B4, B5, and U1 as the portable
+  subset a consumer runs against the installed package, in the consumer's tree.
+  Different subject, same clauses; it travels, this file does not (decision D-20).
 
   Two severities:
     VIOLATION  a stated clause is broken. Exit 1.
@@ -531,6 +535,70 @@ const clientless = []
     } else if (size > a.budgets[cls]) {
       fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
     }
+  }
+})()
+
+// ── W1, W2. CI references a script that exists, with a least-privilege token ──
+// A path spelled in a CI step binds the tree exactly the way a var() binds a
+// token, and it was the one binding here nothing checked: both workflows ran
+// `node tokens/build.mjs` long after the script moved, and stayed green because
+// an unpushed workflow never runs. This resolves what CI actually spells — script
+// paths, and the package.json script names CI prefers to spell instead — against
+// the tree now, rather than at first push. Data in invariants.json > workflows.
+;(function checkWorkflows() {
+  const w = RULES.workflows
+  const manifest = JSON.parse(read(w.manifest) || '{}')
+  const scripts = manifest.scripts || {}
+  const ignore = new Set(w.ignore)
+  const builtins = new Set(w.runner_builtins)
+  const exists = (p) => existsSync(join(REPO, p))
+  const isPath = (s) => w.path_extensions.some((e) => s.endsWith(e))
+
+  // Every path-shaped token in a command, and every `<runner> <script>` name.
+  const inspect = (cmd, where) => {
+    for (const m of cmd.matchAll(/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)+/g)) {
+      const p = m[0]
+      if (!isPath(p) || ignore.has(p)) continue
+      if (!exists(p))
+        fail(w.id, `${where} runs "${p}", which is not in the tree. Point it at the script's real home, or record the path in invariants.json > workflows.ignore.`)
+    }
+    for (const r of w.runners)
+      for (const m of cmd.matchAll(new RegExp('\\b' + r.replace(/ /g, '\\s+') + '\\s+([a-z][a-z0-9:._-]*)', 'g')))
+        if (!(m[1] in scripts) && !builtins.has(m[1]))
+          fail(w.id, `${where} runs "${r} ${m[1]}", which is not a script in ${w.manifest}. Add the script, or call the tool directly.`)
+  }
+
+  // package.json scripts bind paths too, and CI now defers to them, so a stale
+  // path there is the same defect one level down.
+  for (const [name, cmd] of Object.entries(scripts)) inspect(cmd, `${w.manifest} script "${name}"`)
+
+  const dir = join(REPO, w.dir)
+  if (!existsSync(dir)) {
+    fail(w.id, `${w.dir} does not exist; STANDARD.md C4 requires CI to run the build and checks on every push.`)
+    return
+  }
+  for (const f of readdirSync(dir)) {
+    if (!w.workflow_extensions.some((e) => f.endsWith(e))) continue
+    const rel = w.dir + '/' + f
+    const src = read(rel)
+    const lines = src.split('\n')
+
+    // `run:` values, single-line and block-scalar. Comments are not executed, so
+    // they are not weighed here; only what CI actually runs.
+    for (let i = 0; i < lines.length; i++) {
+      const one = lines[i].match(/^\s*(?:-\s*)?run:\s*(?![|>])(\S.*)$/)
+      if (one) { inspect(one[1].split('#')[0], rel); continue }
+      if (!/^\s*(?:-\s*)?run:\s*[|>]/.test(lines[i])) continue
+      const indent = lines[i].search(/\S/)
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j].trim() === '') continue
+        if (lines[j].search(/\S/) <= indent) break
+        inspect(lines[j], rel)
+      }
+    }
+
+    if (!new RegExp('permissions:[\\s\\S]*?' + w.required_permission.replace(/:\s*/, ':\\s*')).test(src))
+      fail(w.permissions_id, `${rel} declares no least-privilege token; add "permissions:\\n  ${w.required_permission}" so a workflow that only reads the tree cannot write to it.`)
   }
 })()
 
