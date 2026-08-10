@@ -85,6 +85,28 @@ describe('contrast math (contrast.mjs)', () => {
     expect(ratio).toBeGreaterThan(1)
     expect(ratio).toBeLessThan(21)
   })
+
+  // A translucent BACKGROUND was the hole: contrast() composited a translucent
+  // foreground but read a translucent fill as if it were solid, which flatters a
+  // pale wash into whatever its undiluted pigment measures. Both directions are
+  // proven, because an instrument change that only ever turns red green is
+  // indistinguishable from a loophole (R-10).
+  it('composites a translucent background over the ground before measuring', () => {
+    const tenthBlack = { colorSpace: 'srgb', components: [0, 0, 0], alpha: 0.1 }
+    // Uncomposited, a 10% black fill reads as solid black and white on it looks perfect.
+    expect(contrast(white, tenthBlack)).toBeCloseTo(21, 0)
+    // Over a white ground it is a near-white wash, and white on it is unreadable.
+    expect(contrast(white, tenthBlack, white)).toBeLessThan(1.5)
+  })
+
+  it('passes a fill that only clears the floor once composited', () => {
+    const green800 = { colorSpace: 'srgb', components: [0.086275, 0.396078, 0.203922] }
+    const fill = { colorSpace: 'srgb', components: [0.133333, 0.772549, 0.368627], alpha: 0.16 }
+    // Read against the undiluted pigment the badge looks like a failure.
+    expect(contrast(green800, fill)).toBeLessThan(4.5)
+    // Composited over the page it is what a person actually sees, and it passes.
+    expect(contrast(green800, fill, white)).toBeGreaterThan(4.5)
+  })
 })
 
 describe('the drift ratchet (ratchet.mjs)', () => {

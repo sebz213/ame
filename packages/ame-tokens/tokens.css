@@ -34,7 +34,8 @@
   --color-brand-contrast: oklch(0.985 0 0);  /* Foreground on brand fills. */
   --color-danger: oklch(0.577 0.245 27.325);  /* Error and destructive. */
   --color-success-fill: rgb(34 197 94 / 0.16);  /* Shipped / done: the green highlight fill on a status badge (green-500 at 16%). */
-  --color-success-fg: rgb(74 222 128);  /* Green text on a Shipped badge (green-400). */
+  --color-success-fg: rgb(22 101 52);  /* Green text on a Shipped badge over a light ground (green-800). Dark enough to clear 4.5:1 on the white page, and on the badge own 16% fill over it (6.2:1 composited). */
+  --color-success-fg-on-dark: rgb(74 222 128);  /* Green text on a Shipped badge over an ink ground (green-400). The dark-theme counterpart of success-fg: 10.7:1 on background.ink, where the light tone would be unreadable. */
   --color-ink-alpha-10: rgb(16 19 25 / 0.1);
   --color-ink-alpha-12: rgb(16 19 25 / 0.12);
   --color-ink-alpha-14: rgb(16 19 25 / 0.14);
@@ -177,7 +178,8 @@
 
   /* status */
   --status-shipped-bg: rgb(34 197 94 / 0.16);  /* Green highlight fill for a Shipped status. */
-  --status-shipped-fg: rgb(74 222 128);  /* Green text on the shipped fill. */
+  --status-shipped-fg: rgb(22 101 52);  /* Green text on the shipped fill over a light ground. */
+  --status-shipped-fg-on-dark: rgb(74 222 128);  /* Green text on the shipped fill over an ink ground. The dark-theme counterpart of shipped-fg, reached by the --port-status-shipped-fg alias. */
 
   /* background */
   --background-page: #ffffff;  /* The page ground: pure white (#fff). */
@@ -354,6 +356,7 @@
   --port-text-heading: var(--text-heading);
   --port-text-secondary: var(--text-secondary);
   --port-text-quote: var(--text-secondary);
+  --port-status-shipped-fg: var(--status-shipped-fg);
   --port-brand: var(--text-brand);
   --port-brand-fg: var(--text-on-brand);
   --port-nav-bg: var(--nav-bg);
@@ -387,4 +390,5 @@
   --port-text-heading: var(--text-heading-on-dark);
   --port-text-secondary: var(--text-secondary-on-dark);
   --port-text-quote: var(--text-quote-on-dark);
+  --port-status-shipped-fg: var(--status-shipped-fg-on-dark);
 }

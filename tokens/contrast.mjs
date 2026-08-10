@@ -3,7 +3,8 @@
   out of check.mjs so it is reachable as a unit (WO-6.2, decision R-24). check.mjs
   is the only runtime consumer; this file adds no behaviour, it only gives the
   pure functions a testable home. A translucent foreground is composited over its
-  background before measuring, the way a browser paints it.
+  background before measuring, and a translucent background over the ground it
+  is painted on, the way a browser paints them.
 */
 const cube = (x) => x * x * x
 
@@ -36,16 +37,26 @@ export function toLinear(v) {
 
 export const luminance = ([r, g, b]) => 0.2126 * r + 0.7152 * g + 0.0722 * b
 
-/** WCAG 2.2 relative-luminance ratio between a foreground and a background. */
-export function contrast(fgVal, bgVal) {
+/** Paint a translucent linear-light colour onto an opaque one, the way a browser does. */
+const paint = (top, alpha, bottom) =>
+  top.map((c, i) => srgbToLinear(alpha * linearToSrgb(c) + (1 - alpha) * linearToSrgb(bottom[i])))
+
+/**
+ * WCAG 2.2 relative-luminance ratio between a foreground and a background.
+ *
+ * A translucent foreground is painted onto its background. A translucent
+ * BACKGROUND is painted onto groundVal first: a fill states its pigment, not the
+ * colour a person sees, so measuring it undiluted flatters a pale wash into
+ * whatever its full-strength form measures. Given no ground, a translucent
+ * background is measured as declared, which is the behaviour before this path
+ * existed; callers that know the ground pass it.
+ */
+export function contrast(fgVal, bgVal, groundVal) {
   const fg = toLinear(fgVal)
   const bg = toLinear(bgVal)
-  const over =
-    fg.alpha === 1
-      ? fg.lin
-      : fg.lin.map((c, i) =>
-          srgbToLinear(fg.alpha * linearToSrgb(c) + (1 - fg.alpha) * linearToSrgb(bg.lin[i])),
-        )
-  const [hi, lo] = [luminance(over), luminance(bg.lin)].sort((a, b) => b - a)
+  const bgLin =
+    bg.alpha === 1 || !groundVal ? bg.lin : paint(bg.lin, bg.alpha, toLinear(groundVal).lin)
+  const over = fg.alpha === 1 ? fg.lin : paint(fg.lin, fg.alpha, bgLin)
+  const [hi, lo] = [luminance(over), luminance(bgLin)].sort((a, b) => b - a)
   return (hi + 0.05) / (lo + 0.05)
 }

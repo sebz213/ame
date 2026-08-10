@@ -95,7 +95,12 @@ These hold before and after any change to any token, not of any one token.
   the clause does not overclaim: only a foreground and background stated together,
   in one rule or one inline style object, are visible to it. A background on a
   container with the colour inherited by a child is a rendered pair this clause
-  cannot see.
+  cannot see. Alpha fills are composited over the surface's declared ground
+  before measuring: a translucent background states its pigment, not the colour
+  anyone reads, so the pair carrying the requirement is the foreground against
+  the ground beneath (`contrast.darkGround` holds that ground, one per theme). A C
+  clause measuring foreground-on-ground therefore covers a surface that paints
+  that foreground on a fill above it.
 
 ### P. Parity
 

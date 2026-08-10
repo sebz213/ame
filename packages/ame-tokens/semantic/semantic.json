@@ -19,7 +19,8 @@
     "$type": "color",
     "$description": "Status badges (the term sheet's Status fact). One tone per state; only shipped exists so far. A green fill, green text, and a green ring, all reading on either card ground.",
     "shipped-bg": { "$value": "{color.success-fill}", "$description": "Green highlight fill for a Shipped status." },
-    "shipped-fg": { "$value": "{color.success-fg}", "$description": "Green text on the shipped fill." }
+    "shipped-fg": { "$value": "{color.success-fg}", "$description": "Green text on the shipped fill over a light ground." },
+    "shipped-fg-on-dark": { "$value": "{color.success-fg-on-dark}", "$description": "Green text on the shipped fill over an ink ground. The dark-theme counterpart of shipped-fg, reached by the --port-status-shipped-fg alias." }
   },
 
   "background": {

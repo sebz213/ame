@@ -194,11 +194,18 @@
         "bg": "background.page",
         "min": 4.5,
         "role": "backdrop"
+      },
+      {
+        "id": "C11",
+        "fg": "status.shipped-fg",
+        "bg": "background.page",
+        "min": 4.5,
+        "role": "reading"
       }
     ]
   },
   "contrast_coverage": {
-    "$description": "contract.md CV1 (decision R-71). C1-C10 prove the ratio of every pair someone declared; this proves nobody is rendering a pair they forgot to declare. It reads the surfaces for a rule that sets BOTH a foreground and a background from tokens, resolves each through cssName and the alias map (so --port-text-primary is measured as text.body in light and text.body-on-dark in dark), and requires the resulting pair to be one checkContrast already measured. Pair order is normalized because the WCAG ratio is symmetric: background.page on text.brand is C4 read backwards, not a new pair. The fix for a violation is to add the pair to contrast.pairs, which puts it under C-clause measurement automatically — so this clause proves coverage and the C clauses prove ratios, one home each. Known reach, stated rather than implied: it only sees a foreground and background stated in the SAME rule or the same inline style object. A background set on a container with the colour inherited by a child is a real rendered pair this cannot see, so a pass means no DECLARABLE pair was missed, not that every rendered pair is covered.",
+    "$description": "contract.md CV1 (decision R-71). C1-C10 prove the ratio of every pair someone declared; this proves nobody is rendering a pair they forgot to declare. It reads the surfaces for a rule that sets BOTH a foreground and a background from tokens, resolves each through cssName and the alias map (so --port-text-primary is measured as text.body in light and text.body-on-dark in dark), and requires the resulting pair to be one checkContrast already measured. Pair order is normalized because the WCAG ratio is symmetric: background.page on text.brand is C4 read backwards, not a new pair. The fix for a violation is to add the pair to contrast.pairs, which puts it under C-clause measurement automatically — so this clause proves coverage and the C clauses prove ratios, one home each. Known reach, stated rather than implied: it only sees a foreground and background stated in the SAME rule or the same inline style object. A background set on a container with the colour inherited by a child is a real rendered pair this cannot see, so a pass means no DECLARABLE pair was missed, not that every rendered pair is covered. Alpha fills are composited over the surface's declared ground before measuring: a translucent background states its pigment, not the colour anyone reads, so the pair that carries the requirement is the foreground against the ground beneath, which contrast.darkGround holds one per theme. A C clause measuring fg-on-ground therefore covers a surface painting that fg on a fill above it; the compositing itself is contrast.mjs, proven both ways in tests/tokens.test.ts (a fill that only passes once composited, and one that still fails after).",
     "id": "CV1",
     "surfaces": ["app", "components"],
     "extensions": [".css", ".tsx"],

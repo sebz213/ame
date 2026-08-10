@@ -181,6 +181,16 @@ const NAME_OK = new RegExp(RULES.naming.segment)
   }
 })()
 
+// The page ground per theme, derived from contrast.darkGround rather than
+// restated: its single key is the light ground and its value the dark one. One
+// home, read by the C clauses (which paint a translucent fill onto it before
+// measuring) and by CV1 (which resolves such a fill to it). Section H.
+const GROUNDS = (() => {
+  const dg = RULES.contrast.darkGround ?? {}
+  const [light] = Object.keys(dg)
+  return { light, dark: dg[light] }
+})()
+
 // ── C. Contrast ─────────────────────────────────────────────────────────────
 const contrastResults = []
 ;(function checkContrast() {
@@ -200,7 +210,7 @@ const contrastResults = []
     if (!validRoles.has(p.role))
       fail(p.id, `${p.id} has no valid role; every contrast pair declares one of ${[...validRoles].join(', ')}`)
 
-    const ratio = contrast(fg.value, bg.value)
+    const ratio = contrast(fg.value, bg.value, byPath.get(GROUNDS.light)?.value)
     contrastResults.push({ ...p, ratio })
     if (ratio < p.min)
       fail(p.id, `${p.fg} on ${p.bg} is ${ratio.toFixed(2)}:1, below the required ${p.min}:1`)
@@ -218,7 +228,11 @@ const contrastResults = []
       if (!byPath.has(darkFgPath) || !darkBgPath) {
         fail(p.id, `${p.id} is role:reading but cannot cross to dark: ${p.fg} has no -on-dark sibling, or ${p.bg} has no darkGround entry`)
       } else {
-        const dratio = contrast(byPath.get(darkFgPath).value, byPath.get(darkBgPath).value)
+        const dratio = contrast(
+          byPath.get(darkFgPath).value,
+          byPath.get(darkBgPath).value,
+          byPath.get(GROUNDS.dark)?.value,
+        )
         contrastResults.push({ id: `${p.id}-dark`, fg: darkFgPath, bg: darkBgPath, min: p.min, ratio: dratio })
         if (dratio < p.min)
           fail(p.id, `${darkFgPath} on ${darkBgPath} (dark) is ${dratio.toFixed(2)}:1, below the required ${p.min}:1`)
@@ -244,6 +258,9 @@ const contrastResults = []
     if (!alias) return null
     return typeof alias === 'string' ? alias : (alias[theme] ?? null)
   }
+  // The ground a translucent fill is painted onto, per theme. Derived from
+  // contrast.darkGround rather than restated: its single key is the light page
+  // ground and its value the dark one, so the ground keeps one home (section H).
   const key = (a, b) => [a, b].sort().join('  with  ')
   const declared = new Set(contrastResults.map((r) => key(r.fg, r.bg)))
   const waived = new Set(Object.keys(cv.waived))
@@ -256,11 +273,19 @@ const contrastResults = []
     if (!fv || !bv) return
     for (const theme of ['light', 'dark']) {
       const fp = resolveVar(fv[1], theme)
-      const bp = resolveVar(bv[1], theme)
-      if (!fp || !bp || fp === bp) continue
+      const rendered = resolveVar(bv[1], theme)
+      if (!fp || !rendered) continue
+      // A translucent fill is not a colour anyone reads: the browser paints it
+      // onto the ground beneath, so the pair that carries the requirement is the
+      // foreground against that ground. Resolving it here means the C clause
+      // measuring fg-on-ground covers this surface too, instead of demanding a
+      // declaration of the pigment, which no ratio check could read honestly.
+      const fill = (byPath.get(rendered)?.value?.alpha ?? 1) < 1 && GROUNDS[theme]
+      const bp = fill ? GROUNDS[theme] : rendered
+      if (!bp || fp === bp) continue
       const k = key(fp, bp)
       if (declared.has(k) || waived.has(k)) continue
-      if (!found.has(k)) found.set(k, { fp, bp, where })
+      if (!found.has(k)) found.set(k, { fp, bp, where, rendered: fill ? rendered : null })
     }
   }
 
@@ -289,7 +314,7 @@ const contrastResults = []
   for (const [, v] of found)
     fail(
       cv.id,
-      `${v.where} renders ${v.fp} on ${v.bp}, a contrast pair no C clause measures. Add it to invariants.json > contrast.pairs (which puts it under the ratio check), or waive it in contrast_coverage.waived with a reason.`,
+      `${v.where} renders ${v.fp} on ${v.rendered ?? v.bp}${v.rendered ? ` over ${v.bp}` : ''}, a contrast pair no C clause measures. Add it to invariants.json > contrast.pairs (which puts it under the ratio check), or waive it in contrast_coverage.waived with a reason.`,
     )
 })()
 

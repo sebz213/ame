@@ -103,8 +103,12 @@
       "$description": "Shipped / done: the green highlight fill on a status badge (green-500 at 16%)."
     },
     "success-fg": {
+      "$value": { "colorSpace": "srgb", "components": [0.086275, 0.396078, 0.203922] },
+      "$description": "Green text on a Shipped badge over a light ground (green-800). Dark enough to clear 4.5:1 on the white page, and on the badge own 16% fill over it (6.2:1 composited)."
+    },
+    "success-fg-on-dark": {
       "$value": { "colorSpace": "srgb", "components": [0.290196, 0.870588, 0.501961] },
-      "$description": "Green text on a Shipped badge (green-400)."
+      "$description": "Green text on a Shipped badge over an ink ground (green-400). The dark-theme counterpart of success-fg: 10.7:1 on background.ink, where the light tone would be unreadable."
     },
 
     "ink-alpha": {

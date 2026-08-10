@@ -230,6 +230,7 @@ export const ALIASES = {
   '--port-text-heading': { light: 'text.heading', dark: 'text.heading-on-dark' },
   '--port-text-secondary': { light: 'text.secondary', dark: 'text.secondary-on-dark' },
   '--port-text-quote': { light: 'text.secondary', dark: 'text.quote-on-dark' },
+  '--port-status-shipped-fg': { light: 'status.shipped-fg', dark: 'status.shipped-fg-on-dark' },
   '--port-brand': 'text.brand',
   '--port-brand-fg': 'text.on-brand',
   '--port-nav-bg': 'nav.bg',
