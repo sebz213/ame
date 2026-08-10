@@ -663,8 +663,61 @@ const clientless = []
       }
     }
 
+    // A `with:` input naming a file (node-version-file, and its siblings for
+    // other runtimes) is a path CI spells, so it is verified like any other.
+    // These live in `with:` blocks rather than `run:`, and carry no extension,
+    // so the run-line scan above cannot see them.
+    for (const m of src.matchAll(/^\s*[a-z-]+-file:\s*(\S+)\s*$/gm)) {
+      const p = m[1].replace(/^['"]|['"]$/g, '')
+      if (!ignore.has(p) && !existsSync(join(REPO, p)))
+        fail(w.id, `${rel} points at "${p}", which is not in the tree.`)
+    }
+
+    // A runtime version written here is a version with one home per workflow.
+    for (const [key, instead] of Object.entries(w.banned_version_keys))
+      if (new RegExp('^\\s*' + key + ':', 'm').test(src))
+        fail(w.version_key_id, `${rel} spells "${key}:" inline; a runtime version belongs in one home the whole repo reads. Use ${instead}.`)
+
     if (!new RegExp('permissions:[\\s\\S]*?' + w.required_permission.replace(/:\s*/, ':\\s*')).test(src))
       fail(w.permissions_id, `${rel} declares no least-privilege token; add "permissions:\\n  ${w.required_permission}" so a workflow that only reads the tree cannot write to it.`)
+  }
+})()
+
+// ── VN1, VN2. Code the author did not write is traceable to a source ─────────
+// The manifest and the tree hold each other: a vendored file that nobody recorded
+// fails, and a recorded path that no longer exists fails. VN2 keeps the root
+// itself to one home, since three separate configs exempt it by name and a rename
+// that missed one would quietly change what the standard covers.
+;(function checkVendored() {
+  const v = RULES.vendored
+  const manifest = read(v.manifest)
+  if (!manifest) {
+    fail(v.id, `${v.manifest} is missing; every vendored root needs a manifest naming where its files came from.`)
+    return
+  }
+  const listed = new Set(manifest.match(/[A-Za-z0-9_./-]+\.tsx?/g) ?? [])
+
+  for (const root of v.roots) {
+    const onDisk = walkFiles(root).filter((f) => v.extensions.some((e) => f.endsWith(e)))
+    for (const f of onDisk)
+      if (!listed.has(f))
+        fail(v.id, `${f} sits under the vendored root ${root} but is not recorded in ${v.manifest}. Record where it came from, or move it out of the vendored root.`)
+    for (const p of listed)
+      if (p.startsWith(root + '/') && !existsSync(join(REPO, p)))
+        fail(v.id, `${v.manifest} lists ${p}, which is not in the tree. Remove the stale entry.`)
+
+    // VN2. The root is exempted by name in several configs; they must agree.
+    // Matched as a quoted entry, not a substring: these files discuss the root
+    // in prose too, and a comment mentioning it is not an exemption granting it.
+    const quoted = new RegExp(`['"\`]${root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(/\\*\\*)?['"\`]`)
+    for (const file of v.exempting_files)
+      if (!quoted.test(read(file)))
+        fail(v.root_id, `${file} no longer names the vendored root ${root} as an entry; its exemption and ${v.manifest} disagree about what is vendored.`)
+    for (const keyPath of v.exempting_keys) {
+      const list = keyPath.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), RULES)
+      if (!Array.isArray(list) || !list.includes(root))
+        fail(v.root_id, `invariants.json > ${keyPath} no longer lists the vendored root ${root}; the exemptions and ${v.manifest} disagree about what is vendored.`)
+    }
   }
 })()
 

@@ -37,9 +37,14 @@ jobs:
       # different pnpm versions without either file looking wrong.
       - uses: pnpm/action-setup@v4
 
+      # Same reasoning as the pnpm note above, applied to Node. The version was
+      # spelled `node-version-file: .nvmrc` here AND in content-readiness.yml, so the two
+      # jobs could drift onto different runtimes without either file looking
+      # wrong. `.nvmrc` is the one home, and nvm/fnm read it locally, so the
+      # runtime a contributor uses and the one CI uses are the same string.
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
