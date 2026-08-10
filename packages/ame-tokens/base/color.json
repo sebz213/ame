@@ -98,6 +98,14 @@
       "$value": { "colorSpace": "oklch", "components": [0.577, 0.245, 27.325] },
       "$description": "Error and destructive."
     },
+    "success-fill": {
+      "$value": { "colorSpace": "srgb", "components": [0.133333, 0.772549, 0.368627], "alpha": 0.16 },
+      "$description": "Shipped / done: the green highlight fill on a status badge (green-500 at 16%)."
+    },
+    "success-fg": {
+      "$value": { "colorSpace": "srgb", "components": [0.290196, 0.870588, 0.501961] },
+      "$description": "Green text on a Shipped badge (green-400)."
+    },
 
     "ink-alpha": {
       "$description": "The ink at graded opacity. Components are a JSON Pointer to color.ink, so re-toning ink re-tones every shadow, ring, and pill fill in one edit. This replaces the ink-channels string and every rgba(16, 19, 25, a) literal.",

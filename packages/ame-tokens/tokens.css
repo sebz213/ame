@@ -33,6 +33,8 @@
   --color-brand: oklch(0.55 0.15 256);  /* Brand blue. Links and accents. */
   --color-brand-contrast: oklch(0.985 0 0);  /* Foreground on brand fills. */
   --color-danger: oklch(0.577 0.245 27.325);  /* Error and destructive. */
+  --color-success-fill: rgb(34 197 94 / 0.16);  /* Shipped / done: the green highlight fill on a status badge (green-500 at 16%). */
+  --color-success-fg: rgb(74 222 128);  /* Green text on a Shipped badge (green-400). */
   --color-ink-alpha-10: rgb(16 19 25 / 0.1);
   --color-ink-alpha-12: rgb(16 19 25 / 0.12);
   --color-ink-alpha-14: rgb(16 19 25 / 0.14);
@@ -173,6 +175,10 @@
   --text-on-brand: oklch(0.985 0 0);
   --text-danger: oklch(0.577 0.245 27.325);
 
+  /* status */
+  --status-shipped-bg: rgb(34 197 94 / 0.16);  /* Green highlight fill for a Shipped status. */
+  --status-shipped-fg: rgb(74 222 128);  /* Green text on the shipped fill. */
+
   /* background */
   --background-page: #ffffff;  /* The page ground: pure white (#fff). */
   --background-card: #ffffff;
@@ -209,6 +215,7 @@
   --type-hero-size: 1.5rem;
   --type-hero-leading: 1.05;
   --type-hero-tracking: 0.04em;
+  --type-docs-title-leading: 1.6;  /* Line-height for the docs page title (the h1 under .ame-docs-root: case-study and /ame pages). The body/paragraph leading ratio (1.6, font.leading.loose) rather than the tight hero leading, so a wrapped title breathes like the running text does, proportionate to its larger size. Read by app/ame/ame.css. */
   --type-heading-synthesis: 0.0156em;  /* The live header weight synthesis. Every h1 to h3 on the surface is a stroked 400, not a 460 cut. */
   --type-lead-size: 18px;
   --type-lead-leading: 1.6;
@@ -296,6 +303,14 @@
   /* header-logo */
   --component-header-logo-height: 2.850553rem;  /* Comb-mark height in the site header (2.79466rem reduced 15% to 2.375461rem, then increased 20%). Single home: site-header.tsx reads var(--component-header-logo-height); no source literal duplicates it. */
   --component-header-logo-stretch-x: 1.03;  /* scaleX. The SVG keeps preserveAspectRatio, so width alone would only centre it. */
+
+  /* eyebrow */
+  --component-eyebrow-color: oklch(0.55 0.15 256);  /* Brand blue, the links-and-accents colour. Matches the docs breadcrumb (--color-fd-primary -> --port-brand -> text.brand). */
+  --component-eyebrow-size: 14px;  /* 14px: small enough to read as a kicker above the title, not a second heading. */
+
+  /* term-sheet-card */
+  --component-term-sheet-card-col-min: 6rem;  /* Smallest a fact column shrinks to before auto-fit wraps it to a new row (96px). Narrow enough that all the facts pack into one row inside the 87%-width grid, wide enough that a role or a date still reads on one or two lines, not a stack of broken words. */
+  --component-term-sheet-card-item-gap: 1.5rem;  /* Space between fact columns and between wrapped rows (24px). */
 
   /* accessibility */
   --component-accessibility-width: 18rem;  /* Panel width (288px) for the accessibility, contact, and cookie panels. Single home: portfolio.css --port-panel-w reads it (a D1 exception). At md, --port-panel-w is recomputed against the work-grid column; that calc is CSS-only and named in decisions.md. */

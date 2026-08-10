@@ -15,6 +15,13 @@
     "danger": { "$value": "{color.danger}" }
   },
 
+  "status": {
+    "$type": "color",
+    "$description": "Status badges (the term sheet's Status fact). One tone per state; only shipped exists so far. A green fill, green text, and a green ring, all reading on either card ground.",
+    "shipped-bg": { "$value": "{color.success-fill}", "$description": "Green highlight fill for a Shipped status." },
+    "shipped-fg": { "$value": "{color.success-fg}", "$description": "Green text on the shipped fill." }
+  },
+
   "background": {
     "$type": "color",
     "page": { "$value": "{color.white}", "$description": "The page ground: pure white (#fff)." },
@@ -63,6 +70,7 @@
     "hero-size": { "$type": "dimension", "$value": "{font.size.2xl}" },
     "hero-leading": { "$type": "number", "$value": "{font.leading.tight}" },
     "hero-tracking": { "$type": "number", "$value": "{font.tracking.tight}" },
+    "docs-title-leading": { "$type": "number", "$value": "{font.leading.loose}", "$description": "Line-height for the docs page title (the h1 under .ame-docs-root: case-study and /ame pages). The body/paragraph leading ratio (1.6, font.leading.loose) rather than the tight hero leading, so a wrapped title breathes like the running text does, proportionate to its larger size. Read by app/ame/ame.css." },
     "heading-synthesis": {
       "$type": "number",
       "$value": "{font.weight-synthesis.460}",

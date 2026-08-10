@@ -96,6 +96,18 @@
       }
     },
 
+    "eyebrow": {
+      "$description": "The kicker above a page title: a short label in brand blue at 14px, the same treatment the /ame docs breadcrumb carries. One home for the case-studies page eyebrow; components/mdx/eyebrow.tsx reads both vars. Thickness is not a token here: the eyebrow uses the shared docs bold (the `font-medium` reset to 400 + synthesized header stroke under .ame-docs-root), the same the breadcrumb and headings use, so it matches rather than re-declaring a weight.",
+      "color": { "$type": "color", "$value": "{text.brand}", "$description": "Brand blue, the links-and-accents colour. Matches the docs breadcrumb (--color-fd-primary -> --port-brand -> text.brand)." },
+      "size": { "$type": "dimension", "$value": "{font.size.14}", "$description": "14px: small enough to read as a kicker above the title, not a second heading." }
+    },
+
+    "term-sheet-card": {
+      "$description": "The case-study term sheet card's own grid spacing, distinct from the shared expertise card. The term sheet packs longer facts (roles, dates, a stack) than the home's short skill lists, so its columns size to content and wrap to new rows (auto-fit) instead of cramming into a fixed five. Bound by components/portfolio/expertise-card.tsx in its term-sheet variant.",
+      "col-min": { "$type": "dimension", "$value": { "value": 6, "unit": "rem" }, "$description": "Smallest a fact column shrinks to before auto-fit wraps it to a new row (96px). Narrow enough that all the facts pack into one row inside the 87%-width grid, wide enough that a role or a date still reads on one or two lines, not a stack of broken words." },
+      "item-gap": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" }, "$description": "Space between fact columns and between wrapped rows (24px)." }
+    },
+
     "accessibility": {
       "width": {
         "$type": "dimension",
