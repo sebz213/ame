@@ -74,5 +74,16 @@ jobs:
       - name: test
         run: pnpm test
 
+      # Clause U-W1 (packages/woven/contract.md), both halves. The register half
+      # verifies every row of WIRING.md against the tree and fails on a stale row
+      # as readily as on an unregistered reference. The removal half deletes the
+      # package in a scratch worktree and runs the host gate against what is left,
+      # so removability stays proven for as long as the feature lives rather than
+      # being re-derived by whoever next reads the register.
+      - name: woven register (U-W1)
+        run: pnpm woven:check
+
+      - name: woven removability (U-W1)
+        run: pnpm woven:remove-check
       - name: next build
         run: npx next build
