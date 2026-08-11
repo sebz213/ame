@@ -112,6 +112,16 @@ These hold before and after any change to any token, not of any one token.
 ### D. One home per value
 
 - **D1** A generated custom property is not re-declared in hand-written CSS.
+- **D3** Pattern syntax in rule data does not grow. A regex written as text into a
+  data file has to cross a serialization boundary to reach the code that runs it,
+  and six defects in one evening came from an escape being eaten or reinterpreted
+  on that crossing, silently, because a wrong pattern still parses (R-86).
+  The rule these sites migrate toward is that rule data holds literal text
+  and pattern syntax is assembled in code, where the escape characters exist once
+  and are tested (R-86). The files listed in `pattern_escapes.sites` predate it and are held
+  at their current count, not forgiven: a new pattern typed into them fails, and a
+  migration that removes one lowers the number for good. X1 governs the number
+  itself.
   Five names are excepted and each exception is written out in
   `invariants.json > duplication.allowed_because`.
 

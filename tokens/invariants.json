@@ -56,12 +56,30 @@
     "$description": "N2. One word per concept, across token paths and the repo's own exported symbols (Deissenboeck & Pizka's name-to-concept bijection; STANDARD.md N3). Each pair names the canonical word for a concept and the deprecated synonym that must not enter a new identifier. An identifier is tokenized on '-', '_', '.', '/' and camelCase boundaries; a deprecated word appearing as one of those tokens fails N2 unless the whole identifier is listed in `waived`. Vendored code (components/ui) is out of scope: its names are the upstream's call, not this repo's, the same exemption R-8 gives vendored files. Scope note: this reads identifiers, not Tailwind class strings or CSS custom-property call sites, so a `bg-*` utility class is untouched.",
     "id": "N2",
     "pairs": [
-      { "canonical": "fg", "deprecated": "foreground" },
-      { "canonical": "nav", "deprecated": "navigation" },
-      { "canonical": "grey", "deprecated": "gray" },
-      { "canonical": "color", "deprecated": "colour" },
-      { "canonical": "background", "deprecated": "bg" },
-      { "canonical": "button", "deprecated": "btn" }
+      {
+        "canonical": "fg",
+        "deprecated": "foreground"
+      },
+      {
+        "canonical": "nav",
+        "deprecated": "navigation"
+      },
+      {
+        "canonical": "grey",
+        "deprecated": "gray"
+      },
+      {
+        "canonical": "color",
+        "deprecated": "colour"
+      },
+      {
+        "canonical": "background",
+        "deprecated": "bg"
+      },
+      {
+        "canonical": "button",
+        "deprecated": "btn"
+      }
     ],
     "symbol_sources": [
       "components",
@@ -122,8 +140,15 @@
   },
   "contrast": {
     "$description": "C1 to C10, foreground over background, WCAG 2.2 relative-luminance ratio computed from the resolved token values. A translucent foreground is composited over its background before measuring. min 4.5 is AA for normal text; 7 is AAA. Each theme-following reading pair (a foreground with an -on-dark counterpart, over a ground listed in darkGround) is evaluated a second time as it resolves under [data-theme=dark], and checked against the same min (reported Cn-dark). The dark twin is derived from the -on-dark suffix and darkGround, so a new reading pair is covered in both themes without a second row. This closes the gap where C1's 7:1 held only the light half. Every pair declares a role (reading, fixed, chrome, or backdrop); a pair with no role fails, so a new row cannot default to unclassified and skip the cross silently. A role:reading pair must produce a twin; a missing or misspelled -on-dark sibling fails the check rather than passing quietly.",
-    "darkGround": { "background.page": "background.ink" },
-    "roles": ["reading", "fixed", "chrome", "backdrop"],
+    "darkGround": {
+      "background.page": "background.ink"
+    },
+    "roles": [
+      "reading",
+      "fixed",
+      "chrome",
+      "backdrop"
+    ],
     "pairs": [
       {
         "id": "C1",
@@ -207,8 +232,14 @@
   "contrast_coverage": {
     "$description": "contract.md CV1 (decision R-71). C1-C10 prove the ratio of every pair someone declared; this proves nobody is rendering a pair they forgot to declare. It reads the surfaces for a rule that sets BOTH a foreground and a background from tokens, resolves each through cssName and the alias map (so --port-text-primary is measured as text.body in light and text.body-on-dark in dark), and requires the resulting pair to be one checkContrast already measured. Pair order is normalized because the WCAG ratio is symmetric: background.page on text.brand is C4 read backwards, not a new pair. The fix for a violation is to add the pair to contrast.pairs, which puts it under C-clause measurement automatically — so this clause proves coverage and the C clauses prove ratios, one home each. Known reach, stated rather than implied: it only sees a foreground and background stated in the SAME rule or the same inline style object. A background set on a container with the colour inherited by a child is a real rendered pair this cannot see, so a pass means no DECLARABLE pair was missed, not that every rendered pair is covered. Alpha fills are composited over the surface's declared ground before measuring: a translucent background states its pigment, not the colour anyone reads, so the pair that carries the requirement is the foreground against the ground beneath, which contrast.darkGround holds one per theme. A C clause measuring fg-on-ground therefore covers a surface painting that fg on a fill above it; the compositing itself is contrast.mjs, proven both ways in tests/tokens.test.ts (a fill that only passes once composited, and one that still fails after).",
     "id": "CV1",
-    "surfaces": ["app", "components"],
-    "extensions": [".css", ".tsx"],
+    "surfaces": [
+      "app",
+      "components"
+    ],
+    "extensions": [
+      ".css",
+      ".tsx"
+    ],
     "waived": {},
     "waived_because": "Empty: every co-located pair the scan resolves today is already declared. An entry needs a dated decision naming why a rendered pair legitimately carries no contrast requirement — decorative text over an image, or a foreground the design intends to be invisible."
   },
@@ -371,12 +402,30 @@
     "base_read": {
       "id": "U2",
       "$description": "No file in the app/components tree reads a base-tier custom property. U1 is this rule on the portfolio surface; U2 is the same rule on the rest of the tree (the /system shell and the shared ame chrome). Base binds base; a surface binds semantic or component.",
-      "scan": ["app", "components"],
-      "extensions": [".ts", ".tsx", ".css"],
-      "exclude_prefixes": ["app/(portfolio)", "components/portfolio", "components/ui"],
+      "scan": [
+        "app",
+        "components"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx",
+        ".css"
+      ],
+      "exclude_prefixes": [
+        "app/(portfolio)",
+        "components/portfolio",
+        "components/ui"
+      ],
       "waived": {
-        "components/ame/nav.tsx": ["--radius-pill", "--duration-slow", "--font-size-13", "--color-ink"],
-        "components/ame/footer.tsx": ["--font-leading-relaxed"]
+        "components/ame/nav.tsx": [
+          "--radius-pill",
+          "--duration-slow",
+          "--font-size-13",
+          "--color-ink"
+        ],
+        "components/ame/footer.tsx": [
+          "--font-leading-relaxed"
+        ]
       },
       "waived_because": "components/ame/* are the shared chrome (AmeNav, AmeFooter; R-12), tone-portable across the portfolio and the metis-marketing sister ground. Repointing these five base reads onto semantic or component roles is a scoped change: each replacement must resolve on BOTH grounds, and the marketing site syncs the generated CSS, so the repoint is a consumer migration owed to a dedicated order, not this check-adding pass (CLAUDE.md 9, the honest deferral). U2 waives the five known reads by name and blocks a sixth from landing. Follow-up: a dedicated order repoints components/ame off base and removes these waivers."
     },
@@ -389,7 +438,10 @@
     "surface_no_system_tokens": {
       "id": "U4",
       "$description": "No portfolio surface imports a lib/*-tokens design-token module. The portfolio DTOS token system and the lib/*-tokens /system design system are two homes for 'design tokens', adjudicated as two concepts in DECISIONS R-25. A portfolio-surface import of a lib/*-tokens module would merge them into a hidden third binding; this keeps the two concepts two.",
-      "surfaces": ["app/(portfolio)", "components/portfolio"],
+      "surfaces": [
+        "app/(portfolio)",
+        "components/portfolio"
+      ],
       "forbidden_import_pattern": "^@/lib/[a-z0-9-]+-tokens$"
     }
   },
@@ -434,7 +486,10 @@
       "sampleType": "codeSampleType",
       "isBasedOnUrl": "isBasedOn"
     },
-    "proficiency_levels": ["Beginner", "Expert"]
+    "proficiency_levels": [
+      "Beginner",
+      "Expert"
+    ]
   },
   "ame_taxonomy": {
     "$description": "contract.md AM2 (DECISIONS R-55, R-57, R-65). The five docs tiers of the /ame brand design system (Foundations, Layouts, Components, Sections, Pages), disjoint from the /system taxonomy (`taxonomy` above). content/ame/meta.json is the one home for which page sits in which tier; this lists the tiers and, for a deliberately deferred tier, the recorded reason. AM2 in check.mjs (checkAmeTaxonomyRegistry) holds every declared tier non-empty (at least one page under its separator in meta.json) or carrying a deferred_because here, so a tier is never silently absent. A sub-group separator inside a tier (Lockups, Header, Footer) is a visual grouping in meta.json, not a declared tier; AM2 only requires the tiers listed here, so an extra separator is admitted and ignored (R-65 M5). tiers also supplies the valid-tier set AM1 checks a registry row's tier against. The developer-facing get-started (formerly the 'For developers' tier, R-65 M4) is now the /ame index page itself; the tier is retired and its binding steps live in the index.",
@@ -442,20 +497,37 @@
     "meta": "content/ame/meta.json",
     "docs_dir": "content/ame",
     "tiers": [
-      { "name": "Foundations" },
-      { "name": "Layouts" },
-      { "name": "Components" },
-      { "name": "Sections" },
-      { "name": "Pages" }
+      {
+        "name": "Foundations"
+      },
+      {
+        "name": "Layouts"
+      },
+      {
+        "name": "Components"
+      },
+      {
+        "name": "Sections"
+      },
+      {
+        "name": "Pages"
+      }
     ]
   },
   "ame_registry": {
     "$description": "contract.md AM1, AM3 (DECISIONS R-57). The /ame brand registry as the single home the /ame docs and gate checks read, parallel to and disjoint from `registry` (the /system registry; no component in both, clause H). Rows live in content/ame/component-registry.json. AM1 (checkAmeTaxonomyRegistry): every .tsx file under scan_dirs, minus the excluded set, has exactly one registry row keyed by source, that row points at a real file, and its tier is one of ame_taxonomy.tiers; a row may also point at a file outside scan_dirs (the viewer under extra_note) as long as it resolves and carries a valid tier. AM3: every row with animated true AND status equal to playground_status ('documented') must name a `playground` field resolving to an existing file; this session every animated row is status 'deferred', so AM3 passes vacuously and binds in Phase 3. excluded is the exemption set: context providers and pure-logic sinks that are not documentable UI, named with the reason, the same shape as the vendored-ui exemption (registry's components/ui scope note).",
     "id": "AM1",
     "data": "content/ame/component-registry.json",
-    "scan_dirs": ["components/ame", "components/portfolio"],
+    "scan_dirs": [
+      "components/ame",
+      "components/portfolio"
+    ],
     "extra_note": "components/prototype-viewer/viewer.tsx carries a row too (the prototype viewer) though it sits outside scan_dirs; AM1 admits a row whose source resolves and whose tier is valid, so the viewer row passes without being part of the mandatory coverage scan.",
-    "statuses": ["documented", "generated-only", "deferred"],
+    "statuses": [
+      "documented",
+      "generated-only",
+      "deferred"
+    ],
     "playground_status": "documented",
     "excluded": {
       "components/portfolio/portfolio-theme.tsx": "PortfolioThemeProvider / usePortfolioTheme — a React context provider and its hook, not a rendered UI component. It supplies theme state to the tree; there is no visual surface to document or give a playground.",
@@ -477,10 +549,27 @@
     },
     "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic DRACO-compressed GLB target, against the 82.7 MB uncompressed model.",
     "extensions": {
-      "svg": [".svg"],
-      "font": [".woff2", ".woff", ".ttf", ".otf"],
-      "image": [".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"],
-      "model": [".glb", ".gltf"]
+      "svg": [
+        ".svg"
+      ],
+      "font": [
+        ".woff2",
+        ".woff",
+        ".ttf",
+        ".otf"
+      ],
+      "image": [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".webp",
+        ".gif",
+        ".avif"
+      ],
+      "model": [
+        ".glb",
+        ".gltf"
+      ]
     },
     "waived": {
       "public/kindle-mascot.svg": 10068158,
@@ -502,10 +591,49 @@
     "permissions_id": "W2",
     "dir": ".github/workflows",
     "manifest": "package.json",
-    "workflow_extensions": [".yml", ".yaml"],
-    "path_extensions": [".mjs", ".js", ".cjs", ".ts", ".json"],
-    "runners": ["pnpm", "npm run", "yarn"],
-    "runner_builtins": ["install", "i", "add", "remove", "update", "exec", "dlx", "run", "why", "store", "config", "link", "publish", "pack", "audit", "outdated", "list", "ls", "rebuild", "prune", "import", "setup", "env", "licenses", "deploy"],
+    "workflow_extensions": [
+      ".yml",
+      ".yaml"
+    ],
+    "path_extensions": [
+      ".mjs",
+      ".js",
+      ".cjs",
+      ".ts",
+      ".json"
+    ],
+    "runners": [
+      "pnpm",
+      "npm run",
+      "yarn"
+    ],
+    "runner_builtins": [
+      "install",
+      "i",
+      "add",
+      "remove",
+      "update",
+      "exec",
+      "dlx",
+      "run",
+      "why",
+      "store",
+      "config",
+      "link",
+      "publish",
+      "pack",
+      "audit",
+      "outdated",
+      "list",
+      "ls",
+      "rebuild",
+      "prune",
+      "import",
+      "setup",
+      "env",
+      "licenses",
+      "deploy"
+    ],
     "runner_builtins_because": "A runner's own subcommand is not a package.json script; `pnpm install` must not be read as a missing script. A name is checked against scripts first, so a builtin that is also a script here (test, start) is still verified as the script it is.",
     "required_permission": "contents: read",
     "version_key_id": "W4",
@@ -521,10 +649,20 @@
     "id": "VN1",
     "root_id": "VN2",
     "manifest": "VENDORED.md",
-    "roots": ["components/ui"],
-    "extensions": [".ts", ".tsx"],
-    "exempting_files": ["eslint.config.mjs"],
-    "exempting_keys": ["synonyms.symbol_exclude", "uses_graph.base_read.exclude_prefixes"]
+    "roots": [
+      "components/ui"
+    ],
+    "extensions": [
+      ".ts",
+      ".tsx"
+    ],
+    "exempting_files": [
+      "eslint.config.mjs"
+    ],
+    "exempting_keys": [
+      "synonyms.symbol_exclude",
+      "uses_graph.base_read.exclude_prefixes"
+    ]
   },
   "census": {
     "$description": "contract.md section Z (WO-9.1, decision R-50). The contract->invariants->check bijection, made machine-enforced instead of discipline-enforced. checkCensus parses the clause IDs declared in tokens/contract.md (the bold **A1** / **C1-C10** markers, en-dash normalized) and asserts each one has a census record below; a record names the invariants.json key that holds the clause's data (`invariant`) and the function in check.mjs that evaluates it (`check`), or carries a `structural` waiver naming the build.mjs mechanism that enforces it instead of a check.mjs branch. A clause with no record, a record naming a missing invariants key, or a record naming a check function absent from check.mjs fails Z1. A census record for a clause the contract no longer declares also fails, so the map cannot rot. threshold_scan is Z2: a grep-class scan asserting no threshold literal is hardcoded in the checker (deliverables.md: the gate imports its thresholds, never restates them), with a small allowlist of legitimate constants. Data here, logic in check.mjs, clause in contract.md, one home each.",
@@ -532,49 +670,157 @@
     "contract_file": "tokens/contract.md",
     "checker_file": "tokens/check.mjs",
     "clauses": {
-      "A1": { "structural": "build.mjs throws on a token missing $value before any check runs (contract.md: violating A1 stops the build). Reaching check.mjs proves it." },
-      "A2": { "invariant": "types", "check": "checkFormat" },
-      "A3": { "invariant": "type_bounds", "check": "checkFormat" },
-      "A4": { "structural": "build.mjs (resolveValue) throws on an unresolved reference or a reference cycle before any check runs (contract.md: violating A4 stops the build)." },
-      "A5": { "invariant": "naming", "check": "checkFormat" },
-      "A6": { "invariant": "naming", "check": "checkFormat" },
-      "B1": { "structural": "build.mjs postcondition: each token is emitted exactly once under .portfolio-root. build.mjs is the single writer; a token cannot be emitted twice from one enumeration." },
-      "B2": { "structural": "build.mjs postcondition: toCss serializes every value to a CSS literal; resolveValue leaves no {reference} unresolved, or A4 would have thrown." },
-      "B3": { "structural": "build.mjs postcondition: each ALIASES entry emits var(--token) and throws if the alias does not resolve to exactly one token." },
-      "B4": { "invariant": "manifest", "check": "checkB4" },
-      "B5": { "invariant": "manifest", "check": "checkManifest" },
-      "L1": { "invariant": "layering", "check": "checkLayering" },
-      "L2": { "invariant": "layering", "check": "checkLayering" },
-      "L3": { "invariant": "layering", "check": "checkLayering" },
-      "N1": { "invariant": "naming", "check": "checkFormat" },
-      "N2": { "invariant": "synonyms", "check": "checkSynonyms" },
-      "C1-C10": { "invariant": "contrast", "check": "checkContrast" },
-      "CV1": { "invariant": "contrast_coverage", "check": "checkContrastCoverage" },
-      "P1-P3": { "invariant": "parity", "check": "checkParity" },
-      "D1": { "invariant": "duplication", "check": "checkDuplication" },
-      "S1-S5": { "invariant": "scales", "check": "checkScales" },
-      "G1": { "invariant": "shipped", "check": "checkShipped" },
-      "U1": { "invariant": "binding", "check": "checkBinding" },
-      "U2": { "invariant": "uses_graph", "check": "checkUsesGraph" },
-      "U3": { "invariant": "uses_graph", "check": "checkUsesGraph" },
-      "U4": { "invariant": "uses_graph", "check": "checkUsesGraph" },
-      "X1": { "check": "checkRecord", "structural": "the drift ratchet's data home is baseline.json and runs.log, not invariants.json; checkRecord evaluates a baseline against the last logged run, so X1 has a check but no invariants entry by design." },
-      "H1": { "invariant": "clients", "check": "checkClients" },
-      "AM1": { "invariant": "ame_registry", "check": "checkAmeTaxonomyRegistry" },
-      "AM2": { "invariant": "ame_taxonomy", "check": "checkAmeTaxonomyRegistry" },
-      "AM3": { "invariant": "ame_registry", "check": "checkAmeTaxonomyRegistry" },
-      "K1": { "invariant": "asset_budget", "check": "checkAssetBudget" },
-      "Z1": { "invariant": "census", "check": "checkCensus" },
-      "Z2": { "invariant": "census", "check": "checkThresholdScan" }
+      "A1": {
+        "structural": "build.mjs throws on a token missing $value before any check runs (contract.md: violating A1 stops the build). Reaching check.mjs proves it."
+      },
+      "A2": {
+        "invariant": "types",
+        "check": "checkFormat"
+      },
+      "A3": {
+        "invariant": "type_bounds",
+        "check": "checkFormat"
+      },
+      "A4": {
+        "structural": "build.mjs (resolveValue) throws on an unresolved reference or a reference cycle before any check runs (contract.md: violating A4 stops the build)."
+      },
+      "A5": {
+        "invariant": "naming",
+        "check": "checkFormat"
+      },
+      "A6": {
+        "invariant": "naming",
+        "check": "checkFormat"
+      },
+      "B1": {
+        "structural": "build.mjs postcondition: each token is emitted exactly once under .portfolio-root. build.mjs is the single writer; a token cannot be emitted twice from one enumeration."
+      },
+      "B2": {
+        "structural": "build.mjs postcondition: toCss serializes every value to a CSS literal; resolveValue leaves no {reference} unresolved, or A4 would have thrown."
+      },
+      "B3": {
+        "structural": "build.mjs postcondition: each ALIASES entry emits var(--token) and throws if the alias does not resolve to exactly one token."
+      },
+      "B4": {
+        "invariant": "manifest",
+        "check": "checkB4"
+      },
+      "B5": {
+        "invariant": "manifest",
+        "check": "checkManifest"
+      },
+      "L1": {
+        "invariant": "layering",
+        "check": "checkLayering"
+      },
+      "L2": {
+        "invariant": "layering",
+        "check": "checkLayering"
+      },
+      "L3": {
+        "invariant": "layering",
+        "check": "checkLayering"
+      },
+      "N1": {
+        "invariant": "naming",
+        "check": "checkFormat"
+      },
+      "N2": {
+        "invariant": "synonyms",
+        "check": "checkSynonyms"
+      },
+      "C1-C10": {
+        "invariant": "contrast",
+        "check": "checkContrast"
+      },
+      "CV1": {
+        "invariant": "contrast_coverage",
+        "check": "checkContrastCoverage"
+      },
+      "P1-P3": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "D1": {
+        "invariant": "duplication",
+        "check": "checkDuplication"
+      },
+      "S1-S5": {
+        "invariant": "scales",
+        "check": "checkScales"
+      },
+      "G1": {
+        "invariant": "shipped",
+        "check": "checkShipped"
+      },
+      "U1": {
+        "invariant": "binding",
+        "check": "checkBinding"
+      },
+      "U2": {
+        "invariant": "uses_graph",
+        "check": "checkUsesGraph"
+      },
+      "U3": {
+        "invariant": "uses_graph",
+        "check": "checkUsesGraph"
+      },
+      "U4": {
+        "invariant": "uses_graph",
+        "check": "checkUsesGraph"
+      },
+      "X1": {
+        "check": "checkRecord",
+        "structural": "the drift ratchet's data home is baseline.json and runs.log, not invariants.json; checkRecord evaluates a baseline against the last logged run, so X1 has a check but no invariants entry by design."
+      },
+      "H1": {
+        "invariant": "clients",
+        "check": "checkClients"
+      },
+      "AM1": {
+        "invariant": "ame_registry",
+        "check": "checkAmeTaxonomyRegistry"
+      },
+      "AM2": {
+        "invariant": "ame_taxonomy",
+        "check": "checkAmeTaxonomyRegistry"
+      },
+      "AM3": {
+        "invariant": "ame_registry",
+        "check": "checkAmeTaxonomyRegistry"
+      },
+      "K1": {
+        "invariant": "asset_budget",
+        "check": "checkAssetBudget"
+      },
+      "Z1": {
+        "invariant": "census",
+        "check": "checkCensus"
+      },
+      "Z2": {
+        "invariant": "census",
+        "check": "checkThresholdScan"
+      },
+      "D3": {
+        "invariant": "pattern_escapes",
+        "check": "checkPatternEscapes"
+      }
     },
     "threshold_scan": {
       "$description": "Z2. No threshold literal hardcoded in check.mjs. The scan strips comments, strings, and regex literals, then flags any decimal literal or any integer >= min_integer that is not allowlisted. A threshold a clause compares against (a contrast minimum, a byte ceiling) lives in invariants.json; the checker reads it, never restates it. allow names the legitimate non-threshold constants that remain in checker code, each with its reason.",
       "id": "Z2",
       "min_integer": 100,
       "allow": {
-        "1000": "seconds-to-milliseconds unit conversion in checkScales convert()",
-        "120": "display truncation length for a violation message (slice(0, 120))"
+        "120": "display truncation length for a violation message (slice(0, 120))",
+        "1000": "seconds-to-milliseconds unit conversion in checkScales convert()"
       }
     }
+  },
+  "pattern_escapes": {
+    "$description": "D3, the migration ratchet for R-86. Counts strings in each site whose parsed value carries a backslash — keys and values alike. The unit is the string, not the character: one stored pattern costs one whether it holds one escape or six, so rewriting a pattern with fewer escapes cannot look like progress. The rule these sites migrate toward is that rule data holds literal text and pattern syntax is assembled in code, where the escapes exist once and are tested (R-86). A file that has completed the migration measures zero.",
+    "sites": [
+      "tokens/invariants.json"
+    ],
+    "sites_because": "tokens/invariants.json is the one rule-data file that still carries pattern syntax; tokens/check.mjs feeds its values to new RegExp in six places. The escapes there are hand-maintained and have never been round-tripped through a serializer, so the risk is latent rather than active, which is why they are ratcheted rather than swept. Adding a site is how another file joins the migration."
   }
 }

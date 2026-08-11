@@ -859,6 +859,36 @@ const routeOf = (f) => {
   }
 })()
 
+// ── D3. Pattern syntax in rule data, ratcheted ──────────────────────────────
+// A regex stored as text must cross a boundary to reach the code that runs it,
+// and that crossing is where six escapes were eaten in one evening (R-86). These
+// sites are held at their count rather than swept: a new typed pattern fails, a
+// migration lowers the number for good.
+;(function checkPatternEscapes() {
+  const BACKSLASH = String.fromCharCode(92)
+  const spec = RULES.pattern_escapes
+  const collect = (n, out = []) => {
+    if (typeof n === 'string') out.push(n)
+    else if (Array.isArray(n)) for (const v of n) collect(v, out)
+    else if (n && typeof n === 'object')
+      for (const [k, v] of Object.entries(n)) {
+        out.push(k)
+        collect(v, out)
+      }
+    return out
+  }
+  let count = 0
+  for (const site of spec.sites) {
+    const p = join(REPO, site)
+    if (!existsSync(p)) {
+      fail('D3', `pattern_escapes names ${site}, which does not exist`)
+      continue
+    }
+    count += collect(JSON.parse(readFileSync(p, 'utf8'))).filter((s) => s.includes(BACKSLASH)).length
+  }
+  drift.D3 = count
+})()
+
 // ── The run record, and X1: a baseline never moves up ───────────────────────
 const baselinePath = join(ROOT, 'baseline.json')
 const baseline = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, 'utf8')) : {}
