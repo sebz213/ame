@@ -148,3 +148,29 @@ matcher built to chase meaning fires on prose about a rule rather than on the ru
 
 Every check with a must-never-catch list carries its mention cases there, so the
 distinction is asserted on every run rather than remembered (STANDARD.md C6).
+
+## Ranks migrate, and only one direction is safe
+
+A receipt's three ranks — reproducible, reproducible-as-arithmetic, verifiable-only-
+as-a-signature — are not properties of the facts they hold. They are properties of
+what the system can currently *reach*. A fact sits at rank 3 because nothing
+mechanical can get at it, not because it is inherently a matter of testimony.
+
+So facts migrate as reach improves, and the direction to prefer is downward. The
+encoder's repository revision and its published hash were rank 3 on 2026-08-10:
+things a person had to read off a web page and carry across the boundary. They
+became rank 1 on 2026-08-11, when the Hub API turned out to expose both — the LFS
+ETag *is* the sha256 — and the comparison that had been an eyeball became a clause.
+Nothing about the facts changed. The reach did.
+
+The inverse migration is the one to watch for, because it is silent. A check that
+quietly degrades into "someone looked" leaves the receipt saying exactly what it
+said before while meaning something weaker. A rank that moves up must be recorded
+as a dated decision, with the reason the reach was lost; a rank that moves down is
+the system working.
+
+What does not migrate is what is bound to a vantage rather than to tooling. The
+weights download runs on one machine because that machine's disk is where the
+experiment reads and its network path is the third mirror. The port-of-entry role
+did not disappear when the facts became scriptable; it shrank to the part that is
+irreducibly located somewhere (E3's division of labour, WEIGHTS-ORDER).
