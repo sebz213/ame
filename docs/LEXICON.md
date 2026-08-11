@@ -120,3 +120,29 @@ of the second.
 The receipt never uses the bare word "verify". Each rank names which sense it
 means, because a receipt that flattens three ranks into one checkmark lies about
 its best one.
+
+## Mention versus use
+
+A check reads text. Text sometimes *uses* a term and sometimes only *mentions*
+it — names it in order to talk about it. A rule about the use does not apply to
+the mention, and no matcher that reads characters can tell them apart on its own.
+
+The distinction has now been reached three times here, independently, in three
+different layers, which is why it has a home instead of being rediscovered a
+fourth time.
+
+| Layer | The mention that must not be caught | Where |
+|---|---|---|
+| A gate | The comment explaining that `SUBSTACK_URL` is a `[[token]]` — G1 flags its own documentation | `components/portfolio/contact-menu.tsx`, STANDARD.md C5 |
+| A lexicon clause | "Woven" the canonical name, against lowercase "woven" the banned metaphor verb (R-75) | `content/glossary.ts`, `scripts/check-coherence.ts` |
+| A config file | A `$description` that says a field reads `pending`, against a field that actually does (W-R1) | `packages/woven/experiments/recipe.mjs` |
+
+The working rule, stated once so a check author inherits it: when a ban is on how
+a word is used rather than on the characters in it, narrow the check to something
+mechanical — a capital, a path, a key that is not an annotation — and state the
+hole that narrowing leaves. Do not widen the matcher until it catches meaning; a
+matcher built to chase meaning fires on prose about a rule rather than on the rule
+(R-72), which is the same defect one layer up.
+
+Every check with a must-never-catch list carries its mention cases there, so the
+distinction is asserted on every run rather than remembered (STANDARD.md C6).
