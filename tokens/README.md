@@ -1,8 +1,8 @@
 # Ame: design tokens for the portfolio surface
 
-Ame is a three-layer token system in the Design Token Open Standard format (DTOS
-2025.10). It holds every value the surface renders through: colour, spacing,
-typography, radii, elevation, motion, glass, and stacking.
+Ame is a three-layer token system in the Design Tokens Community Group (DTCG)
+format, version 2025.10. It holds every value the surface renders through:
+colour, spacing, typography, radii, elevation, motion, glass, and stacking.
 
 ```
 tokens/

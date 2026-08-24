@@ -25,7 +25,7 @@ obligates nobody; `check.mjs` H1 counts those and `outcomes.md` reports the coun
   `cubicBezier`, `fontFamily`, `fontWeight`, `number`, `shadow`. Explicit on the
   token, inherited from the closest typed group, or taken from the token it
   references.
-- **A3** Every `$value` satisfies the DTOS 2025.10 value schema for its `$type`.
+- **A3** Every `$value` satisfies the DTCG 2025.10 value schema for its `$type`.
 - **A4** Every `{group.token}` reference and every `$ref` JSON pointer resolves,
   and no reference chain is circular.
 - **A5** No token or group name begins with `$` or contains `.`, `{`, or `}`.
@@ -104,10 +104,24 @@ These hold before and after any change to any token, not of any one token.
 
 ### P. Parity
 
-- **P1–P3** A value with a second home in hand-written source. The token is the
-  home; the literal must equal it. Currently: four nav constants in
-  `site-header.tsx`, the rendered nav flex gap, and the lucide `strokeWidth` on
-  every icon.
+A value that must exist in two places because the second place cannot read a
+token: a JS timer, a build-time config, a rendered utility class. The token is
+the home; the literal must equal it, and the check is what stops them drifting.
+Each site is named, because an unnamed second home is just duplication.
+
+- **P1** The nav constants in `site-header.tsx` (`LOGO_GAP`, `NAV_OFFSET_FALLBACK`).
+- **P2** The rendered nav flex gap.
+- **P3** The lucide `strokeWidth` on every icon.
+- **P4** `LOGO_CYCLE_MS` in `logo-bounce.tsx`, against `component.splash.cycle`.
+- **P5** `FADE_MS` in `loading-screen.tsx`, against `component.splash.fade`. The
+  number is a CSS transition on one side and a JS unmount timer on the other.
+- **P6** Tailwind's `--spacing` base in `app/globals.css`, against `unit.1`.
+  Every numeric spacing utility (`p-4`, `gap-6`) is a multiple of it, so this one
+  number is what makes the product surface's spacing derive from the token ramp
+  rather than from Tailwind's built-in default. It is a literal because `@theme`
+  is resolved at build time and cannot read a property scoped to
+  `.portfolio-root`. Resolves the build-bound half of R-100; which mechanism
+  *authors* layout spacing is still open there.
 
 ### D. One home per value
 
@@ -164,7 +178,7 @@ These hold before and after any change to any token, not of any one token.
   Parnas's acyclic uses-graph as a machine check (STANDARD.md M).
 
 - **U4** No file under `app/(portfolio)/` or `components/portfolio/` imports a
-  `lib/*-tokens` module. The portfolio DTOS token system and the `lib/*-tokens`
+  `lib/*-tokens` module. The portfolio DTCG token system and the `lib/*-tokens`
   `/system` design system are two homes for "design tokens", adjudicated as two
   concepts (DECISIONS R-25). A portfolio-surface import of a `lib/*-tokens`
   module would merge them into a hidden third binding; U4 keeps the two two.
@@ -174,6 +188,14 @@ These hold before and after any change to any token, not of any one token.
 - **X1** A number in `baseline.json` never sits above what the last logged run
   in `runs.log` measured for that key. A baseline moves down, in the same change
   as the run that earned it, and that run is in the log.
+
+- **X2** Every scan root a clause declares in `invariants.json` exists on disk.
+  A clause whose root is missing walks an empty tree, finds nothing, and reports
+  green — so a surface that moves or is left behind turns a real check into a
+  vacuous one without any file looking wrong. The failure this forbids is not a
+  broken check but a silent one: a check that cannot fail is not a check. The
+  root list is derived from the same keys the clauses read, never restated, so a
+  clause cannot acquire a root that X2 does not watch.
 
 ### H. Clients
 
@@ -262,22 +284,22 @@ can fail on its own, and then two sources disagree about one rule. One home.
 
 ## Spec gaps
 
-Three places where DTOS 2025.10 has no expression for a value this surface uses.
+Three places where DTCG 2025.10 has no expression for a value this surface uses.
 Each is disclosed rather than faked.
 
-1. **`em` is not a DTOS dimension unit.** `dimension` admits `px` and `rem` only.
+1. **`em` is not a DTCG dimension unit.** `dimension` admits `px` and `rem` only.
    Tracking and the weight-synthesis strokes are in `em` because they must scale
    with font size. They are typed `number` and carry
    `$extensions["org.metis.css"].unit = "em"`, which the build appends.
-2. **`vh` is not a DTOS dimension unit.** `component.ask-ai.raise` is typed
+2. **`vh` is not a DTCG dimension unit.** `component.ask-ai.raise` is typed
    `number` with the same extension mechanism.
-3. **`$extensions` inheritance is not specified.** DTOS defines `$type`
+3. **`$extensions` inheritance is not specified.** DTCG defines `$type`
    inheritance from a group and through a reference; it says nothing about
    `$extensions`. This build applies the same two rules to `$extensions`, so a
    semantic token that references `font.tracking.tight` emits `em`. That is this
    build's own rule, not the spec's.
 
-4. **No asset type.** The grain is an SVG data URI, which no DTOS type admits.
+4. **No asset type.** The grain is an SVG data URI, which no DTCG type admits.
    Rather than leave it hand-written, its four parameters are tokens
    (`dither.strength`, `.frequency`, `.octaves`, `.tile`) and `build.mjs`
    serializes them into the feTurbulence URI it emits as `--port-dither-noise`.

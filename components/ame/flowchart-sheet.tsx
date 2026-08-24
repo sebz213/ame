@@ -14,12 +14,37 @@ import { FLOWCHART_PRESETS } from './flowchart-presets'
   docs theme. SVG colours are set through `style` (not the fill/stroke attributes) so
   the token var()s resolve — a var() in an SVG presentation attribute would not.
 
-  Node types: "terminator" | "process" | "decision".
+  Symbol vocabulary — the implemented subset of ISO 5807:1985, each with the
+  clause that defines it. The subset is stated rather than implied: the standard
+  is larger than this, and a component claiming "ISO 5807" while drawing three
+  shapes would promise more than it does (STANDARD.md N6).
+
+    process         9.2.1     a defined operation
+    predefined      9.2.2.1   an operation defined elsewhere (a named sub-process)
+    manual-input    9.1.2.5   data supplied by a person at the time of processing
+    preparation     9.2.2.3   setting up for what follows — targets, thresholds
+    decision        9.2.2.4   one entry, several mutually exclusive exits
+    document        9.1.2.4   a human-readable record
+    terminator      9.4       entry to, or exit from, the flow
+
+  Lines: solid flow line 9.3.1, dashed line 9.3.2.3 (used for a feedback return,
+  which carries control back rather than forward).
+
+  Geometry follows the operator's own ISO 5807 reference implementation in
+  `Process Standardization/HCD Standards/Metis UX_iso5807_charts.py`, so the two
+  drawings of the same standard cannot disagree about what a symbol looks like.
 */
 
 // ---- Types --------------------------------------------------------------
 
-type NodeType = 'terminator' | 'process' | 'decision'
+type NodeType =
+  | 'terminator'
+  | 'process'
+  | 'decision'
+  | 'predefined'
+  | 'manual-input'
+  | 'preparation'
+  | 'document'
 
 export type FlowNode = {
   id: string
@@ -44,6 +69,8 @@ export type FlowEdge = {
   accent?: boolean
   label?: string
   labelAt?: [number, number]
+  /** ISO 5807 9.3.2.3. A feedback return: control going back, not forward. */
+  dashed?: boolean
 }
 
 export type FlowAnnotation = {
@@ -168,28 +195,60 @@ function NodeShape({ node, theme, fill }: { node: FlowNode; theme: FlowchartThem
   const sw = node.accent ? (node.type === 'terminator' ? 2.5 : 2) : 1
   const shapeStyle: CSSProperties = { fill, stroke, strokeWidth: sw }
 
+  const { x, y, w, h } = node
+  const cx = x + w / 2
+  const cy = y + h / 2
+
   if (node.type === 'terminator') {
-    return <rect x={node.x} y={node.y} width={node.w} height={node.h} rx={node.h / 2} style={shapeStyle} />
+    return <rect x={x} y={y} width={w} height={h} rx={h / 2} style={shapeStyle} />
   }
   if (node.type === 'decision') {
-    const cx = node.x + node.w / 2
-    const cy = node.y + node.h / 2
-    const pts = `${cx},${node.y} ${node.x + node.w},${cy} ${cx},${node.y + node.h} ${node.x},${cy}`
+    return <polygon points={`${cx},${y} ${x + w},${cy} ${cx},${y + h} ${x},${cy}`} style={shapeStyle} />
+  }
+  // 9.2.2.3 preparation — a hexagon. The corner inset is a fixed bevel, not a
+  // ratio, so a wide node stays a hexagon instead of collapsing to a diamond.
+  if (node.type === 'preparation') {
+    const c = Math.min(18, w / 4)
+    const pts = `${x + c},${y} ${x + w - c},${y} ${x + w},${cy} ${x + w - c},${y + h} ${x + c},${y + h} ${x},${cy}`
     return <polygon points={pts} style={shapeStyle} />
   }
-  return <rect x={node.x} y={node.y} width={node.w} height={node.h} style={shapeStyle} />
+  // 9.1.2.5 manual input — the top edge slopes down to the left.
+  if (node.type === 'manual-input') {
+    const s = Math.min(13, h / 4)
+    return <polygon points={`${x},${y + s} ${x + w},${y} ${x + w},${y + h} ${x},${y + h}`} style={shapeStyle} />
+  }
+  // 9.1.2.4 document — a rectangle whose lower edge is a wave.
+  if (node.type === 'document') {
+    const d =
+      `M ${x},${y} L ${x + w},${y} L ${x + w},${y + h - 8} ` +
+      `C ${x + w - w * 0.28},${y + h - 22} ${x + w * 0.3},${y + h + 12} ${x},${y + h - 4} Z`
+    return <path d={d} style={shapeStyle} />
+  }
+  // 9.2.2.1 predefined process — a process with a bar inside each vertical edge.
+  if (node.type === 'predefined') {
+    return (
+      <>
+        <rect x={x} y={y} width={w} height={h} style={shapeStyle} />
+        <line x1={x + 7} y1={y} x2={x + 7} y2={y + h} style={{ stroke, strokeWidth: sw }} />
+        <line x1={x + w - 7} y1={y} x2={x + w - 7} y2={y + h} style={{ stroke, strokeWidth: sw }} />
+      </>
+    )
+  }
+  // 9.2.1 process.
+  return <rect x={x} y={y} width={w} height={h} style={shapeStyle} />
 }
 
 function Edge({ edge, theme }: { edge: FlowEdge; theme: FlowchartTheme }) {
   const stroke = edge.accent ? theme.accent : theme.muted
   const sw = edge.accent ? 1.5 : 1
   const marker = edge.accent ? 'url(#fc-arr-accent)' : 'url(#fc-arr)'
+  const dash = edge.dashed ? '6 5' : undefined
   if (edge.via && edge.via.length) {
     const pts = [edge.from, ...edge.via, edge.to].map((p) => p.join(',')).join(' ')
-    return <polyline points={pts} markerEnd={marker} style={{ fill: 'none', stroke, strokeWidth: sw }} />
+    return <polyline points={pts} markerEnd={marker} strokeDasharray={dash} style={{ fill: 'none', stroke, strokeWidth: sw }} />
   }
   return (
-    <line x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} markerEnd={marker} style={{ stroke, strokeWidth: sw }} />
+    <line x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} markerEnd={marker} strokeDasharray={dash} style={{ stroke, strokeWidth: sw }} />
   )
 }
 
@@ -249,9 +308,25 @@ function vocabSpecimens(view: VocabView, theme: FlowchartTheme): Specimen[] {
 
   if (view === 'legend') {
     return [
-      { label: 'Terminator', node: <rect x={4} y={12} width={72} height={24} rx={12} style={ink} /> },
-      { label: 'Process', node: <rect x={4} y={12} width={72} height={24} style={ink} /> },
-      { label: 'Decision', node: <polygon points="40,8 76,24 40,40 4,24" style={ink} /> },
+      { label: 'Terminator · 9.4', node: <rect x={4} y={12} width={72} height={24} rx={12} style={ink} /> },
+      { label: 'Process · 9.2.1', node: <rect x={4} y={12} width={72} height={24} style={ink} /> },
+      {
+        label: 'Predefined · 9.2.2.1',
+        node: (
+          <>
+            <rect x={4} y={12} width={72} height={24} style={ink} />
+            <line x1={11} y1={12} x2={11} y2={36} style={ink} />
+            <line x1={69} y1={12} x2={69} y2={36} style={ink} />
+          </>
+        ),
+      },
+      { label: 'Decision · 9.2.2.4', node: <polygon points="40,8 76,24 40,40 4,24" style={ink} /> },
+      { label: 'Preparation · 9.2.2.3', node: <polygon points="18,12 62,12 76,24 62,36 18,36 4,24" style={ink} /> },
+      { label: 'Manual input · 9.1.2.5', node: <polygon points="4,17 76,12 76,36 4,36" style={ink} /> },
+      {
+        label: 'Document · 9.1.2.4',
+        node: <path d="M 4,12 L 76,12 L 76,30 C 56,26 24,40 4,33 Z" style={ink} />,
+      },
       {
         label: 'Annotation',
         node: (
@@ -265,8 +340,9 @@ function vocabSpecimens(view: VocabView, theme: FlowchartTheme): Specimen[] {
   }
   if (view === 'lines') {
     return [
-      { label: 'Flow line', node: <line x1={6} y1={24} x2={74} y2={24} style={ink} /> },
+      { label: 'Flow line · 9.3.1', node: <line x1={6} y1={24} x2={74} y2={24} style={ink} /> },
       { label: 'Accent path', node: <polyline points="6,12 40,12 40,36 74,36" style={accent} /> },
+      { label: 'Feedback · 9.3.2.3', node: <line x1={6} y1={24} x2={74} y2={24} strokeDasharray="6 5" style={ink} /> },
       { label: 'Leader', node: <line x1={6} y1={24} x2={74} y2={24} strokeDasharray="4 4" style={muted} /> },
     ]
   }

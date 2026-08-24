@@ -1,5 +1,5 @@
 {
-  "$description": "Base spacing ramp. DTOS dimension objects in rem. Tailwind-compatible (0.25rem = 1 Tailwind unit) so the utility classes and the tokens name the same distances. Closed set: invariant spacing-scale admits no spacing value outside it.",
+  "$description": "Base spacing ramp. DTCG dimension objects in rem. Tailwind-compatible (0.25rem = 1 Tailwind unit) so the utility classes and the tokens name the same distances. Closed set: invariant spacing-scale admits no spacing value outside it.",
   "unit": {
     "$type": "dimension",
     "0": { "$value": { "value": 0, "unit": "rem" } },

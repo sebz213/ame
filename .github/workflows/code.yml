@@ -63,8 +63,15 @@ jobs:
       - name: docgen check
         run: pnpm docgen:check
 
-      - name: tokens check
-        run: pnpm tokens:check
+      - name: gate
+        run: pnpm gate
+
+      # The other half of the same argument. `gate` proves the tree is clean,
+      # which a gate that cannot fail would also prove. This runs the same gate
+      # against examples/violating and is green only when it was rejected, so a
+      # clause that quietly stops catching turns CI red instead of silent.
+      - name: gate on fixtures
+        run: pnpm gate:fixtures
 
       - name: lint
         run: pnpm lint

@@ -1,5 +1,5 @@
 {
-  "$description": "Base colour primitives. DTOS 2025.10 colour objects: colourSpace + components, alpha where the colour is translucent. No other file may introduce a colour literal; semantic references these, component references semantic.",
+  "$description": "Base colour primitives. DTCG 2025.10 colour objects: colourSpace + components, alpha where the colour is translucent. No other file may introduce a colour literal; semantic references these, component references semantic.",
   "color": {
     "$type": "color",
 

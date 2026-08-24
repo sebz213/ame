@@ -11,7 +11,7 @@
     "shadow"
   ],
   "type_bounds": {
-    "$description": "F3. Bounds the DTOS 2025.10 value schemas impose, held here rather than as literals in check.mjs, so the checker states no number of its own. Source: schemas/src/2025.10/format/values/*.json.",
+    "$description": "F3. Bounds the DTCG 2025.10 value schemas impose, held here rather than as literals in check.mjs, so the checker states no number of its own. Source: schemas/src/2025.10/format/values/*.json.",
     "dimension_units": [
       "px",
       "rem"
@@ -50,7 +50,7 @@
   },
   "naming": {
     "segment": "^[a-z0-9]+([-_][a-z0-9]+)*$",
-    "$description": "N1. Every path segment. Lowercase, digits, single hyphen or underscore as separator. DTOS additionally forbids '.', '{', '}' and a leading '$' in any name; F5 checks those."
+    "$description": "N1. Every path segment. Lowercase, digits, single hyphen or underscore as separator. DTCG additionally forbids '.', '{', '}' and a leading '$' in any name; F5 checks those."
   },
   "synonyms": {
     "$description": "N2. One word per concept, across token paths and the repo's own exported symbols (Deissenboeck & Pizka's name-to-concept bijection; STANDARD.md N3). Each pair names the canonical word for a concept and the deprecated synonym that must not enter a new identifier. An identifier is tokenized on '-', '_', '.', '/' and camelCase boundaries; a deprecated word appearing as one of those tokens fails N2 unless the whole identifier is listed in `waived`. Vendored code (components/ui) is out of scope: its names are the upstream's call, not this repo's, the same exemption R-8 gives vendored files. Scope note: this reads identifiers, not Tailwind class strings or CSS custom-property call sites, so a `bg-*` utility class is untouched.",
@@ -234,7 +234,8 @@
     "id": "CV1",
     "surfaces": [
       "app",
-      "components"
+      "components",
+      "examples/compliant"
     ],
     "extensions": [
       ".css",
@@ -287,13 +288,22 @@
         "pattern": "const FADE_MS = ([0-9.]+)",
         "token": "component.splash.fade",
         "as": "ms"
+      },
+      {
+        "id": "P6",
+        "file": "app/globals.css",
+        "token": "unit.1",
+        "as": "rem",
+        "custom_property": "--spacing",
+        "$description": "P6. Tailwind v4 generates every numeric spacing utility as a multiple of --spacing, so this one number is what makes p-4 and gap-6 derive from the unit ramp instead of from Tailwind's built-in default. It is a literal because @theme resolves at build time and cannot read a property scoped to .portfolio-root. Stated as a property name, not a regex: the pattern is assembled in check.mjs (R-86, W-P1), which is why adding this clause did not grow D3."
       }
     ]
   },
   "duplication": {
     "$description": "D1. A generated custom property re-declared in hand-written CSS is a second home for one value. Exceptions are values the token layer cannot hold: a runtime-switched assignment, or an asset.",
     "hand_written": [
-      "app/(portfolio)/portfolio.css"
+      "app/(portfolio)/portfolio.css",
+      "examples/compliant"
     ],
     "allowed": [
       "--port-glass-fg",
@@ -314,7 +324,8 @@
     "$description": "D2. D1 catches a re-declared custom property. It cannot see a hand-written literal that happens to equal a token's resolved value, which is the same second home wearing different syntax: the nav pill and the work card each restated a shadow recipe the token layer already held, and the gate passed. Compared by numeric signature (the ordered numbers in the value) so rgba(16,19,25, 0.04) and rgb(16 19 25 / 0.04) are recognised as one value. min_numbers keeps single scalars from matching everything.",
     "id": "D2",
     "hand_written": [
-      "app/(portfolio)/portfolio.css"
+      "app/(portfolio)/portfolio.css",
+      "examples/compliant"
     ],
     "min_numbers": 3
   },
@@ -370,8 +381,53 @@
     ],
     "sources": [
       "app/(portfolio)",
-      "components/portfolio"
+      "components/portfolio",
+      "examples/compliant"
     ]
+  },
+  "scan_roots": {
+    "$description": "X2. Every scan root a clause declares must exist on disk. A clause pointed at a path that is not there walks an empty tree, finds nothing, and reports green: the surface moved or was left behind, and no file looks wrong. This is the failure mode that makes an extraction dangerous — the portfolio surfaces D2, U4 and K1 scan do not exist in a standalone Ame tree, so without this clause the gate would report PASS while measuring nothing. `lists` and `singletons` map an invariants key to the clause id that reads it; the roots themselves are never copied here, so a clause cannot acquire a root X2 does not watch. Source: contract.md section X.",
+    "id": "X2",
+    "lists": {
+      "duplication.hand_written": "D1",
+      "restated.hand_written": "D2",
+      "scales.sources": "S1",
+      "binding.surfaces": "U1",
+      "uses_graph.base_read.scan": "U2",
+      "uses_graph.surface_no_system_tokens.surfaces": "U4",
+      "contrast_coverage.surfaces": "CV1",
+      "clients.sources": "H1"
+    },
+    "singletons": {
+      "uses_graph.lib_no_app.from": "U3",
+      "asset_budget.root": "K1"
+    }
+  },
+  "fixtures": {
+    "$description": "The disconfirming world, as data. examples/compliant is inside the real gate's scan surfaces and carries the same obligations as application code; examples/violating is not, and is put in scope only by `node tokens/check.mjs --fixtures`, which tokens/gate-fixtures.mjs runs and then inverts. `scan_extends` names the clause scan lists the violating fixture joins, by invariants path, so the fixture's scope is stated once here instead of once per clause. `expect` is the claim the fixture makes about the gate: these clauses, and no fewer, must fire on it. A gate that stops catching one of them turns the fixture run red, which is the only way a regression in the gate itself becomes visible. Sources: the work order's C9 (the disconfirming world ships with the claim) and C1 (a claim ships next to the instrument that checks it).",
+    "compliant": "examples/compliant",
+    "violating": "examples/violating",
+    "scan_extends": [
+      "duplication.hand_written",
+      "restated.hand_written",
+      "scales.sources",
+      "binding.surfaces",
+      "uses_graph.base_read.scan",
+      "contrast_coverage.surfaces"
+    ],
+    "expect": {
+      "$description": "violations are clause ids that must appear under VIOLATIONS; drift_grows are measured counts that must exceed their baseline. Together they are the fixture's own postcondition.",
+      "violations": [
+        "U2",
+        "CV1"
+      ],
+      "drift_grows": [
+        "D2",
+        "U1",
+        "S1",
+        "S4"
+      ]
+    }
   },
   "binding": {
     "$description": "U1. The deliverable standard's allowed binding paths, as a tripwire. Surfaces bind semantic and component tokens; only tokens bind base tokens. A surface reading a base custom property resolves fine by name and violates the layering the deliverable list publishes, so the gate and the deliverable list agree by construction. The base-name set is derived from the token tree at check time, never restated here or in check.mjs. Aliases are not base names: an alias is a spelling the surface is meant to bind.",
@@ -385,7 +441,8 @@
       "components/mdx",
       "content",
       "lib",
-      "hooks"
+      "hooks",
+      "examples/compliant"
     ],
     "surfaces_because": "U1 always read .ts and .tsx, but only under the two portfolio directories, so the /ame area was a surface the tripwire did not watch. It bound five base primitives through inline style: --color-ink, --radius-pill, --duration-slow, --font-size-13 (nav.tsx) and --font-leading-relaxed (footer.tsx). Each was repointed at the role that already held its value, and the two roles that did not exist yet were added (type.body-leading, component.nav.pill-fg), so the count is 0 across the widened scope and needed no baseline. Two directories stay out and are named rather than silently absent: components/ui is vendored and its names are upstream's call (R-8), and app/prototypes renders outside the token scope on purpose, binding its own --ambient-* namespace (R-66).",
     "extensions": [
@@ -404,7 +461,8 @@
       "$description": "No file in the app/components tree reads a base-tier custom property. U1 is this rule on the portfolio surface; U2 is the same rule on the rest of the tree (the /system shell and the shared ame chrome). Base binds base; a surface binds semantic or component.",
       "scan": [
         "app",
-        "components"
+        "components",
+        "examples/compliant"
       ],
       "extensions": [
         ".ts",
@@ -437,7 +495,7 @@
     },
     "surface_no_system_tokens": {
       "id": "U4",
-      "$description": "No portfolio surface imports a lib/*-tokens design-token module. The portfolio DTOS token system and the lib/*-tokens /system design system are two homes for 'design tokens', adjudicated as two concepts in DECISIONS R-25. A portfolio-surface import of a lib/*-tokens module would merge them into a hidden third binding; this keeps the two concepts two.",
+      "$description": "No portfolio surface imports a lib/*-tokens design-token module. The portfolio DTCG token system and the lib/*-tokens /system design system are two homes for 'design tokens', adjudicated as two concepts in DECISIONS R-25. A portfolio-surface import of a lib/*-tokens module would merge them into a hidden third binding; this keeps the two concepts two.",
       "surfaces": [
         "app/(portfolio)",
         "components/portfolio"
@@ -452,7 +510,6 @@
       "components",
       "lib",
       "hooks",
-      "styles",
       "content"
     ],
     "invariant_clients": {
@@ -737,10 +794,6 @@
         "invariant": "contrast_coverage",
         "check": "checkContrastCoverage"
       },
-      "P1-P3": {
-        "invariant": "parity",
-        "check": "checkParity"
-      },
       "D1": {
         "invariant": "duplication",
         "check": "checkDuplication"
@@ -773,6 +826,10 @@
         "check": "checkRecord",
         "structural": "the drift ratchet's data home is baseline.json and runs.log, not invariants.json; checkRecord evaluates a baseline against the last logged run, so X1 has a check but no invariants entry by design."
       },
+      "X2": {
+        "invariant": "scan_roots",
+        "check": "checkScanRoots"
+      },
       "H1": {
         "invariant": "clients",
         "check": "checkClients"
@@ -804,6 +861,30 @@
       "D3": {
         "invariant": "pattern_escapes",
         "check": "checkPatternEscapes"
+      },
+      "P1": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "P2": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "P3": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "P4": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "P5": {
+        "invariant": "parity",
+        "check": "checkParity"
+      },
+      "P6": {
+        "invariant": "parity",
+        "check": "checkParity"
       }
     },
     "threshold_scan": {

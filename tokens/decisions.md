@@ -3,6 +3,18 @@
 Reasoning. The conditions themselves are in `contract.md`; the numbers are in
 `outcomes.md`. Nothing here is enforced, and nothing enforced is argued here.
 
+> **Naming correction, 2026-08-24 (D-48).** Entries below written before this
+> date call the token format **DTOS** ("Design Token Open Standard"). No such
+> standard exists; the format is **DTCG** 2025.10, the Design Tokens Community
+> Group format. The entries are left as written — a record is annotated, never
+> rewritten. `docs/LEXICON.md` holds the correction.
+
+> **Status of these entries, 2026-08-24.** Each entry has been classified
+> current / superseded / historical against the code as it stands, in
+> `docs/DECISION-STATUS-2026-08-24.md`. Nine of the 48 D- entries describe a
+> state the code has left; none was marked before that pass. The entries below
+> are left exactly as written.
+
 ## D-1 The format is DTOS 2025.10, not Style Dictionary's dialect
 
 The files used `value` and `{path.value}`, which is Style Dictionary v3 syntax.
@@ -832,3 +844,249 @@ rationale.
 (a flat `MODEL_PATH` / `REQUIRED_NODES` / `assertModelContract` export from the WO-5
 runbook pass) was the earlier attempt. Its facts moved into the three new files and
 it was deleted; keeping it would have been a second home for the node names.
+
+## D-47 The gate got a disconfirming world, and a clause that watches its own scope
+
+2026-08-24. Executes the critical path of `docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md`
+(work order Phase 2, items 2.1 and 2.2, pulled ahead of Phase 1).
+
+The extraction preflight found that D2 — the clause carrying the system's
+central public claim, that a build fails when app code reads a raw value —
+scanned exactly one file, `app/(portfolio)/portfolio.css`. In a standalone Ame
+tree that file does not exist. D2 would have walked nothing, found nothing, and
+reported green, and the claim would have shipped with no instrument behind it.
+U4 and K1 had the same shape. The gate was not broken; its scan surfaces were
+portfolio-shaped, and nothing in the repo could tell the difference between a
+clause that passed and a clause that had nothing to look at.
+
+**X2, because a check that cannot fail is not a check.** The new clause asserts
+that every scan root a clause declares exists on disk. `invariants.json >
+scan_roots` maps an invariants key to the clause id that reads it — the keys,
+never the paths, so the roots keep one home and a clause cannot acquire a root
+X2 does not watch. It found a live one on its first run: `clients.sources` named
+`styles/`, a directory that does not exist, so H1's client census had been
+walking a phantom. Removed. The count did not move, which is exactly why nothing
+had caught it.
+
+**examples/, because a gate nobody has watched fail is not evidence.**
+`examples/compliant/` sits inside the real gate's scan surfaces and carries the
+same obligations as application code: when a clause changes, this example must
+still satisfy it or the change is not finished. `examples/violating/` carries
+five deliberate mistakes — a base-tier read, a hand-written shadow recipe the
+token layer already holds, an undeclared contrast pair, an off-scale size, an
+off-scale duration — and is out of the gate's normal scope.
+
+**The inversion has one home.** `check.mjs --fixtures` widens the scan lists
+named in `invariants.json > fixtures.scan_extends` and is otherwise the same
+gate reaching the same verdict. `tokens/gate-fixtures.mjs` is what turns "the
+gate said FAIL" into "the fixture run says PASS", and it checks *which* clauses
+fired against `fixtures.expect`, not merely that something did. Keeping the two
+apart means the gate itself has no mode in which failing is success.
+
+The harness was disconfirmed before it was believed: neutering the violating
+fixture turns `gate:fixtures` red on all six expected clauses plus the verdict.
+That is the property that matters — a clause that quietly stops catching now
+turns CI red instead of silent.
+
+**`tokens:check` became `gate`.** The work order asks for `pnpm gate`, and
+adding it as an alias would have put two names on one concept, which is the N3
+defect this repo already forbids. `gate` is also the better name: the check
+decides contrast, layering, asset weight, CI wiring and the census, not tokens
+alone, and `gate` is the word LEXICON.md already uses for the thing that decides
+conformance. `tokens:check:shipped` became `gate:shipped` in the same pass. W1
+verified the rename: every workflow step still resolves to a script that exists.
+
+**What this does not do.** The portfolio surfaces are still named in the clause
+lists — nothing was repointed *away* from them, because they exist and are still
+the real subject while Ame lives in this tree. The extraction repoints; this
+change makes the extraction detectable when it forgets to.
+
+## D-48 The format is DTCG, and it never was DTOS
+
+2026-08-24. Executes item 3 of the critical path in
+`docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md`. Corrects D-1, and every entry
+between D-1 and D-19 that inherited its spelling.
+
+The extraction preflight validated the token files against the published DTCG
+2025.10 JSON Schema and they passed — all eight, with the validator
+negative-controlled first so the pass meant something. The claim held. The name
+did not: this repo has called the format **DTOS**, expanded in `tokens/README.md`
+as "Design Token Open Standard", since D-1. There is no Design Token Open
+Standard. The specification is the Design Tokens Community Group's format module,
+DTCG, and 2025.10 is its version. The abbreviation was invented here and then
+propagated to 41 places across code, rule data, docs and the emitted stylesheet
+header.
+
+**Why this is not cosmetic.** A machine-readable surface has to speak the
+parser's noun. A tool, a schema registry, or a reader searching for the format
+this system uses searches for "DTCG" and finds nothing; the manifest's
+`"format": "DTOS 2025.10"` is a string no consumer can match on. That is the
+whole failure: the value was right and the name it announced itself by was
+unfindable. The repo standard already forbids it — N6, a name that promises one
+thing while the code does another, is the highest naming severity, and this one
+promised a standard that does not exist.
+
+**What changed.** Every live surface: the manifest, `build.mjs`, the token
+`$description`s, `check.mjs`, `docgen.mjs`, `contrast.mjs`, `invariants.json`,
+`contract.md`, both READMEs, `LEXICON.md`, the `/ame` docs shell and its content,
+`source.config.ts`, and the emitted `tokens.css` header, which now reads
+`/* ame@0.1.0 · DTCG 2025.10 · generated, do not edit */`. B4 and B5 re-passed on
+a rebuild, so the committed stylesheet and the manifest agree on the new string.
+
+**What did not change, on purpose.** `decisions.md`, `DECISIONS.md`, `audit.md`,
+`outcomes.md`, `wo-report.md`, `CHANGELOG.md`, `AME-HYGIENE-PLAN.md`, the
+`docs/orders/` work orders, and the dated `tokens/dipstick/` exports keep the old
+spelling. A record is annotated, never rewritten (STANDARD.md C8), and the
+dipstick files are measurements — a measurement does not change because a name
+did. Both decision logs carry a dated annotation at the top pointing at the
+correction, whose one home is the **DTCG** row in `docs/LEXICON.md`.
+
+**The heading of D-1 is left wrong.** It reads "The format is DTOS 2025.10, not
+Style Dictionary's dialect". Its argument — that the files were Style Dictionary
+v3 syntax and had to move to the community format — is correct and still binds;
+only the name it used is wrong. Rewriting the heading would erase the evidence
+that this repo carried an invented name for a month, which is exactly what the
+dated record exists to preserve.
+
+**One thing the validator did not check, now stated rather than implied.** The
+DTCG JSON Schema cannot express group-inherited `$type`, so a token whose type
+comes from its group is validated loosely: a bare-number dimension and a
+`fontWeight` of 1200 both pass the published schema. That is a limit of the
+schema, not of these tokens, and it belongs in the standalone repo's Scope and
+limits section rather than in a claim of full conformance.
+
+## D-49 The spacing scale is declared, and P6 makes Tailwind derive from it
+
+2026-08-24. Resolves the build-bound half of R-100 (2026-08-11), on the owner's
+instruction to declare a spacing scale for the standalone package. Reviewed
+against `Process Standardization/Design Token Standards` (the DTCG format module
+and its token-naming report) rather than decided ad hoc.
+
+**The scale already existed; the connection did not.** `base/space.json` holds
+`unit.0` through `unit.24` as DTCG `dimension` objects on the 0.25rem Tailwind
+step, and the five `space.*` semantic roles reference it — the three-tier
+base/alias/component shape the DTCG naming report prescribes, already correct.
+What R-100 measured was that nothing joined that ramp to the utilities doing the
+actual work: `var(--space-*)` had three consumers repo-wide, all shared chrome,
+against ~197 Tailwind spacing utilities on the product surface, and
+`app/globals.css`'s `@theme` block declared no spacing at all. Two authorities,
+unconnected.
+
+**R-100 named the instrument, and this is the case it named it for.** Its own
+words: *"Had the Tailwind scale derived from the tokens, a 0.000 coefficient
+would have meant 'build-bound', not 'ungoverned', and the correct deliverable
+would have been a parity clause rather than a constitutional decision."* Tailwind
+v4 generates every numeric spacing utility as a multiple of one variable,
+`--spacing`, so joining the two authorities is one declaration, not a migration.
+
+**`--spacing: 0.25rem` in `@theme`, held to `unit.1` by new clause P6.** After
+this, `p-4` is four token units and `gap-6` is six, on every surface, by
+derivation rather than by coincidence.
+
+**It repaints nothing, and that is the point.** Tailwind's own default is the
+same 0.25rem (`tailwindcss@4.2.0/theme.css:325`), so the emitted CSS is
+unchanged; what moved is where the number comes from. A change that alters the
+authority without altering a pixel is the one worth taking, because it cannot be
+wrong about the design and can only be wrong about the wiring — and P6 checks the
+wiring. Disconfirmed before being believed: setting `--spacing: 0.3rem` produces
+`P6  app/globals.css: literal 0.3 does not equal unit.1 (0.25)`.
+
+**Why a literal at all.** `@theme` is resolved at build time and cannot read a
+custom property scoped to `.portfolio-root`, which is where the token ramp is
+emitted. So the number exists twice, deliberately, and the check is what stops
+the two drifting — the same shape P1 (a JS constant), P4 (`LOGO_CYCLE_MS`) and
+P5 (`FADE_MS`) already use. This is what section P is for.
+
+**Found while doing it: P4 and P5 bound without being declared.** `contract.md`
+section P read "P1–P3" while `invariants.json` carried P1c, P1d, P2, P3, P4 and
+P5. The contract's own opening sentence says a clause not written there does not
+bind, so two live clauses were binding on nothing. Z1 did not catch it because Z1
+checks that every clause the contract *declares* has a census record, not the
+reverse. Section P now names all six individually, the stale `P1-P3` census
+record is replaced by six, and the census and contract agree again.
+
+**What is still open.** R-100's constitutional half stands: which mechanism
+*authors* layout spacing — a designer reaching for `space.gutter` or reaching for
+`px-6` — is unresolved, and this decision does not resolve it. It makes the two
+answers agree on the arithmetic; it does not say which one a person should write.
+That belongs in the standalone repo's Scope and limits until it is decided.
+
+**The gate caught its author, again (R-87's health signal).** The first version of
+P6 typed the regex `--spacing:\s*([0-9.]+)rem` straight into `invariants.json`.
+D3 went from 10 to 11 and the build went red — which is exactly what that ratchet
+is for: R-86 established that rule data holds literal text and pattern syntax is
+assembled in code, and that the listed sites are *held*, not forgiven, so a new
+pattern typed into one fails. The clause was migrated rather than the ratchet
+raised: P6 states `"custom_property": "--spacing"` as literal text, and
+`parityPattern()` in `check.mjs` builds the regex, escaping the property name
+once, where the escapes are read by the same eyes that read the code. D3 is back
+at 10 and can still only fall. A parity entry added from here takes the second
+form by default; the six older entries keep their typed patterns and stay on the
+ratchet, which is the migration R-86 described rather than a sweep.
+
+## D-50 The flowchart demo data is the HCD process, and client cases move out of Ame
+
+2026-08-24. Executes P-1 of `docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md` on the
+owner's instruction that the presets match the HCD and UX process standards.
+Reviewed against `Process Standardization/HCD Standards` and
+`Portfolio Standards/HCD Process Standard.txt`, not decided ad hoc.
+
+The extraction preflight found three flowchart presets carrying a client's
+internal product logic — a reward mechanic, an async failure path, and a member
+state machine — as the design system's demo data, plus four more splitting the
+same state machine for an explorer. Seven presets, all one project.
+
+**The split is the fix, not a rewrite.** Ame's `flowchart-presets.ts` now holds
+three neutral sheets; `components/portfolio/flowchart-cases.ts` holds the seven
+case sheets, unchanged, and the case study renders them through `CaseFlowchart`,
+which passes them to the sheet's existing `data` prop. Nothing was deleted and
+the case study is intact. `FlowchartSheet`'s `preset` prop resolves Ame's
+registry only, so a case name cannot resolve inside the design system — the
+partition is enforced by what each module can see, not by a convention.
+
+**`ScreenSelector` stopped knowing about presets.** A state now carries its
+diagram as `sheet: FlowchartData` rather than the name of a preset, which removes
+the registry from the generic component entirely: it cannot resolve a name it was
+not handed. `EnrollmentExplorer`, which is one case's instance of it, moved to
+`components/portfolio/`, and the file it left is renamed `screen-selector.tsx`
+after what it now contains (N2). AM1 immediately demanded registry rows for both
+new portfolio components — the gate noticing a component entering a watched
+directory, which is what it is for.
+
+**The new subject is the HCD loop itself, and that is a choice with a reason.**
+Three sheets: the six-stage loop with its two feedback returns; stage 5 opened up
+into the sample-size and analyst decisions; stage 3's testability gate. A
+flowchart component is most honestly demonstrated on a process whose content can
+be checked against a published standard — ISO 9241-210 for the activities,
+9241-11 for what usability means, 25065 for requirements, 25062 for the report,
+9241-220 for the audit — rather than on content a reader has to take on trust.
+Every annotation on the sheets cites the study it comes from.
+
+**The ISO 5807 claim was larger than the code.** The component's own header said
+"an ISO 5807 flowchart" while implementing three symbols: terminator, process,
+decision. That is the N6 defect D-46 fixed for the viewer — a name promising more
+than the code does — and the honest options were to narrow the claim or to earn
+it. Earned: preparation (9.2.2.3), manual input (9.1.2.5), document (9.1.2.4) and
+predefined process (9.2.2.1) are implemented, plus the dashed feedback line
+(9.3.2.3), and the header now states the implemented subset with a clause number
+against each symbol rather than the standard's name alone. The legend prints the
+clause numbers too, so the drawing and its documentation cannot disagree.
+
+**The geometry is not invented.** Symbol shapes follow the operator's own ISO
+5807 reference implementation, `HCD Standards/Metis UX_iso5807_charts.py`, so two
+drawings of one standard in one body of work cannot disagree about what a symbol
+looks like.
+
+**Each symbol earns its place in the loop.** Stage 1 is preparation because
+setting the targets is setup for everything after it. Stage 2 is manual input
+because the data is supplied by people at the time of study. Stage 5 is a
+predefined process because an evaluation is itself a defined procedure with its
+own rules — and sheet 2 is that procedure, which is what a predefined-process
+symbol promises the reader exists. The report is a document because it is the
+loop's memory and the only artefact that reaches the next iteration.
+
+**What this does not settle.** Ten client screen assets under `public/screens/` are
+still referenced by the case study — four by the state explorer, five by the
+onboarding walkthrough, one unused. They stay with the portfolio, and
+`public/` is outside the extraction subset — but that is the plan keeping them
+out, not a check, which is the condition X2 exists to make visible.

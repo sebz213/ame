@@ -5,7 +5,7 @@
   Emits the GENERATED half of the /ame brand docs from two sources of truth, so a
   page cannot drift from what it documents:
 
-  1. Foundations pages, from the resolved DTOS token build (build.mjs buildTokens):
+  1. Foundations pages, from the resolved DTCG token build (build.mjs buildTokens):
      content/ame/foundations/{color,typography,spacing,radii,motion}.mdx. Every
      swatch, specimen, and value is the token's own, projected into MDX exactly as
      build.mjs projects tokens into CSS.
@@ -174,7 +174,7 @@ function foundationsFiles() {
 // container caps a page arranges within, and the gutters and gaps that space it.
 // Generated from the same resolved token build as Foundations, so a layout page is
 // a projection of the tokens, never a second home for the numbers (the R-59 rule).
-// Ratios (phi / aspect) have no DTOS token home — they live in lib/phi-tokens.ts on
+// Ratios (phi / aspect) have no DTCG token home — they live in lib/phi-tokens.ts on
 // the /system side, which the portfolio surface may not import (invariant U4) — so
 // they are recorded as deferred in the Layouts index (content/ame/layouts.mdx), not
 // faked here.

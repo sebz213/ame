@@ -21,7 +21,8 @@ global (N3) and its entry here moves with it.
 | **ame** | The repository as a whole: the portfolio and the design token system that ships it, in one tree. Also the token system specifically, versioned as `ame@x.y.z` in `packages/ame-tokens/ame.json`, which is the package boundary a consumer binds. One brand at two scales; the version is what distinguishes them (R-1). |
 | **metis** | The sister marketing brand, rendered on the ink (dark) ground. Written **Metis** in prose. The `/metis-marketing` route and the Metis lockup are its surface inside this repo; the top bar, nav, and footer are shared ame components tinted for it (R-12). |
 | **surface** | A rendered consumer that binds tokens: the portfolio routes under `app/(portfolio)/` and the components under `components/portfolio/`. Surfaces bind semantic and component tokens, never base tokens (U1). Note the homonym: the semantic token group `surface.*` names the glass foreground and fill roles, which are values a surface binds, not a surface itself. |
-| **token** | A named design value in Design Token Open Standard (DTOS) format, emitted once as a CSS custom property. Tokens live in three layers: base, semantic, component. |
+| **token** | A named design value in Design Tokens Community Group (DTCG) format, emitted once as a CSS custom property. Tokens live in three layers: base, semantic, component. |
+| **DTCG** | The format the tokens are written in: the Design Tokens Community Group's format specification, version 2025.10. Validated against the published JSON Schema. **Corrected 2026-08-24 (D-48): this repo called it "DTOS", expanded as "Design Token Open Standard", for its first month. No such standard exists — the name was invented here, and a machine-readable surface has to speak the parser's noun or the parser does not find it.** Every live surface now says DTCG. Dated records — `decisions.md`, `DECISIONS.md`, `audit.md`, `outcomes.md`, `wo-report.md`, `CHANGELOG.md`, `docs/orders/`, and the `tokens/dipstick/` exports — keep the old spelling on purpose: a record is annotated, never rewritten, and the dipstick files are measurements, which do not change because a name did. |
 | **base** | The bottom token layer. A base token states a literal and references nothing (L1). `packages/ame-tokens/base/`. |
 | **semantic** | The middle token layer. A semantic token references base and names a role (`background.page`, `text.body`); shadow geometry is its one stated-literal exception (L2). `packages/ame-tokens/semantic/`. |
 | **component** | Two concepts, kept apart by context. (1) The top token layer: a component token references semantic or base and may state a `dimension` or `number` literal for a measure used by one element (L3); `packages/ame-tokens/component/`. (2) A React component under `components/`. The token sense is always qualified "component token" where ambiguity is possible. |
@@ -66,7 +67,7 @@ is the one home for which page sits in which tier, and the component registry
 (DECISIONS R-25). Each governs a different surface, so a change to one is not a
 change to the other.
 
-- **`tokens/` (the DTOS pipeline)** governs the **portfolio surface**: the routes
+- **`tokens/` (the DTCG pipeline)** governs the **portfolio surface**: the routes
   under `app/(portfolio)/` and the components under `components/portfolio/`. It is
   Neue Haas on `.portfolio-root`, emitted as CSS custom properties, and it is the
   contract-checked home (`tokens/contract.md`). Its type ramp lives in

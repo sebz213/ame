@@ -52,17 +52,84 @@ const expand = (pat) =>
       )
     : [pat]
 
+const isDir = (p) => existsSync(join(REPO, p)) && statSync(join(REPO, p)).isDirectory()
+
+/*
+  A hand-written source list (D1, D2) may name a stylesheet or a directory of
+  them. A directory expands to the stylesheets beneath it, so a fixture
+  directory is named once in invariants.json instead of file by file, and a
+  second stylesheet joining it needs no rule edit.
+*/
+const cssSources = (entries) =>
+  entries.flatMap((p) => (isDir(p) ? walkFiles(p).filter((f) => f.endsWith('.css')) : [p]))
+
+/*
+  --fixtures puts examples/violating into the clause scan lists named in
+  invariants.json > fixtures.scan_extends. No clause is modified and no verdict
+  is inverted here: the same checks run against a tree that now contains files
+  written to break them, and tokens/gate-fixtures.mjs inverts the verdict on the
+  outside. The list of lists is data, so widening the fixture's reach to another
+  clause is an invariants edit, not a checker edit.
+*/
+if (process.argv.includes('--fixtures')) {
+  for (const path of RULES.fixtures.scan_extends) {
+    const segs = path.split('.')
+    const leaf = segs.pop()
+    const owner = segs.reduce((o, s) => (o === undefined ? o : o[s]), RULES)
+    if (!Array.isArray(owner?.[leaf]))
+      throw new Error(`fixtures.scan_extends names ${path}, which is not an array in invariants.json`)
+    owner[leaf] = [...owner[leaf], RULES.fixtures.violating]
+  }
+}
+
+// ── X2. A declared scan root exists ─────────────────────────────────────────
+// A clause pointed at a path that is not there walks an empty tree, finds
+// nothing, and reports green. That is the one failure a gate must not have: a
+// check that cannot fail is not a check, and a surface that moves or is left
+// behind would turn a real clause vacuous without any file looking wrong. The
+// roots are read from the same keys the clauses read (invariants.json >
+// scan_roots names the keys, never the paths), so a clause cannot acquire a
+// root this does not watch.
+function checkScanRoots() {
+  const s = RULES.scan_roots
+  const at = (key) => key.split('.').reduce((o, seg) => (o === undefined ? o : o[seg]), RULES)
+  const assert = (root, key, owner) => {
+    if (!existsSync(join(REPO, root)))
+      fail(
+        s.id,
+        `${owner} declares the scan root ${root} (invariants.json > ${key}), which does not exist. The clause would walk an empty tree and report green. Point it at a path that exists, or remove it.`,
+      )
+  }
+  for (const [key, owner] of Object.entries(s.lists)) {
+    const list = at(key)
+    if (!Array.isArray(list)) {
+      fail(s.id, `scan_roots.lists names ${key}, which is not an array in invariants.json.`)
+      continue
+    }
+    for (const root of list) assert(root, key, owner)
+  }
+  for (const [key, owner] of Object.entries(s.singletons)) {
+    const root = at(key)
+    if (typeof root !== 'string') {
+      fail(s.id, `scan_roots.singletons names ${key}, which is not a string in invariants.json.`)
+      continue
+    }
+    assert(root, key, owner)
+  }
+}
+checkScanRoots()
+
 // Colour maths for the contrast invariants (C1 to C10) live in contrast.mjs so
 // they are unit-testable; `contrast` is imported above.
 
-// ── F. DTOS format conformance ──────────────────────────────────────────────
+// ── F. DTCG format conformance ──────────────────────────────────────────────
 const NAME_OK = new RegExp(RULES.naming.segment)
 ;(function checkFormat() {
   for (const t of tokens) {
-    if (!RULES.types.includes(t.type)) fail('F2', `${t.path} has $type "${t.type}", not a DTOS type`)
+    if (!RULES.types.includes(t.type)) fail('F2', `${t.path} has $type "${t.type}", not a DTCG type`)
     if (!NAME_OK.test(t.path.split('.').at(-1))) fail('N1', `${t.path} last segment is not ${RULES.naming.segment}`)
     for (const seg of t.path.split('.')) {
-      if (seg.startsWith('$') || /[.{}]/.test(seg)) fail('F5', `${t.path} segment "${seg}" is a reserved DTOS name shape`)
+      if (seg.startsWith('$') || /[.{}]/.test(seg)) fail('F5', `${t.path} segment "${seg}" is a reserved DTCG name shape`)
     }
     const v = t.value
     const B = RULES.type_bounds
@@ -83,7 +150,7 @@ const NAME_OK = new RegExp(RULES.naming.segment)
           (s) => s.color && s.offsetX && s.offsetY && s.blur && s.spread,
         ),
     }[t.type]
-    if (ok && !ok()) fail('F3', `${t.path} value does not satisfy the DTOS ${t.type} schema`)
+    if (ok && !ok()) fail('F3', `${t.path} value does not satisfy the DTCG ${t.type} schema`)
   }
   // F1 and F4 are structural: build.mjs throws on a missing $value, an
   // unresolved reference, or a cycle, so reaching this line proves them.
@@ -319,6 +386,14 @@ const contrastResults = []
 })()
 
 // ── P. Parity with hand-written source ──────────────────────────────────────
+// An entry states its site one of two ways. `pattern` is a regex typed into rule
+// data, which is what the entries predating R-86 use and what D3 ratchets down.
+// `custom_property` is the migrated form: the data holds the property name as
+// literal text and the pattern is assembled here, where the escape characters
+// exist once and are read by the same eyes that read the code (R-86, clause
+// W-P1). A new entry takes the second form; that is why D3 can only fall.
+const parityPattern = (e) =>
+  e.pattern ?? `${e.custom_property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*([0-9.]+)${e.as}`
 ;(function checkParity() {
   for (const e of RULES.parity.entries) {
     const token = byPath.get(e.token)
@@ -337,7 +412,7 @@ const contrastResults = []
     const files = expand(e.file)
     let found = 0
     for (const f of files) {
-      for (const m of read(f).matchAll(new RegExp(e.pattern, 'g'))) {
+      for (const m of read(f).matchAll(new RegExp(parityPattern(e), 'g'))) {
         found++
         const got = Number(m.slice(1).find((x) => x !== undefined))
         if (Math.abs(got - expected) > 1e-6)
@@ -352,7 +427,7 @@ const contrastResults = []
 // ── D. One home per value ───────────────────────────────────────────────────
 ;(function checkDuplication() {
   const generated = new Set([...tokens.map((t) => t.cssName), ...Object.keys(ALIASES)])
-  for (const f of RULES.duplication.hand_written) {
+  for (const f of cssSources(RULES.duplication.hand_written)) {
     for (const m of read(f).matchAll(/^\s*(--[a-z0-9_-]+)\s*:/gim)) {
       const name = m[1]
       if (generated.has(name) && !RULES.duplication.allowed.includes(name))
@@ -372,7 +447,7 @@ const restated = []
     const sig = signature(t.css)
     if (sig.split(',').length >= r.min_numbers) bySignature.set(sig, t.path)
   }
-  for (const f of r.hand_written)
+  for (const f of cssSources(r.hand_written))
     for (const m of read(f).matchAll(/^\s*[a-z-]+:\s*([^;]+);/gim)) {
       const value = m[1].trim()
       if (value.includes('var(')) continue
@@ -475,7 +550,7 @@ const bindingStrays = []
   for (const f of u4.surfaces.flatMap((s) => walkFiles(s)).filter((f) => /\.(ts|tsx)$/.test(f)))
     for (const s of importsOf(read(f)))
       if (pat.test(s))
-        fail(u4.id, `${f} imports ${s}; the portfolio surface binds the DTOS token pipeline, not the lib/*-tokens /system system (two concepts, R-25).`)
+        fail(u4.id, `${f} imports ${s}; the portfolio surface binds the DTCG token pipeline, not the lib/*-tokens /system system (two concepts, R-25).`)
 })()
 
 // ── H. Client census ────────────────────────────────────────────────────────

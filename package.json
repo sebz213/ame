@@ -13,11 +13,12 @@
     "tokens:build": "node packages/ame-tokens/build.mjs",
     "woven:check": "node packages/woven/check.mjs",
     "woven:remove-check": "node packages/woven/remove-check.mjs",
-    "tokens:check": "node tokens/check.mjs",
-    "tokens:check:shipped": "node tokens/check.mjs --shipped",
+    "gate": "node tokens/check.mjs",
+    "gate:fixtures": "node tokens/gate-fixtures.mjs",
+    "gate:shipped": "node tokens/check.mjs --shipped",
     "docgen": "node tokens/docgen.mjs",
     "docgen:check": "node tokens/docgen.mjs --check",
-    "build": "pnpm tokens:build && pnpm docgen:check && pnpm tokens:check && next build && pnpm tokens:check:shipped"
+    "build": "pnpm tokens:build && pnpm docgen:check && pnpm gate && next build && pnpm gate:shipped"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.12",

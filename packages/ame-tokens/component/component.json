@@ -124,7 +124,7 @@
       "raise": {
         "$type": "number",
         "$value": 10,
-        "$description": "Pill anchor lift above the trigger, in vh. DTOS dimension admits px and rem only; see contract.md > Spec gaps.",
+        "$description": "Pill anchor lift above the trigger, in vh. DTCG dimension admits px and rem only; see contract.md > Spec gaps.",
         "$extensions": { "org.metis.css": { "unit": "vh" } }
       }
     },

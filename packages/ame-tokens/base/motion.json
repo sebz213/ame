@@ -25,7 +25,7 @@
 
   "ease": {
     "$type": "cubicBezier",
-    "$description": "The CSS curves, as DTOS control-point arrays. anime.js spring-family eases are not cubic beziers, are not CSS-emitted, and are therefore not tokens; their inventory is in decisions.md.",
+    "$description": "The CSS curves, as DTCG control-point arrays. anime.js spring-family eases are not cubic beziers, are not CSS-emitted, and are therefore not tokens; their inventory is in decisions.md.",
     "slide": { "$value": [1, 0, 0.4, 1], "$description": "Nav pill slide." },
     "enter": { "$value": [0.2, 0, 0, 1], "$description": "Card and message enter." },
     "accel": { "$value": [0.4, 0, 1, 1], "$description": "Mobile-menu close." }

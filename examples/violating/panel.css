@@ -1,0 +1,40 @@
+/*
+  The violating fixture. Every mistake below is deliberate and every one is the
+  smallest realistic version of a thing people actually do.
+
+  This file is NOT in the real gate's scan surfaces. `pnpm gate:fixtures` puts it
+  in scope, runs the gate, and passes only if the gate rejected it. If this file
+  ever stops failing, the gate has regressed and the fixture run goes red.
+
+  Do not "fix" these. They are the evidence.
+*/
+
+.example-broken {
+  /*
+    U1, U2 — binds a base primitive from a surface.
+    --color-ink resolves fine by name. That is exactly why the tripwire exists:
+    nothing breaks visually, and the layering the system publishes is gone.
+    The role that already holds this value is --text-body.
+  */
+  color: var(--color-ink);
+
+  /*
+    D2 — hand-writes a recipe the token layer already holds.
+    This is byte-for-byte what --elevation-glass-drop resolves to. The gate
+    compares numeric signatures, so rgb(16 19 25 / 0.06) and rgba(16,19,25,0.06)
+    are recognised as one value written two ways.
+  */
+  box-shadow: 0px 1px 6px 0px rgb(16 19 25 / 0.06);
+}
+
+.example-broken__meta {
+  /*
+    CV1 — a rendered contrast pair no C clause measures.
+    Both halves are proper semantic tokens, so U1 and U2 are satisfied and the
+    ratio is still unproven: text.secondary is declared against background.page
+    (C3), never against background.utility. Nobody declared this pair, so nobody
+    measured it.
+  */
+  color: var(--text-secondary);
+  background: var(--background-utility);
+}

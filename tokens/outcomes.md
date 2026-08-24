@@ -1,8 +1,9 @@
 # Outcomes
 
-Numbers. Measured by `pnpm tokens:check` on 2026-08-10. The conditions that
-produced them are in `contract.md`; why they are what they are is in
-`decisions.md`.
+Numbers. Measured by `node tokens/check.mjs` on 2026-08-10 (the script that
+command ran; it was named `pnpm tokens:check` then and `pnpm gate` since
+2026-08-24, D-47). The conditions that produced them are in `contract.md`; why
+they are what they are is in `decisions.md`.
 
 Every number below is the gate's own output, re-read on the measuring date. The
 census had drifted before this pass — it reported 216 tokens, H1 32, and S2 34

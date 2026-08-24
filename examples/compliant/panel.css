@@ -1,0 +1,33 @@
+/*
+  The compliant fixture. Every value here is a token reference, and every token
+  referenced is semantic or component tier — never base.
+
+  This file is inside the real gate's scan surfaces (invariants.json > binding,
+  uses_graph.base_read, contrast_coverage, scales), so it is held to the same
+  clauses as application code. If a clause changes and this example stops
+  satisfying it, the change is not finished.
+
+  The tier distinction is the whole point and it is easy to get wrong: --radius-md,
+  --duration-fast and --font-size-13 all resolve fine by name and are all base
+  primitives. A surface binds the role, not the primitive the role points at.
+*/
+
+.example-panel {
+  /* text.body on background.page is contrast pair C1, measured at 18.60:1. */
+  color: var(--text-body);
+  background: var(--background-page);
+
+  /* The shadow recipe has one home. This binds it; it does not restate it. */
+  box-shadow: var(--elevation-glass-drop);
+
+  border-radius: var(--component-card-radius);
+  padding: var(--space-control-pad);
+  transition: box-shadow var(--motion-card-duration) var(--motion-enter-ease);
+}
+
+.example-panel__label {
+  /* No background is set here, so this states no pair for CV1 to measure. */
+  color: var(--text-secondary);
+  font-size: var(--type-meta-size);
+  letter-spacing: var(--type-meta-tracking);
+}

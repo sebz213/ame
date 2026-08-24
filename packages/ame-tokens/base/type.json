@@ -15,7 +15,7 @@
         "$extensions": {
           "org.metis.css": {
             "familyVars": { "Neue Haas Display": "--font-neue-haas", "Hanken Grotesk": "--font-hanken" },
-            "note": "next/font injects both faces under generated names exposed on CSS variables. The DTOS $value carries the true family names; the build substitutes var(...) for the two that next/font owns."
+            "note": "next/font injects both faces under generated names exposed on CSS variables. The DTCG $value carries the true family names; the build substitutes var(...) for the two that next/font owns."
           }
         }
       }
@@ -52,7 +52,7 @@
 
     "tracking": {
       "$type": "number",
-      "$description": "letter-spacing as a multiple of font size, so it scales. letter-spacing REPLACES on inherit, so each role sets its own; there is no additive base. Emitted in em: DTOS dimension admits px and rem only, so em cannot be a dimension token here. See contract.md > Spec gaps.",
+      "$description": "letter-spacing as a multiple of font size, so it scales. letter-spacing REPLACES on inherit, so each role sets its own; there is no additive base. Emitted in em: DTCG dimension admits px and rem only, so em cannot be a dimension token here. See contract.md > Spec gaps.",
       "$extensions": { "org.metis.css": { "unit": "em" } },
       "tight": { "$value": 0.04, "$description": "Headings: hero, section, case titles." },
       "body": { "$value": 0.05, "$description": "The dominant body and label tracking." },
