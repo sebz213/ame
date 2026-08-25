@@ -1,14 +1,13 @@
-# The `code` half of the split gate (STANDARD.md C4; DECISIONS.md R-46).
+# The gate, on every push and pull request.
 #
-# Everything that must be green on the current tree: the token build and check
-# (contrast, layering, parity, drift, the K1 asset budget, and the T1–T3 registry
-# and taxonomy checks all live in check.mjs), lint, the test suite (which runs the
-# D5 JSON-LD structured-data check), and next build. The one thing this job does
-# NOT run is the shipped placeholder check — that is the `content-readiness`
-# workflow, which is red by design until case-study copy lands.
+# Both halves of the argument run here. `gate` proves the tree is clean, which a
+# gate that could not fail would also prove; `gate:fixtures` runs the same gate
+# against examples/violating and is green only when it was rejected. A clause
+# that quietly stops catching turns this workflow red instead of silent.
 #
-# No threshold is restated here. Each step calls a script whose numbers live in
-# tokens/invariants.json; the reporting boundary moved, no rule left invariants.
+# No threshold is restated here. Each step names a package.json script whose
+# numbers live in tokens/invariants.json, and clause W1 checks that every script
+# a step names still resolves to a file in the tree.
 name: code
 
 on:
@@ -25,23 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # The iPhone model is an LFS pointer in history; next build needs the
-          # real file only at runtime, not to compile, but fetching it keeps the
-          # checkout honest about what the tree contains.
-          lfs: true
 
-      # No `version:` here on purpose. The action reads `packageManager` from
+      # No `version:` on purpose. The action reads `packageManager` from
       # package.json, which is also what pnpm reads locally, so the version has
-      # one home. Pinning it here too would let CI and the working tree drift onto
-      # different pnpm versions without either file looking wrong.
+      # one home and CI cannot drift onto a different pnpm than the working tree.
       - uses: pnpm/action-setup@v4
 
-      # Same reasoning as the pnpm note above, applied to Node. The version was
-      # spelled `node-version-file: .nvmrc` here AND in content-readiness.yml, so the two
-      # jobs could drift onto different runtimes without either file looking
-      # wrong. `.nvmrc` is the one home, and nvm/fnm read it locally, so the
-      # runtime a contributor uses and the one CI uses are the same string.
+      # Same reasoning for Node: `.nvmrc` is the one home, and nvm and fnm read
+      # it locally, so the runtime a contributor uses is the runtime CI uses.
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -49,48 +39,20 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Token build + the full invariant gate (contrast, drift, K1 asset budget,
-      # T1–T3 registry/taxonomy). Every step names a package.json script, never
-      # a script path: the path has one home (package.json) and moving a script
-      # cannot leave CI pointing at a file that no longer exists. Clause W1
-      # checks that the scripts these names resolve to still exist.
       - name: tokens build
         run: pnpm tokens:build
-
-      # The docs are generated from the token source; --check fails when the
-      # committed docs disagree with a fresh generation. `pnpm build` has always
-      # run this, so CI omitting it let a docs drift pass CI and fail the build.
-      - name: docgen check
-        run: pnpm docgen:check
 
       - name: gate
         run: pnpm gate
 
-      # The other half of the same argument. `gate` proves the tree is clean,
-      # which a gate that cannot fail would also prove. This runs the same gate
-      # against examples/violating and is green only when it was rejected, so a
-      # clause that quietly stops catching turns CI red instead of silent.
       - name: gate on fixtures
         run: pnpm gate:fixtures
 
       - name: lint
         run: pnpm lint
 
-      # The test suite includes tests/json-ld.test.tsx — the D5 structured-data
-      # graph check (R-30).
+      - name: typecheck
+        run: pnpm typecheck
+
       - name: test
         run: pnpm test
-
-      # Clause U-W1 (packages/woven/contract.md), both halves. The register half
-      # verifies every row of WIRING.md against the tree and fails on a stale row
-      # as readily as on an unregistered reference. The removal half deletes the
-      # package in a scratch worktree and runs the host gate against what is left,
-      # so removability stays proven for as long as the feature lives rather than
-      # being re-derived by whoever next reads the register.
-      - name: woven register (U-W1)
-        run: pnpm woven:check
-
-      - name: woven removability (U-W1)
-        run: pnpm woven:remove-check
-      - name: next build
-        run: npx next build

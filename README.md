@@ -1,0 +1,99 @@
+# Ame
+
+Ame is a design token system with an enforcement gate: 3 layers of DTCG tokens compiled to CSS custom properties, and a CI check that fails any build where a scanned surface hand-writes a value the tokens already own.
+
+**[Contract](tokens/contract.md)** · **[Decisions](tokens/decisions.md)** · **[Outcomes](tokens/outcomes.md)** · **[Fixtures](examples/README.md)** · **[Lexicon](docs/LEXICON.md)** · **[Standard](STANDARD.md)**
+
+MIT licensed. Cite it via [CITATION.cff](CITATION.cff).
+
+```mermaid
+flowchart LR
+    B["base/*.json<br/>literals"] --> S["semantic/*.json<br/>roles"] --> C["component/*.json<br/>element measures"]
+    C --> CSS["tokens.css<br/>394 lines, generated"]
+    G["the gate<br/>check.mjs + invariants.json"] -.->|"rejects raw values,<br/>layer leaks, contrast failures"| CSS
+```
+
+## What's in the box
+
+The consumable unit is `packages/ame-tokens` plus the gate.
+
+| Piece | What it is |
+|---|---|
+| `packages/ame-tokens/` | 264 DTCG-format tokens in 3 layers (base, semantic, component), a build with no dependencies outside Node's standard library, and the emitted `tokens.css` |
+| `tokens/check.mjs` + `tokens/invariants.json` + `tokens/contract.md` | the gate: every rule stated once in the contract, held as data in invariants, judged in one place |
+| `examples/` | 1 compliant fixture inside the real gate's scan, 1 violating fixture the gate must reject on every run |
+| `tokens/decisions.md` + `docs/` | 50 dated decision records, the naming lexicon, the extraction preflight, and what the citations point at |
+| `components/ame/` | demo chrome for the docs surface (nav, footer, top bar, panel wall, flowchart). It is not a component library, and nothing else here is either |
+
+## Requirements
+
+Node 24 (`.nvmrc`) and pnpm 11.5.1 (pinned in `package.json > packageManager`). The token build itself has zero dependencies; the gate resolves `ame-tokens` through the pnpm workspace, so install first:
+
+```bash
+pnpm install
+```
+
+## Getting started
+
+**Fork the system (the intended use).** Replace the values, keep the law. Ame separates data (the token JSON), method (build + gate), and output (`tokens.css`), so your palette drops in without touching the enforcement:
+
+```bash
+# 1. edit packages/ame-tokens/base/*.json — your colors, type ramp, spacing, motion
+# 2. point tokens/invariants.json > scan_roots at your app's directories
+pnpm ame build     # emits tokens.css; throws rather than emit a partial file
+pnpm gate          # every clause; exit 1 on any violation or drift growth
+pnpm gate:fixtures # proves the gate still rejects the violating fixture
+```
+
+**Adopt the tokens as-is.** Import `packages/ame-tokens/tokens.css` and bind the custom properties. You inherit a system whose every rendered contrast pair is measured in both themes. One thing to know before you do: the tokens are emitted under a `.portfolio-root` class, so that class has to be on an ancestor of anything binding them, and `[data-theme="dark"]` under it re-points the themed aliases. The name lags the extraction and is a breaking rename, so it is written down rather than quietly changed.
+
+**Point the gate at an existing codebase.** Retarget `scan_roots` at your own CSS and components to catch hand-written values, base-layer reads, and unmeasured contrast pairs. Limit, stated plainly: the restated-value clause compares against Ame's resolved token values, so the gate runs alongside the token build, never standalone.
+
+## The gate
+
+Every condition lives once in `contract.md`, as data in `invariants.json`, and is judged once in `check.mjs`. The clause families:
+
+| Family | Holds that |
+|---|---|
+| F, N | tokens satisfy the DTCG value schemas, and one word means one concept across every path and exported symbol |
+| B | the committed `tokens.css` is byte-identical to a fresh build, and stamps the manifest version |
+| L | references point down the layers, never up or sideways |
+| C, CV | every rendered foreground/background pair meets its WCAG minimum, in light and dark, and no rendered pair goes unmeasured |
+| D | one home per value: a hand-written literal equal to a token fails, named alongside the token it collides with |
+| S | sizes, durations, radii, and z-indexes are scale members, drift ratcheted downward only |
+| U, H | surfaces bind semantic roles, never base primitives; the uses-graph stays acyclic; clientless tokens are counted and capped |
+| X | the record: baselines move down in the change that earned them, and a clause pointed at a missing path fails loudly instead of passing on an empty tree |
+| W, Z | CI steps name scripts that exist in the tree, and every contract clause maps to an invariant and a check |
+
+The fixtures exist because a gate that has never been seen to fail is not evidence. `pnpm gate:fixtures` runs the gate against a deliberately violating panel and passes only when the gate rejects it, so a silent regression in the gate itself turns the fixture run red.
+
+## Scope and limits
+
+The gate governs what its scan roots name, and nothing else. Five things worth knowing before you rely on it.
+
+- **The restated-value check needs the token build present**, so the gate is a workspace citizen, never a standalone binary.
+- **Spacing has an open question, not an oversight.** Spacing arithmetic derives from the token unit, but which mechanism a designer should author layout spacing in — a `space.*` role or a utility class — is an unresolved decision recorded in the log (D-49), not a gap.
+- **69 of 264 tokens have no consumer in this tree**, because the surfaces that consumed them stayed in the monorepo Ame was extracted from. The count is baselined and ratcheted so it cannot grow; it is a fact about the extraction, not about the tokens.
+- **One value sits off its scale on purpose**: a 13.85px glyph height in the top bar that the surrounding control was sized around. Baselined at 1, with the reason in the code.
+- **`components/ame` is demo chrome.** Treat it as reference, not product.
+
+Clauses whose subject stayed with the monorepo — a byte budget over `public/`, the docs-site registry, a vendored-code manifest, the parity checks against portfolio components — were removed rather than pointed at something that merely exists, because a clause scanning an empty tree reports green (D-53). `docs/PROVENANCE.md` says what every absent citation pointed at.
+
+## Method
+
+4 homes for 4 kinds of statement: conditions in `contract.md`, reasons in `decisions.md`, numbers in `outcomes.md`, procedures in `deliverables.md`. A rule written twice can disagree with itself, so nothing is written twice. The decision log is chronological and annotated rather than rewritten; the lineage is the dated lab notebook of Noble (2009) and the data/method/output separation of Marwick's research compendia, applied to design tokens. The format is the [DTCG specification](https://tr.designtokens.org/format/), 2025.10; decision D-1 records why, against [Style Dictionary](https://github.com/style-dictionary/style-dictionary)'s dialect. Contrast is the [WCAG 2.2 relative-luminance ratio](https://www.w3.org/TR/WCAG22/#dfn-contrast-ratio), computed from resolved token values in `tokens/contrast.mjs`.
+
+## Numbers
+
+Measured on this tree, 2026-08-25, by the commands shown:
+
+| | | |
+|---|---|---|
+| Tokens | 264 (31 aliases) | `pnpm gate` header |
+| Contrast pairs | 15, both themes, all passing their minimums | `pnpm gate` contrast table |
+| Emitted CSS | 394 lines | `wc -l packages/ame-tokens/tokens.css` |
+| Decisions | 50, dated | `grep -c "^## D-" tokens/decisions.md` |
+
+## Contributing, license, citation
+
+Issues and PRs are welcome; [CONTRIBUTING.md](CONTRIBUTING.md) is the 5-minute version, and `pnpm gate` green is the install test. MIT, stated in [LICENSE](LICENSE) and matching in every package file. To cite the system, use [CITATION.cff](CITATION.cff).

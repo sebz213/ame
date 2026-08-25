@@ -1,13 +1,14 @@
 {
   "$description": "Measured drift counts. check.mjs fails when a count grows, and X1 fails when a number here sits above what the last logged run measured. Lower a number only together with the change that earned it, and the run that measured it is in runs.log. Reasoning belongs in decisions.md; what these numbers mean belongs in outcomes.md.",
-  "$measured": "2026-08-10",
+  "$measured": "2026-08-25",
+  "$recalibrated_because": "The numbers this file carried were measured on the portfolio monorepo, where the surfaces that consume these tokens live. This package is the extraction, so every count was re-measured against the tree that actually ships (D-53). Two moved for real reasons rather than for want of scope: S2 rose because the scale clauses now scan components/ame, which they never did in the monorepo; H1 rose because most of this system's consumers stayed behind.",
   "D2": 0,
-  "D3": 10,
-  "S1": 8,
-  "S2": 0,
+  "D3": 8,
+  "S1": 0,
+  "S2": 1,
   "S3": 0,
-  "S4": 2,
+  "S4": 0,
   "S5": 0,
   "U1": 0,
-  "H1": 16
+  "H1": 69
 }

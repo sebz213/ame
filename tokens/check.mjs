@@ -385,45 +385,6 @@ const contrastResults = []
     )
 })()
 
-// ── P. Parity with hand-written source ──────────────────────────────────────
-// An entry states its site one of two ways. `pattern` is a regex typed into rule
-// data, which is what the entries predating R-86 use and what D3 ratchets down.
-// `custom_property` is the migrated form: the data holds the property name as
-// literal text and the pattern is assembled here, where the escape characters
-// exist once and are read by the same eyes that read the code (R-86, clause
-// W-P1). A new entry takes the second form; that is why D3 can only fall.
-const parityPattern = (e) =>
-  e.pattern ?? `${e.custom_property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}:\\s*([0-9.]+)${e.as}`
-;(function checkParity() {
-  for (const e of RULES.parity.entries) {
-    const token = byPath.get(e.token)
-    if (!token) {
-      fail(e.id, `parity entry names a token that does not exist: ${e.token}`)
-      continue
-    }
-    const expected =
-      e.as === 'number'
-        ? token.value
-        : e.as === 'px' && token.value.unit === 'rem'
-          ? token.value.value * 16
-          : e.as === 'rem' && token.value.unit === 'px'
-            ? token.value.value / 16
-            : token.value.value
-    const files = expand(e.file)
-    let found = 0
-    for (const f of files) {
-      for (const m of read(f).matchAll(new RegExp(parityPattern(e), 'g'))) {
-        found++
-        const got = Number(m.slice(1).find((x) => x !== undefined))
-        if (Math.abs(got - expected) > 1e-6)
-          fail(e.id, `${f}: literal ${got} does not equal ${e.token} (${expected})`)
-      }
-    }
-    if (found === 0)
-      fail(e.id, `pattern found no literal in ${e.file}; the parity check cannot detect its quantity`)
-  }
-})()
-
 // ── D. One home per value ───────────────────────────────────────────────────
 ;(function checkDuplication() {
   const generated = new Set([...tokens.map((t) => t.cssName), ...Object.keys(ALIASES)])
@@ -543,14 +504,6 @@ const bindingStrays = []
       if (toApp(s))
         fail(u3.id, `${f} imports from ${s}; lib is below app in the uses-graph, so a lib->app import makes it cyclic.`)
 
-  // U4 — the portfolio surface must not import a lib/*-tokens module (the two
-  // token homes stay two concepts, R-25).
-  const u4 = g.surface_no_system_tokens
-  const pat = new RegExp(u4.forbidden_import_pattern)
-  for (const f of u4.surfaces.flatMap((s) => walkFiles(s)).filter((f) => /\.(ts|tsx)$/.test(f)))
-    for (const s of importsOf(read(f)))
-      if (pat.test(s))
-        fail(u4.id, `${f} imports ${s}; the portfolio surface binds the DTCG token pipeline, not the lib/*-tokens /system system (two concepts, R-25).`)
 })()
 
 // ── H. Client census ────────────────────────────────────────────────────────
@@ -593,116 +546,6 @@ const clientless = []
   drift.H1 = clientless.length
 })()
 
-
-// ── AM. The /ame brand taxonomy and registry ─────────────────────────────────
-// AM1 registry coverage, AM2 tier population, AM3 animated->playground. Parallel
-// to T1/T2/T3 but for the /ame brand design system (DECISIONS R-55, R-57),
-// disjoint from /system (no component documented in both, clause H). The /ame
-// registry (content/ame/component-registry.json) is the single home the /ame
-// docs and these checks read; the taxonomy's home is content/ame/meta.json.
-// Violations, not drift: these are stated clauses, not counts.
-;(function checkAmeTaxonomyRegistry() {
-  const reg = RULES.ame_registry
-  const tax = RULES.ame_taxonomy
-  const tierNames = new Set(tax.tiers.map((t) => t.name))
-
-  // AM1 — every .tsx under the scan dirs (minus the excluded set) has exactly
-  // one registry row; every row points at a real file and carries exactly one
-  // valid tier; no source is claimed twice. A row may point at a file outside
-  // the scan dirs (the prototype viewer) as long as it resolves and its tier is
-  // valid; such a row is admitted but is not part of the mandatory coverage.
-  let rows = []
-  try {
-    rows = JSON.parse(read(reg.data)).components
-  } catch {
-    fail('AM1', `${reg.data} is missing or not valid JSON; the /ame registry is the single home the checks read.`)
-    return
-  }
-  const excluded = new Set(Object.keys(reg.excluded))
-  const scanned = reg.scan_dirs
-    .flatMap((d) => walkFiles(d))
-    .filter((f) => f.endsWith('.tsx') && !excluded.has(f))
-  const bySource = new Map()
-  for (const r of rows) {
-    if (!r.source) {
-      fail('AM1', `a /ame registry row (name "${r.name ?? '?'}") has no source path`)
-      continue
-    }
-    if (bySource.has(r.source))
-      fail('AM1', `${r.source} has more than one /ame registry row; a component has exactly one entry.`)
-    bySource.set(r.source, r)
-    if (!tierNames.has(r.tier))
-      fail('AM1', `${r.source} has tier "${r.tier}", not one of the /ame taxonomy tiers (${[...tierNames].join(', ')}).`)
-    if (!existsSync(join(REPO, r.source)))
-      fail('AM1', `/ame registry row ${r.source} points at a file that does not exist.`)
-    if (excluded.has(r.source))
-      fail('AM1', `${r.source} is in the /ame excluded set (a provider or pure-logic sink) yet carries a registry row; remove the row or the exclusion.`)
-  }
-  for (const f of scanned)
-    if (!bySource.has(f))
-      fail('AM1', `${f} has no /ame registry row; every component under ${reg.scan_dirs.join(', ')} needs exactly one, or an entry in ame_registry.excluded.`)
-
-  // AM2 — every declared /ame tier is non-empty (at least one page under its
-  // separator in meta.json) or carries a recorded deferred_because.
-  const meta = JSON.parse(read(tax.meta) || '{}')
-  const pages = Array.isArray(meta.pages) ? meta.pages : []
-  const perTier = new Map()
-  let current = null
-  for (const item of pages) {
-    const sep = /^---(.+?)---$/.exec(item)
-    if (sep) {
-      current = sep[1].trim()
-      if (!perTier.has(current)) perTier.set(current, 0)
-    } else if (current) perTier.set(current, perTier.get(current) + 1)
-  }
-  for (const t of tax.tiers) {
-    const count = perTier.get(t.name) ?? 0
-    if (count === 0 && !t.deferred_because)
-      fail(
-        tax.id,
-        `/ame tier "${t.name}" has no page in ${tax.meta} and no deferred_because; a tier is populated or deferred with a reason, never silently absent.`,
-      )
-  }
-
-  // AM3 — every row that is animated AND documented resolves to a playground
-  // reference. This session all animated rows are status 'deferred', so the loop
-  // body never runs (vacuous); AM3 binds in Phase 3, when a documented animated
-  // component must name a `playground` file that exists.
-  for (const r of rows) {
-    if (r.animated !== true || r.status !== reg.playground_status) continue
-    if (!r.playground || !existsSync(join(REPO, r.playground)))
-      fail('AM3', `${r.source} is an animated, documented /ame component but names no playground that resolves; an animated documented component must reference a playground (Phase 3).`)
-  }
-})()
-
-// ── K1. Per-class asset byte budgets under public/ ──────────────────────────
-// A stated ceiling per asset class (VIOLATION, not drift): a file over its
-// class budget fails, so the 25 MB-SVG / 82 MB-GLB class of regression cannot
-// land silently. Assets that already exceed their ceiling are waived at their
-// current byte size and held there by the ratchet (a waiver only moves down, in
-// the reduction order that owns it). Classes, budgets, and waivers are data in
-// invariants.json > asset_budget; nothing here restates a number.
-;(function checkAssetBudget() {
-  const a = RULES.asset_budget
-  const classOf = (f) => {
-    const dot = f.lastIndexOf('.')
-    const ext = dot === -1 ? '' : f.slice(dot).toLowerCase()
-    for (const [cls, exts] of Object.entries(a.extensions)) if (exts.includes(ext)) return cls
-    return null
-  }
-  for (const f of walkFiles(a.root)) {
-    const cls = classOf(f)
-    if (!cls) continue
-    const size = statSync(join(REPO, f)).size
-    const waived = a.waived[f]
-    if (waived !== undefined) {
-      if (size > waived)
-        fail(a.id, `${f} is ${size} B, above its waived ceiling of ${waived} B. A waiver only ratchets down; shrink it in its reduction order, never grow it.`)
-    } else if (size > a.budgets[cls]) {
-      fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
-    }
-  }
-})()
 
 // ── W1, W2. CI references a script that exists, with a least-privilege token ──
 // A path spelled in a CI step binds the tree exactly the way a var() binds a
@@ -780,44 +623,6 @@ const clientless = []
 
     if (!new RegExp('permissions:[\\s\\S]*?' + w.required_permission.replace(/:\s*/, ':\\s*')).test(src))
       fail(w.permissions_id, `${rel} declares no least-privilege token; add "permissions:\\n  ${w.required_permission}" so a workflow that only reads the tree cannot write to it.`)
-  }
-})()
-
-// ── VN1, VN2. Code the author did not write is traceable to a source ─────────
-// The manifest and the tree hold each other: a vendored file that nobody recorded
-// fails, and a recorded path that no longer exists fails. VN2 keeps the root
-// itself to one home, since three separate configs exempt it by name and a rename
-// that missed one would quietly change what the standard covers.
-;(function checkVendored() {
-  const v = RULES.vendored
-  const manifest = read(v.manifest)
-  if (!manifest) {
-    fail(v.id, `${v.manifest} is missing; every vendored root needs a manifest naming where its files came from.`)
-    return
-  }
-  const listed = new Set(manifest.match(/[A-Za-z0-9_./-]+\.tsx?/g) ?? [])
-
-  for (const root of v.roots) {
-    const onDisk = walkFiles(root).filter((f) => v.extensions.some((e) => f.endsWith(e)))
-    for (const f of onDisk)
-      if (!listed.has(f))
-        fail(v.id, `${f} sits under the vendored root ${root} but is not recorded in ${v.manifest}. Record where it came from, or move it out of the vendored root.`)
-    for (const p of listed)
-      if (p.startsWith(root + '/') && !existsSync(join(REPO, p)))
-        fail(v.id, `${v.manifest} lists ${p}, which is not in the tree. Remove the stale entry.`)
-
-    // VN2. The root is exempted by name in several configs; they must agree.
-    // Matched as a quoted entry, not a substring: these files discuss the root
-    // in prose too, and a comment mentioning it is not an exemption granting it.
-    const quoted = new RegExp(`['"\`]${root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(/\\*\\*)?['"\`]`)
-    for (const file of v.exempting_files)
-      if (!quoted.test(read(file)))
-        fail(v.root_id, `${file} no longer names the vendored root ${root} as an entry; its exemption and ${v.manifest} disagree about what is vendored.`)
-    for (const keyPath of v.exempting_keys) {
-      const list = keyPath.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), RULES)
-      if (!Array.isArray(list) || !list.includes(root))
-        fail(v.root_id, `invariants.json > ${keyPath} no longer lists the vendored root ${root}; the exemptions and ${v.manifest} disagree about what is vendored.`)
-    }
   }
 })()
 

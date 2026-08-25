@@ -102,27 +102,6 @@ These hold before and after any change to any token, not of any one token.
   clause measuring foreground-on-ground therefore covers a surface that paints
   that foreground on a fill above it.
 
-### P. Parity
-
-A value that must exist in two places because the second place cannot read a
-token: a JS timer, a build-time config, a rendered utility class. The token is
-the home; the literal must equal it, and the check is what stops them drifting.
-Each site is named, because an unnamed second home is just duplication.
-
-- **P1** The nav constants in `site-header.tsx` (`LOGO_GAP`, `NAV_OFFSET_FALLBACK`).
-- **P2** The rendered nav flex gap.
-- **P3** The lucide `strokeWidth` on every icon.
-- **P4** `LOGO_CYCLE_MS` in `logo-bounce.tsx`, against `component.splash.cycle`.
-- **P5** `FADE_MS` in `loading-screen.tsx`, against `component.splash.fade`. The
-  number is a CSS transition on one side and a JS unmount timer on the other.
-- **P6** Tailwind's `--spacing` base in `app/globals.css`, against `unit.1`.
-  Every numeric spacing utility (`p-4`, `gap-6`) is a multiple of it, so this one
-  number is what makes the product surface's spacing derive from the token ramp
-  rather than from Tailwind's built-in default. It is a literal because `@theme`
-  is resolved at build time and cannot read a property scoped to
-  `.portfolio-root`. Resolves the build-bound half of R-100; which mechanism
-  *authors* layout spacing is still open there.
-
 ### D. One home per value
 
 - **D1** A generated custom property is not re-declared in hand-written CSS.
@@ -177,11 +156,6 @@ Each site is named, because an unnamed second home is just duplication.
   sits below `app`, so a `lib`→`app` edge would make the graph cyclic. This is
   Parnas's acyclic uses-graph as a machine check (STANDARD.md M).
 
-- **U4** No file under `app/(portfolio)/` or `components/portfolio/` imports a
-  `lib/*-tokens` module. The portfolio DTCG token system and the `lib/*-tokens`
-  `/system` design system are two homes for "design tokens", adjudicated as two
-  concepts (DECISIONS R-25). A portfolio-surface import of a `lib/*-tokens`
-  module would merge them into a hidden third binding; U4 keeps the two two.
 
 ### X. The record
 
@@ -203,54 +177,6 @@ Each site is named, because an unnamed second home is just duplication.
   token's reference, an alias, or a named invariant that reads it. A closed
   scale is consumed whole by the check that admits nothing outside it, so the
   checker is a real client. The count of clientless tokens must not grow.
-
-### AM. The /ame brand taxonomy and registry
-
-The `/ame` brand design system's structure, checked. `/ame` is the sole
-documentation area (the former `/system` workshop was removed with its
-`content/docs` tree). Its registry (`content/ame/component-registry.json`) is the
-single home its docs and these checks read; its taxonomy's home is
-`content/ame/meta.json`. Data in `invariants.json > ame_registry` and
-`> ame_taxonomy`; evaluated in `checkAmeTaxonomyRegistry` in `check.mjs`. Decisions
-R-55, R-57.
-
-- **AM1** Every `.tsx` file under `components/ame/` and `components/portfolio/`,
-  minus the recorded exclusion set (`ame_registry.excluded`: context providers
-  and pure-logic sinks that are not documentable UI), has exactly one `/ame`
-  registry row keyed by its source path, and every row points at a real file and
-  carries exactly one tier drawn from the six `/ame` taxonomy tiers. A row may
-  point at a file outside the scan dirs (the prototype viewer
-  `components/prototype-viewer/viewer.tsx`) as long as it resolves and its
-  tier is valid. A component with no row, a duplicate row, an excluded file that
-  still carries a row, or a row with an unknown tier or a dangling source fails.
-  This is the identifier-dictionary bijection (STANDARD.md N3) at `/ame`
-  component scope: one component, one home, one tier.
-
-- **AM2** Every declared `/ame` tier is non-empty (at least one page under its
-  separator in `meta.json`) or carries a recorded `deferred_because`. A tier is
-  populated or deferred with a reason, never silently absent. STANDARD.md H3 at
-  `/ame` docs-taxonomy scope.
-
-- **AM3** Every `/ame` registry row that is `animated: true` AND at status
-  `documented` resolves to a `playground` reference that exists. This session
-  every animated row is at status `deferred`, so AM3 passes vacuously; it binds
-  in Phase 3, when a documented animated component must name a live playground.
-  Stated now so the clause, its data, and its check land together, not bolted on
-  when Phase 3 arrives.
-
-### K. Asset weight
-
-- **K1** Every file under `public/` sits within a byte ceiling for its class:
-  SVG, font, image, model. The ceilings, the extension-to-class map, and the
-  per-file waivers are data in `invariants.json > asset_budget`; the check is
-  `checkAssetBudget` in `check.mjs`, evaluated in the gate. A file over its
-  class ceiling is a violation. An asset that already exceeds its ceiling is
-  waived at its current byte size and may not grow past it: the X1 ratchet
-  applied to bytes, so a waiver only moves down, in the reduction order that
-  owns it. This is the performance budget the deliverables standard names as a
-  gate instrument (`deliverables.md`, "the contrast check and performance
-  budget"), so the 25 MB-SVG / 82 MB-GLB class of regression cannot land
-  silently. WO-8.6, decision R-40.
 
 ### Z. The bijection census
 

@@ -1,8 +1,8 @@
 {
   "name": "ame-tokens",
   "version": "0.1.0",
-  "description": "The Ame token layer: the named CSS variables the portfolio and Metis both bind. Zero runtime dependencies.",
-  "license": "UNLICENSED",
+  "description": "Ame design tokens: three DTCG layers compiled to CSS custom properties. No dependencies outside the Node standard library.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     "./tokens.css": "./tokens.css",

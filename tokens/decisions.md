@@ -1090,3 +1090,79 @@ still referenced by the case study — four by the state explorer, five by the
 onboarding walkthrough, one unused. They stay with the portfolio, and
 `public/` is outside the extraction subset — but that is the plan keeping them
 out, not a check, which is the condition X2 exists to make visible.
+
+## D-53 The package stands on its own, and four clauses left with their subjects
+
+2026-08-25. Executes `Ame-Standards-Audit-2026-08-25.md`, items 1 through 7 of
+its order of work. The audit read this tree against the repo-standards library
+(Wilson, Noble, Marwick, Perez-Riverol, Zhu-Mockus, Hu, Parnas, Deissenboeck,
+Feitelson, Tsay, Schema.org) and found ten failures. These are the fixes.
+
+**The license contradicted itself.** Root `LICENSE` was MIT while
+`packages/ame-tokens/package.json` said `UNLICENSED`. Wilson's rule is that an
+absent license implies all rights reserved; a self-contradicting one is worse,
+because it makes the cautious adopter's lawyer the decision-maker instead of the
+author. Both now say MIT. One line, and it was the only thing blocking anyone
+from binding the tokens at all.
+
+**The gate could not pass on a stranger's machine, which is the whole point of
+having one.** Wilson's smoke test exists to run on a fresh clone. This one died
+twice: `ERR_MODULE_NOT_FOUND` before install, then nineteen X2 violations. Fixed
+by pruning the dependency list to what the tree imports (57 packages to 4),
+committing the lockfile, deleting the scripts that invoked Next against an absent
+`app/`, and repointing every scan root at a directory that exists here.
+
+**Four clause families were removed rather than repointed.** U4 guarded a
+boundary between two competing token systems, and the second one stayed behind.
+K1 was a byte budget over `public/`, and this package ships no assets. AM1–AM3
+read a docs-site registry that did not travel. VN1–VN2 wanted a manifest for
+vendored code, and nothing here is vendored. The parity clauses P1–P6 held JS
+constants and a Tailwind config against tokens, and all six subjects stayed in
+the monorepo.
+
+Repointing any of them at a directory that merely exists would have produced
+exactly the failure X2 was written to catch four days ago: a clause that scans an
+empty tree and reports green. A clause with no subject is deleted, with its
+contract text and its census record, in the same change — CLAUDE.md's rule read
+in reverse. Z1 verified the result: contract, invariants, and checker still agree
+about which clauses exist.
+
+**Two drift numbers moved for real reasons, and the baseline was recalibrated
+rather than waived.** S2 rose to 1 because the scale clauses now scan
+`components/ame`, which they never did in the monorepo — the widened scope
+surfaced a `0.86539rem` glyph height that had always been there. It is kept: the
+comment above it records that the surrounding control was sized around that
+13.85px glyph, so rounding it to the scale would silently retune a tuned strip.
+Baselined with the reason, which is what D-9's drift doctrine is for. H1 rose to
+69 because most consumers of these tokens stayed behind; that is a fact about the
+extraction, and the ratchet stops it growing.
+
+**The citation graph had holes, and they are glossed rather than papered over.**
+`STANDARD.md` and `CLAUDE.md` travelled — 32 references between them, and both
+are Ame's own rules rather than the portfolio's. `DECISIONS.md`, `RUNBOOK.md` and
+`CHANGELOG.md` did not, and should not: they are a hundred entries about a
+different codebase, its operator procedures, and its release history.
+`docs/PROVENANCE.md` is the annotation, naming what each absent document was and
+where to read the part that governs Ame. Fifty dated entries were not edited to
+hide the seams, because a record edited after the fact is not a record.
+
+**A test lost its subject too.** `tests/decisions-format.test.ts` validated the
+premise-negation format of `DECISIONS.md`'s R-entries. That file is not here and
+the D-series does not use the format, so the test and its script were removed
+rather than left failing or pointed at the wrong log.
+
+**A README, at last.** The audit called its absence the largest standards
+violation in the tree: it fails Wilson 3a outright and forfeits all three of Hu's
+measured popularity features at once, since links, images, and the visible
+license all live there. Written to the audit's section-4 spec, with three
+corrections the draft needed — the clause-families table now lists the families
+that survived this decision, the numbers were re-measured on the tree that
+ships, and Getting started names the `.portfolio-root` scope an adopter has to
+put on an ancestor. That last one is a noun still lagging the extraction, and
+renaming it is a breaking change for every consumer, so it is written down
+instead of quietly changed.
+
+**Still open, and deliberately post-public:** semantic tags and a first release,
+a changelog, a Zenodo DOI, Schema.org `SoftwareSourceCode`, and seeded issues.
+Git rules 4 and 8 want all of them; none can be earned before the repository is
+public, and the font-licence review gates that.
