@@ -1,6 +1,9 @@
-*.glb filter=lfs diff=lfs merge=lfs -text
-# Assets over the V4 5 MB line live in LFS, not in the pack. Listed by path
-# because git matches names, not sizes; V4 is the size rule these paths satisfy.
-public/screens/*.svg filter=lfs diff=lfs merge=lfs -text
-public/kindle-mascot.svg filter=lfs diff=lfs merge=lfs -text
-public/kindle-ux-collection.svg filter=lfs diff=lfs merge=lfs -text
+# Every text file checks out with LF, on every platform.
+#
+# This is not a style preference. Clause B4 byte-compares the committed
+# packages/ame-tokens/tokens.css against a fresh build, and build.mjs emits LF.
+# Without this line a Windows clone converts the committed file to CRLF, the
+# comparison fails on a tree nobody touched, and the first thing a new adopter
+# sees is a gate that says their checkout is broken. Caught by running the
+# smoke test on a fresh clone, which is what smoke tests are for.
+* text=auto eol=lf
