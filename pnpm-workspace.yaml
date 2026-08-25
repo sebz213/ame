@@ -19,3 +19,30 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+#
+# `overrides` lifts transitive packages that carry advisories to the first
+# patched release, and only where that release stays inside the range the parent
+# already declares — so nothing here forces a dependency past what its own
+# maintainer said it supports.
+#
+#   undici   @vercel/blob asks for ^6.23.0; 6.28.0 is inside it
+#   js-yaml  fumadocs asks for ^4; 4.3.1 is inside it
+#   esbuild  a patch release, 0.28.0 to 0.28.1
+#
+# POSTCSS IS NOT HERE, and it was tried. Lifting it to 8.5.25 makes Tailwind v4
+# emit a selector Turbopack's CSS parser rejects outright ("Invalid dangling
+# combinator in selector", app/(portfolio)/portfolio.css), so the build fails
+# before a page renders. Its four advisories are path traversal and file read
+# through an attacker-controlled sourceMappingURL, which needs untrusted CSS as
+# input; the only CSS here is this repo's own, processed at build time. Left
+# where it is, on purpose, until Tailwind's own range moves.
+#
+# SHARP IS DELIBERATELY NOT HERE. Its advisory is real (inherited libvips CVEs)
+# but the fix is 0.35.x and Next declares sharp as ^0.34.5, so an override would
+# push the image optimizer past the range Next tests against. It is also the one
+# remaining package that touches request-time bytes, which is the reason to move
+# it carefully rather than in a batch. See DECISIONS.md.
+overrides:
+  'undici@<6.28.0': '^6.28.0'
+  'js-yaml@<4.3.1': '^4.3.1'
+  'esbuild@<0.28.1': '^0.28.1'

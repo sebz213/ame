@@ -3,1166 +3,377 @@
 Reasoning. The conditions themselves are in `contract.md`; the numbers are in
 `outcomes.md`. Nothing here is enforced, and nothing enforced is argued here.
 
-> **Naming correction, 2026-08-24 (D-48).** Entries below written before this
-> date call the token format **DTOS** ("Design Token Open Standard"). No such
-> standard exists; the format is **DTCG** 2025.10, the Design Tokens Community
-> Group format. The entries are left as written — a record is annotated, never
-> rewritten. `docs/LEXICON.md` holds the correction.
-
-> **Status of these entries, 2026-08-24.** Each entry has been classified
-> current / superseded / historical against the code as it stands, in
-> `docs/DECISION-STATUS-2026-08-24.md`. Nine of the 48 D- entries describe a
-> state the code has left; none was marked before that pass. The entries below
-> are left exactly as written.
-
-## D-1 The format is DTOS 2025.10, not Style Dictionary's dialect
-
-The files used `value` and `{path.value}`, which is Style Dictionary v3 syntax.
-DTOS reserves `$value` and resolves `{group.token}` to the target's `$value`
-implicitly. The old files were therefore not design-token files under the
-standard they claimed; a conforming tool would have read every token as a plain
-JSON object with no value and no type. The conversion is what makes the claim
-true.
-
-`style-dictionary.config.json` was removed with the conversion. SD's `{x.value}`
-reference form does not resolve DTOS `{x}` references, so keeping the config
-would have left a second build that produces different output from the same
-files. One build.
-
-## D-2 Type is now mandatory, and it changed what several tokens are
-
-DTOS says a token whose type cannot be determined is invalid, and that a tool
-must not guess the type from the value. Nothing in the old files carried a type,
-so every token was invalid. Assigning types forced three reclassifications:
-
-- **The weight-stroke set is not a font weight.** `font.weight.stroke-450` held
-  `0.013em`, a `-webkit-text-stroke` width. Typing it `fontWeight` would have
-  been a lie the format would accept (`0.013` is a legal weight number). It is
-  `font.weight-synthesis.450`, typed `number`, and its description says what the
-  value is. The name records the visual target; the value is a stroke width.
-- **`color.ink-channels` was a string, not a colour.** `"16, 19, 25"` existed to
-  compose `rgba(var(--color-ink-channels), a)`. DTOS colour objects carry
-  `alpha` directly, so the workaround has no reason to exist. It is gone.
-- **The anime.js eases are not cubic beziers.** `outElastic(1, 0.45)` is a
-  function call in a JS animation library. Typing it `cubicBezier` is false and
-  no other type fits. They are not tokens; the inventory is D-6 below.
-
-## D-3 Shadows are composites, and their colour is a pointer
-
-`elevation.*` held CSS box-shadow strings containing `rgba(16, 19, 25, …)`. The
-README claimed `color.ink-channels` had removed that duplication; it had not, and
-the literals sat in five recipes. Each shadow is now a DTOS `shadow` composite
-whose colour is `{color.ink-alpha.NN}`, and each of those is a colour object
-whose `components` is a JSON pointer to `color.ink`. Re-toning the brand
-near-black now re-tones every ring, every drop shadow, and both pill fills from
-one edit, which is what the original claim described.
-
-The `color-mix(in oklab, ink 8%, transparent)` recipes became ink at alpha 0.08.
-Mixing a colour with `transparent` contributes nothing to the premultiplied
-result, so the two are the same paint; the token form is the one a non-CSS
-consumer can read.
-
-## D-4 The glass foreground pair became tokens
-
-`--port-glass-fg` had 41 call sites and `--port-glass-fg-muted` 23, making them
-the two most-read values on the surface, and neither was in the token system.
-They were declared in `portfolio.css` as `var(--port-text-primary)` on light
-backdrops and `#ffffff` / `rgba(255,255,255,0.78)` on dark. A contract that omits
-its two most-used values does not constrain the surface.
-
-The values are now four tokens, one per tone. The *switch* stays in CSS, because
-which tone is live is a runtime state driven by `[data-backdrop]` and by a
-registered `@property` cross-fade. The rule is: the values are decided in tokens,
-the switching is done in CSS. Same split for the glass fill and the glass shadow.
-
-## D-5 LOGO_GAP was 33 in the code and 32 in the token
-
-`component.nav.logo-gap` was `2rem` with a description reading "LOGO_GAP=32".
-`site-header.tsx` has `const LOGO_GAP = 33`. Two homes for one number, drifted by
-a pixel, with the token describing a value the code had already left behind.
-
-The token is now `33px`, because the shipped surface is the fact and the token
-was the stale copy. Three sibling constants (`ITEM_W`, `ITEM_GAP`,
-`NAV_OFFSET_FALLBACK`) had the same two-home shape without having drifted yet.
-All four are now parity-checked (P1), so the next drift fails the check instead
-of ageing into a description.
-
-The stronger fix is for `site-header.tsx` to import the values rather than
-restate them, which removes the condition instead of checking it. That is an app
-change, not a token change, and it is deferred: the check makes the drift
-impossible to ship in the meantime.
-
-## D-6 anime.js eases are named here, not tokenized
-
-The spring-family eases the surface uses, none of which is a cubic bezier:
-
-| Where | Ease |
-|---|---|
-| Popover and panel in | `outElastic(1, 0.45)` |
-| Nav and pill overshoot | `outElastic(1, 0.6)` |
-| Dismiss exit | `inBack(2)`, `inBack(3)` when displaced |
-| Toolbar and pill exit | `inBack(1.6)` |
-| Nav pill settle | `outBack` |
-
-The old `ease.js-*` tokens covered four of these six and nothing read them. Two
-values (`inBack(1.6)`, `outBack`) were in the code and not in the set, so the
-token group was both unread and incomplete: a clause with no client that also
-failed to describe the thing it named.
-
-## D-7 The type scale is not what the surface actually renders
-
-`font.size` holds ten sizes. The check finds 12 font-size literals in portfolio
-source that are not members, including 40px, 48px and 52px used twice each. Those
-are display sizes the scale never admitted. The honest reading is that the scale
-describes the body and control range and the hero range was never scaled.
-
-Extending the scale to swallow the strays would make S1 pass without any type
-decision having been made. The count is recorded instead, and closing it is its
-own change, taken deliberately, when someone decides what the display range is.
-
-## D-8 Neue Haas ships eight static cuts, not two
-
-The old README said Neue Haas "ships as static 400 and 500 cuts only." The font
-loader in `app/layout.tsx` registers 100, 200, 300, 350, 400, 500, 700 and 900.
-The real constraint is narrower and still binding: the cuts are static files with
-no variable axis, so nothing between 400 and 500 is reachable by interpolation.
-The weight synthesis is still necessary. The premise it was argued from was
-wrong, which is worth correcting because a rule defended by a false fact is a
-rule nobody can check.
-
-## D-9 Drift is measured against a baseline, not forbidden
-
-Off-scale literals arrive through Tailwind arbitrary-value classes, which never
-touch this directory. Forbidding them outright would make the check fail on work
-that never edited a token; ignoring them would let the scales quietly stop
-describing the surface. Both are worse than a recorded count that must not grow,
-which is the shape the repository standard already uses for duplication.
-
----
-
-# Ame work order, 2026-07-29
-
-## D-10 Ame names the system, not yet the emitted names
-
-The name applies in this pass to the manifest, the emitted CSS header, the titles
-of `README.md` and `contract.md`, the runbook, and the run record. It does not
-apply to emitted custom property names, to file paths a consumer imports, or to
-component names.
-
-Those renames are global or nothing (STANDARD.md N3), and each is a consumer
-migration: `--port-text-primary` has 51 call sites. Renaming a subset would leave
-two words for one concept, which is the homonym decay N3 names. The boundary is
-written here so it is not inferred from what happens to be renamed.
-
-**Amended 2026-08-03 (D-46).** Ame now applies to one component name. The viewer
-became the Ame Prototype Viewer under `components/prototype-viewer/`, the
-rename earned by making the machinery model-agnostic (D-46). This is the first
-crossing of the "not component names" boundary above, and it is a global rename
-of that one concept, not a subset: every import site moved in the same change. The
-boundary otherwise stands. `AME-VIEWER-ORDER.md`'s binding docs call this decision
-"D-7"; that is the pre-renumber name for this entry (see D-22).
-
-## D-11 The deliverable standard is copied, with its escape characters removed
-
-`tokens/deliverables.md` reproduces the operator's Case Study Deliverable
-Standard in full. The original carries markdown escapes from its export, which
-render as literal backslashes. They are removed; no word is changed. The source
-path is named at the top, and the operator's copy stays the authority.
-
-## D-12 The lint script is deleted rather than completed
-
-`"lint": "eslint ."` called a binary the repo does not install, with no config
-present: STANDARD.md C2 says such a script is deleted or completed. Completing it
-means adding eslint, a config, and a rule set, which is a new rule surface and a
-new dependency this work order did not ask for. Deleting it is the smaller change
-that satisfies the clause. Adding real linting stays available as its own change.
-
-## D-13 vercel.json is deleted, and the v0 badge goes with it
-
-The file's only content was
-`{"buildCommand": "node .v0/inject-built-with-v0.mjs && next build"}`, recorded
-here because there is no git history to recover it from. Removing it hands the
-build back to the package `build` script, which is now the gate; leaving it would
-have meant deploys ran `next build` alone and skipped every check.
-
-`.v0/inject-built-with-v0.mjs` was referenced by nothing else once the file was
-gone, so it went too (STANDARD.md H2). This removes a visible "Built with v0"
-credit from deployed pages. That is a real loss and it is the cost of the gate
-running on deploys.
-
-## D-14 The feed prototype gets a Suspense boundary
-
-`next build` failed prerendering `/prototypes/feed`: `useSearchParams()` bails out
-of prerendering unless a Suspense boundary catches it. This was failing before
-this work order and was not hidden by `ignoreBuildErrors`, which only suppresses
-type errors. The page body moved into `FeedPrototypeBody` behind a Suspense
-boundary. Without it the gate could not run to completion, so nothing downstream
-of `next build` could be proven.
-
-## D-15 G1's pattern is tighter than STANDARD.md C5's grep
-
-C5's own command greps for a bare double bracket in emitted HTML. Run against
-Next 16 output it flagged 45 files that hold no placeholder: React Server
-Component payloads open with a doubled bracket, and every route emits one. A gate
-that fires on every route teaches its reader to ignore it.
-
-The pattern is now a bracketed identifier, which is the shape the source
-placeholders actually use. It flags 9 routes, all of which carry a real
-placeholder, and no route that does not. The pattern lives in `invariants.json`;
-C5's untightened form is the clause, this is its one evaluation site.
-
-## D-16 X1 makes "the run that earned it" checkable
-
-The rule as written is that a `baseline.json` edit is valid only in the same
-change as the run that earned it, with that run in the log. Without git in the
-tree, "same change" is not observable. The checkable half is: a baseline number
-never sits above what the last logged run measured for that key. A baseline moves
-down.
-
-That is not the whole rule, and it caught a real error the first time it ran: H1
-was still 47 in the baseline after the run measured 42.
-
-## D-17 Sixteen surface reads were repointed at semantic roles
-
-U1 measured 16 reads of base-tier custom properties from `app/(portfolio)/` and
-`components/portfolio/`. Each was repointed at a semantic role holding the
-identical literal, and five new roles were added where none existed:
-`motion.overshoot-ease`, `motion.slide-ease`, `motion.slide-duration`,
-`motion.exit-ease`, `type.dense-leading`.
-
-Five of those reads were hand-written copies of a token's value: the nav slide's
-duration and curve, the mobile menus' close curve, the root letter-spacing, the
-reduced-motion clamp, and the body weight stroke. Binding them removed the second
-home as well as the U1 violation.
-
-Paint is unchanged, and that is a measurement rather than a claim: each of the 8
-name pairs was compared in the emitted CSS and resolves to the same literal.
-
-On P5: the work order exempts WO-4 deletions from paint parity and says nothing
-about additions. The emitted CSS gained 5 declarations. An added custom property
-that no rule reads cannot repaint anything, and each of these is read only by a
-rule that previously held the same value inline. Recorded rather than assumed.
-
-## D-18 Two curves deleted, thirty-five kept with a reason
-
-`ease.out-expo` and `ease.in-back` were read by nothing and no hand-written copy
-of either curve existed anywhere in the tree. Deleted.
-
-Thirty-five tokens remain clientless: most `type.*` roles, 16 `component.*`
-tokens, `font.leading.*`, `font.weight.*`, `space.grid-gap`,
-`space.control-pad`, `border.*`, `background.card`, `motion.state-duration`,
-`motion.exit-duration`. They describe values the markup sets through Tailwind
-classes. Binding them is a rewrite of the portfolio components, not a token
-change, and a rewrite of that size cannot be reviewed alongside a format
-conversion. The number is baselined at 35 and X1 stops it moving up.
-
-Keeping a clientless token is a contract with one signature, which the audit
-already called a defect. The honest position is that it is a known defect with a
-number on it, not that it is fine.
-
-## D-19 The DTOS value bounds moved out of the checker
-
-`check.mjs` held the `fontWeight` range and the unit lists inline. Those are
-bounds the DTOS schemas impose, and the standing rule is that rule data lives in
-`invariants.json` only. They are now `type_bounds` there, with the schema path as
-the source. The checker states no number of its own; what remains are sRGB
-transfer-function constants, which are the definition of the contrast measurement
-rather than a threshold, and two float-comparison epsilons.
-
-## D-20 dipstick suppresses the log line its own check would write
-
-dipstick executes `check.mjs` rather than re-implementing a rule, and `check.mjs`
-appends to `runs.log` on every run. Two consecutive dipstick runs therefore
-differed in `i6.lines`, and the read-only guarantee in dipstick's own doc block
-was false: it grew the history by looking at it.
-
-`check.mjs` gained `--no-log`, which dipstick passes. `runs.log` is the gate's
-memory, so it records gate runs; a measurement read is not one. Two consecutive
-exports now differ in `$exported` and `dateCreated` only.
-
-## D-21 The dipstick filename, and what c5 does not measure
-
-The export is named
-`dipstick.<UTC basic instant>.ame@<version>.json`. At 40 characters with an `@`
-in it, the name is outside STANDARD.md N5's flag threshold. Justified: the basic
-ISO form has no colons, so the name is legal on Windows and sorts
-chronologically, and carrying the version in the name means the file answers when
-and of what version without being opened (S9 rule 1c). The directory listing is
-the export history; no separate log exists.
-
-Constraint c5, component APIs, reports a file count and nothing else. The
-evidence object says so in its own `measured` field, because an evidence block
-that omits its limit reads as a fuller measurement than it is.
-
-## D-22 Decision numbering continues from D-10
-
-The work order said to continue from D-7. D-7, D-8, and D-9 were already taken by
-the July 28 audit pass, and reusing a number would put two decisions under one
-name. Numbering continues from D-10.
-
-## D-23 The glass border doubled, on request
-
-The inset ring every `.port-glass` surface carries went from `ink @ 0.06` to
-`ink @ 0.12` on a light backdrop, and from `white @ 0.10` to `white @ 0.20` on a
-dark one. Both doubled, so the two tones stay at matched strength.
-
-This is a deliberate paint change, which the standing P5 parity rule of the Ame
-work order otherwise forbids. The operator asked for it directly; P5 governs
-machinery changes, not design decisions taken on purpose. Every glass surface
-moved at once because they all read one token, which is the property the token
-layer exists to have.
-
-## D-24 The edge is a variable, and two surfaces were rebound
-
-Three changes, one shape: a value that a surface needed to vary got a name.
-
-**The edge became its own token.** `elevation.glass` was a two-layer composite,
-so changing the border meant editing a recipe that also held the drop. It is now
-`elevation.glass-edge` and `elevation.glass-drop`, with `-light` and `-on-dark`
-variants, composed in CSS as
-`box-shadow: var(--port-glass-edge), var(--port-glass-drop)`. A surface overrides
-`--port-glass-edge` alone and leaves the drop where it is.
-
-**The nav takes the faint edge**, through a `.port-glass-quiet` modifier. It sits
-high on plain paper, where the doubled edge reads as a hard outline rather than a
-glass rim. Every other glass surface floats over content, where it does not.
-
-**The Ask-AI trigger pill takes the opaque glass**, the same fill the cookie,
-contact, and Ask-AI panels use, by adding `port-glass-opaque` to its class list.
-It was on the translucent fill, so it read as a lighter object than the panel it
-opens.
-
-Two more hand-written literals went with this: the opaque fills were
-`color-mix(in oklab, var(--port-page-bg) 88%, transparent)` and
-`lab(19 0.33 -15.02 / 0.69)`, written in `portfolio.css`. They are now
-`color.paper-alpha.88` and `color.modal-dark`. D2 could not see either: the first
-contains a `var()`, and the second had no token to match against.
-
-## D-25 D2, the check for a restated value
-
-D1 catches a re-declared custom property. It cannot see a hand-written literal
-that happens to equal a token's resolved value, which is the same second home in
-different syntax. The nav pill and the work card each restated a shadow recipe
-the token layer already held, and the gate passed for the whole Ame pass.
-
-D2 compares by numeric signature, the ordered numbers in a value, so
-`rgba(16,19,25, 0.04)` and `rgb(16 19 25 / 0.04)` are recognised as one value. It
-found 24 more on first run, almost all in the fumadocs theming block:
-`oklch(0.22 0 0)` restated 10 times where `color.neutral.800` exists.
-
-Those 24 are not fixed. They are a different surface with its own theming
-concerns, and closing them is a diff that has nothing to do with the glass work
-that surfaced the check. Baselined at 24 so the number cannot grow.
-
-The limit worth naming: D2 skips any value containing `var()`, so a `color-mix()`
-over a token reads as bound even when the percentage is a second home. That is
-how the opaque light fill hid until it was read by eye.
-
-## D-26 The grain is four numbers, and the SVG is derived from them
-
-The dither was a hand-written `feTurbulence` data URI in `portfolio.css`, carried
-as a D1 exception on the grounds that no DTOS type admits an asset. True, but the
-wrong conclusion: what defines the grain is not the SVG, it is four numbers.
-
-`dither.strength`, `.frequency`, `.octaves` and `.tile` are now tokens, and
-`build.mjs` serializes them into the URI it emits as `--port-dither-noise` —
-the same job `cssShadow` does for a shadow composite. The generated string is
-byte-identical to the literal it replaced, checked rather than assumed. The D1
-exception is gone, and changing the grain is now a number, not an edit to an
-encoded SVG.
-
-This is the one emitted custom property that is not a token. It is recorded as
-the fourth spec gap in `contract.md`.
-
-## D-27 Every surface above the page overlay now carries its own grain
-
-The page overlay sits at `z-index: 1`, which the file's own comment explains:
-anything positioned above it is not blended, and that exclusion was deliberate
-because blending over the live WebGL canvas caused a repaint fight.
-
-The consequence nobody had written down: the glass nav, every modal, the Ask-AI
-pill and the work cards all float above that layer, and they are exactly the
-surfaces carrying soft shadows and translucent fills — the things that band. The
-only undithered surfaces on the page were the ones that most needed it, and
-`.port-dither`, the class built to fix that case, had zero consumers.
-
-`.port-glass`, `.port-glass-pill` and `.port-card` now carry the grain through
-the same `::after` recipe. `.port-dither` stays as the opt-in name for anything
-new. The iPhone viewer card is still excluded, for the reason already recorded.
-
-**The mistake worth keeping.** The first version also set `position: relative` on
-all four selectors, so the pseudo-element would have something to anchor to. That
-broke the surface: `.port-glass` elements are variously `fixed` (the cookie
-modal), `absolute` (the mobile menus) and `relative` (the AI panel), and a blanket
-`relative` moved the fixed ones and dropped the nav's selection pill out of its
-placement entirely — visible immediately in the browser as a blank pill sitting
-left of the labels.
-
-They need no help: every `.port-glass` carries a `backdrop-filter`, and a
-non-`none` backdrop-filter already makes an element a containing block for
-absolutely positioned descendants. The nav pill is itself `absolute`. Only
-`.port-dither` and `.port-card` take a position, because only they lack one.
-
-## D-28 What "all our gradients" turned out to mean
-
-The instruction was to make sure every box shadow and gradient carries the
-dither. The shadows are done, above. The gradients need a correction: **the
-portfolio surface has none.** Every `gradient` hit in `portfolio.css` is inside a
-comment describing the dither's purpose.
-
-35 real gradients exist elsewhere: `app/globals.css`, the three prototype routes,
-and seven `components/ui/*` files. None is inside `.portfolio-root`, so the
-dither system does not reach them and extending it there is a decision about a
-different surface, not a continuation of this one. Recorded rather than silently
-skipped, and not done.
-
-## D-29 The splash reveal: the mark becomes a hole and opens
-
-Three loops run unchanged. Then the mark fades as a cutout of the same artwork,
-at the same size, in the same place takes over — so what reads is one thing
-becoming the other. The cutout then opens over one logo cycle, reversed.
-
-**The hole is punched in the overlay, not the site.** Google's version
-(`featured-hero__mask`) masks the content. Here the content is a WebGL canvas
-plus CSS3D iframes, and a mask on an ancestor flattens and clips that subtree. So
-the overlay keeps its ink fill and takes a two-layer mask: a full-cover gradient,
-the mark image over it, `mask-composite: exclude`. The mark's alpha is subtracted
-and the site behind is never touched. Safari spells the same operation
-`-webkit-mask-composite: xor`; both are emitted, both confirmed supported.
-
-**The opening is a transform, not an animated mask-size.** `mask-size` repaints
-the masked element every frame. A scale runs on the compositor and the mask
-scales with the element, so the aperture grows for free.
-
-**Reversed, literally.** `animation-direction: reverse` plays the keyframes
-backwards and reverses the easing, and the easing is `--logo-ease`, the mark's
-own hand-tuned bounce. That curve moved from `.logo-bounce` to `:root` in
-globals.css so the logo and the reveal read one definition; a curve written twice
-can disagree with itself. There is no DTOS type for a `linear()` easing function,
-so it cannot be a token, and one home in CSS is the next best thing.
-
-**The fade is load-bearing, not decoration.** The mark is a comb. Measured on the
-generated asset, its alpha mean is 128.4/255, so it covers about half its box at
-every scale and the aperture is half stripes no matter how far it opens. Growing
-alone never clears the viewport. Opacity holds through the first 60% of the play
-and drops over the last 40%, by which point a single gap is wider than the
-screen. Verified at 82%: scale 34.9, page fully clear.
-
-**The gate now releases at the start.** With a fade the page is covered until the
-last frame, so an entrance beginning underneath is wasted, which is what
-`splash-gate` exists to prevent. A reveal inverts that: the site is visible
-through the aperture from frame one, and holding the viewer back would open a
-hole onto a phone standing still. The fade path keeps the original end-release.
-
-`EXIT` is a flag, not a replacement, so the two can be compared without a revert.
-
-## D-30 The mask asset is generated from the two halves, at the CSS offsets
-
-`logo-top.png` and `logo-bottom.png` are separate layers the bounce animates
-independently, so neither is the mark on its own. `mark-mask.png` is the two
-composited at exactly the offsets `globals.css` already places them at
-(`815/825` wide; top at `0,0`; bottom at `40/3300, 1196/3592`), which at an
-825x898 canvas is an 815x599 part at `(0,0)` and at `(10,299)`. The bottom edge
-landing on 898 is the arithmetic checking itself.
-
-sharp did the compositing. It is a transitive dependency, not a direct one, so it
-is not resolvable from the project root — the generator imported it by store
-path. That makes this a one-off, not a build step, and the asset is committed.
-Re-run it only if the halves are re-exported.
-
-## D-31 Verifying it needed the timing slowed, and that is worth writing down
-
-The reveal is 2180ms. Round-trips to the browser in this environment measured
-around 10 to 20 seconds, so the window could not be caught by waiting: three
-attempts landed after the splash had already unmounted, one of them 50 seconds
-past navigation.
-
-Two things had to move together to hold it open — `component.splash.cycle` (the
-CSS duration) and `REVEAL_MS` in the component (the unmount timer). That they are
-two numbers is itself the finding: P4 ties `component.splash.cycle` to
-`LOGO_CYCLE_MS`, and `REVEAL_MS` derives from `LOGO_CYCLE_MS`, so the chain holds
-by construction rather than by check. Both were restored and the check is green.
-
-## D-32 The reveal expands the held mark, without animating it
-
-The reverse bounce is gone. The cycles end with the mark assembled and held, and
-that held shape is what opens — one move, on `motion.exit-ease`, the accelerating
-curve the system already uses for a surface leaving. `--logo-ease` went back to
-`.logo-bounce`, its original home, since nothing else replays it now.
-
-D-29 described a reversed bounce. That description is superseded; this entry is
-the current behaviour.
-
-## D-33 The mask is vector, because a raster mask blurs at 46x
-
-The first mask was a PNG composited from the two halves. A raster mask
-rasterizes at its natural size and is interpolated from there, so by the end of
-the expansion the stripe edges were visibly soft — the blur was the mask, not the
-page behind it.
-
-`mark-mask.svg` is the mark as vector, extracted from `lockup.svg`, which
-`logo-bounce.tsx` already establishes is the same artwork: its stripe block is
-1630x1774 at (1098.02, 44), an aspect of 0.9188 against the mark container's
-825/898 = 0.9187. The extraction crops the viewBox to that block. An SVG
-re-rasterizes at whatever size it is drawn, so the edges stay exact all the way
-out. `mark-mask.png` is deleted.
-
-## D-34 Two filters, because the wordmark hid inside the mark's bounding box
-
-The first extraction kept every path whose bounding box fell inside the stripe
-block. That produced a mask with the letters "Sé" cut into it: the lockup's
-"Sébastien" wordmarks are laid OVER the stripe block, so six glyph paths sit
-inside its box and became letter-shaped holes, several screens wide once the
-aperture opened.
-
-The bounding box cannot separate them. The shape of the path can: a stripe is an
-axis-aligned rectangle, so its `d` uses only M, H, V and Z, while a glyph needs
-curves. Filtering on that keeps 58 stripes and rejects 40 curved paths, and the
-kept set measures 5.9 to 43.5 units wide — all thin bars, no glyph slabs.
-
-Worth keeping because the first version looked plausible. 64 paths, the right
-bounding box, the right aspect ratio, and a mask that was wrong in a way only
-rendering it at 7x would show.
-
-## D-35 Only the ink layer scales
-
-The mask and the transform were on the outer splash box, which also contained the
-mark. So the mark scaled with the aperture: at 7x the held logo and its lockup
-layers were magnified across the whole screen while they faded. That is a zoom,
-not a reveal.
-
-The overlay is now two siblings inside an untransformed box: an absolutely
-positioned ink layer that carries the mask and the scale and contains nothing,
-and the mark on top of it, which fades in place. Nothing inside the scaling
-element means nothing for the expansion to drag along.
-
-## D-36 The blur was the transform, not the mask. Correcting D-33
-
-D-33 said a PNG mask was the reason the aperture went soft, and that a vector
-mask would fix it. The vector mask was still soft, so that diagnosis was wrong
-and this entry replaces it.
-
-The cause is scaling by `transform`. A transform is cheap because it runs on the
-compositor, but the compositor scales a raster the browser has **already made**:
-the element and its mask are rasterized at pre-transform size and that bitmap is
-then blown up. At 46x the stripe edges were mush no matter how the mask was
-authored. Vector or raster made no difference, because neither was being
-re-rasterized.
-
-Growing `mask-size` instead leaves the element untransformed, so the mask is
-re-rasterized at its new size every frame and the edges stay exact all the way
-out. That is what Google's `featured-hero` does — `mask-size: 400%` on an
-element whose `transform` stays at `translate(0px, 0px)` — and the reason is
-this, not a stylistic preference.
-
-I had it backwards on purpose earlier: D-29 recorded choosing transform over
-`mask-size` because "mask-size repaints the masked element every frame". That
-repaint is real and it is the price of the effect. It is affordable here for a
-specific reason: the element under the mask is one flat colour, so a frame costs
-a fill and a mask composite, with nothing to re-lay-out and nothing to re-decode.
-Google pays the same cost over a playing video.
-
-The vector mask stays. It is the correct asset regardless — it is smaller than
-the PNG and it is what makes per-frame re-rasterization worth anything — but it
-was not the fix, and D-33 should not be read as if it were.
-
-## D-37 mask-size keyframes must restate every layer
-
-`mask-size` is one property carrying a list, one entry per mask layer. The mask
-here has two: the full-cover gradient that supplies the material, and the mark
-that subtracts from it. A keyframe naming only the mark's size drops the gradient
-layer, and an overlay whose first mask layer has gone does not open — it
-disappears. Both layers are written out in both keyframes.
-
-## D-38 The mask reveal is removed; the exit is a quick fade on the enter curve
-
-The cutout reveal is gone: `.port-splash-reveal`, its keyframes, the
-`component.splash.scale` token, the `EXIT` flag, the two-sibling overlay
-restructure, and `public/images/logo/mark-mask.svg`. The splash is one element
-again, as it was before D-29, and it leaves by fading.
-
-What is not a revert: the fade's two terms are tokens now, where they were a
-hardcoded `400ms ease-out`.
-
-- `component.splash.fade` = `{duration.fast}` = 200ms. Down from 400 because the
-  mark has already had 6.5 seconds by then; the exit's job is to get out of the
-  way, not to be watched.
-- `component.splash.fade-ease` = `{motion.enter-ease}` =
-  `cubic-bezier(0.2, 0, 0, 1)`. Fast off the mark and settling at the end, so
-  what reads is the page arriving rather than the overlay leaving.
-
-Verified as resolved rather than assumed: a probe element carrying the same
-declaration computes `opacity 0.2s cubic-bezier(0.2, 0, 0, 1)`.
-
-`splashSettled()` goes back to firing at the end of the fade. The early release
-in D-29 existed because a reveal makes the page visible from its first frame; a
-fade does not, so the original reasoning applies again — an entrance beginning
-under an opaque overlay is exactly what the gate prevents.
-
-Kept: `duration.cycle` and `component.splash.cycle`, whose only client is
-invariant P4, which holds `LOGO_CYCLE_MS` to the token. The logo cycle is a real
-system value and worth keeping declared even though no rule reads it.
-
-New: invariant **P5** ties `FADE_MS` in `loading-screen.tsx` to
-`component.splash.fade`. The number lives in two places because one is a CSS
-transition and the other is the JS unmount timer; the check is what stops them
-drifting, which is the same shape as P1 and P4.
-
-D-29 through D-37 describe a feature that no longer exists. They stay as the
-record of why it was built and what it cost; this entry is where the behaviour
-now lives.
-
-## D-39 The dismiss is 800ms
-
-`component.splash.fade` now reads `{duration.long}` = 800ms, and `FADE_MS`
-follows it (P5). Resolved value confirmed on the page:
-`opacity 0.8s cubic-bezier(0.2, 0, 0, 1)`.
-
-Two consequences worth having written down rather than discovered later.
-
-**800ms is a new step on a closed scale, and it lands 20ms from `settle` (780).**
-That is a 2.5% difference: two names for what is, in practice, one duration. The
-scale is meant to be the closed set of tempos the surface uses, so a near
-duplicate weakens it. It is added rather than rounded onto `settle` because
-`settle` means "popover and panel spring in" and this is a full-page dismiss;
-merging them would tie two unrelated surfaces to one number. If a third consumer
-ever wants this length, one of the two should absorb the other.
-
-**The splash floor moved from 6740ms to 7340ms.** The dismiss is serial with the
-cycles, not overlapped: `CYCLES * LOGO_CYCLE_MS` runs, then `FADE_MS`, and only
-then does `splashSettled()` release the viewer's entrance. Quadrupling the fade
-from 200 to 800 adds 600ms to every visit before the page can be touched. The
-COST box at the top of `loading-screen.tsx` counts the fade, so it was updated in
-the same change; a stale number in that box is exactly the kind of thing it
-exists to prevent.
-
-## D-40 The 15px jump when the splash leaves
-
-`body { overflow: hidden }` holds the page still while the splash is up. That
-removes the scrollbar, and putting it back on release widened the content box by
-the scrollbar's width — measured 15px on this display, applied to every element
-at the exact moment a first-time visitor first sees the page.
-
-Fixed with `scrollbar-gutter: stable` on `html`, which reserves the track whether
-or not a scrollbar is showing. Measured after: content width 1692px locked,
-unlocked and restored, shift 0.
-
-Two other fixes were measured and rejected:
-
-- Padding-compensating `body` by the scrollbar width leaves a 0.1px residue and
-  needs JS to discover a number the browser already knows.
-- `html { overflow-y: scroll }` makes `html` the scroll container so `body`'s
-  overflow no longer propagates to the viewport. It fixes the shift, and it
-  breaks the lock outright: the page still scrolled to 800px while the splash
-  was up. Rejected on the second measurement, not the first.
-
-**No token, and that is the honest outcome.** `stable` is a keyword and the
-scrollbar's width is the user agent's, not the design system's; there is no value
-here to name. It is also not a contract clause, because `STANDARD.md` holds that
-a clause without a check does not bind, and `check.mjs` runs in Node with no
-layout engine to measure a reflow. It is a rule in the stylesheet with its
-reasoning and its measurements attached, which is what this case actually
-supports.
-
-## D-41 Exploded sheets hide much earlier than the flat screen
-
-Collapsed, the CSS3D layer sits at `z-index: 2`, under the overlay that draws the
-bezel, so the phone's body occludes it and hiding at a dot of -0.02 (just past
-edge-on) is safe.
-
-Exploded, the layer is lifted to `z-index: 4` so the spread sheets are not
-clipped by the bezel. That lift is the defect: DOM has no depth test, so from
-z-index 4 the sheets paint over the shell, and as the phone turns they are drawn
-straight through its body and read as the interior.
-
-The sheets now take their own cutoff and their own fade while exploded
-(`STACK_HIDE_DOT_EXPLODED` = 0.45, roughly 63 degrees off head-on, fading out
-from 0.75). Hiding them while the face is still well toward the camera is the
-only fix that does not give up the un-clipped spread the z-index lift buys.
-
-**Unverified visually.** It typechecks and the mechanism is the one the defect
-comes from, but the explode cycle is rotation-driven and did not fire during
-roughly 25 seconds of DOM sampling across two attempts, so the layer never
-reached `z-index: 4` while it was being watched. 0.45 is a reasoned number, not a
-measured one, and it is the single value to move if the sheets vanish too eagerly
-or a sliver still shows.
-
-## D-42
-
-**G1 counted emitted files and called them routes.**
-
-The check reported `14 route(s) carry a placeholder`. There are 5. Next 16
-emits one route as several files — `foo.html`, `foo.rsc`, and a `foo.segments/`
-tree of per-segment payloads — so three case studies produce twelve files
-between them, and the file count runs about 3x the route count on any dynamic
-route.
-
-The verdict was never affected: G1 fails on one hit or fourteen. What was wrong
-is the number a reader takes away, and that number had been carried into
-`docs/orders/AUDIT-CLOSEOUT.md`, four commit messages, and the C5 row of the clause table,
-each time as "14 routes."
-
-`routeOf()` now derives the route from the emitted path: cut at `.segments/`,
-drop the `.html` or `.rsc`. The report gives both numbers and lists the routes:
-
-```
-G1: 5 route(s) carry a placeholder, across 14 emitted file(s)
-     /portfolio
-     /portfolio/case-studies/case-study-1
-     /portfolio/case-studies/case-study-2
-     /portfolio/case-studies/case-study-3
-     /portfolio/privacy
-```
-
-Listing them is the part that pays. "14 routes" is a number to worry about; five
-named routes is a work list, and it is immediately obvious that the three case
-studies are one template rendered three times.
-
-This is CLAUDE.md 14 on a number nobody thought to check, because it was never
-load-bearing — the gate's colour did not depend on it, so its wrongness was
-invisible. A number reported to a reader is a claim whether or not a branch
-reads it.
-
-## D-43 A dark counterpart for the top utility bar, so the bar is one component on two grounds
-
-The top bar painted `--component-topbar-bg` (#eeeeeb) and had no dark counterpart.
-On a paper page that is a warm near-white strip; dropped onto an ink ground it is a
-white band across the top. So a sister site on ink could not share the bar — it had
-to re-implement it as glass, a different surface.
-
-Closed the gap through the chain: base `color.surface-ink` (#1a1e28, a subtle
-elevation of ink that keeps its blue cast), semantic `background.utility-on-dark`
-(references it), component `topbar.bg-on-dark` (references the semantic), plus
-`topbar.fg-on-dark` / `-fg-hover-on-dark` referencing the glass on-dark foreground
-pair. C7 (topbar fg-on-bg contrast) is unchanged; the on-dark pair reads on the ink
-strip at glass's own on-dark ratios (C8/C9). The bar is now one tone-aware component,
-not two.
-
-## D-44 A dark theme, expressed as re-pointed aliases, not a second set of tokens
-
-The marketing route needed the whole portfolio surface on ink, not one flag flipped.
-Re-declaring the surface tokens under a `.dark` selector was not an option: contract
-B1 gives every token exactly one home under `.portfolio-root`, and D1 bans a hand file
-re-declaring a generated name. Both would break.
-
-The alias layer is the clean seam. An alias is "a spelling a surface binds" (B3), not a
-token, so it is the one thing that may resolve differently per context without a value
-gaining a second home. An alias value is now either a path (light only) or `{ light,
-dark }`; the build emits the light target on `.portfolio-root` as before, then a generated
-`.portfolio-root[data-theme="dark"]` block that re-points the themed aliases to their
-on-dark tokens. Four aliases are themed: `--port-page-bg` → `background.ink`, and
-`--port-text-{primary,heading,secondary}` → three new `text.*-on-dark` tokens
-(white / white / white-alpha.78). Every base, semantic, and component token still has one
-home; only the spelling gained a per-theme target. B3 now reads "resolves to exactly one
-token per theme scope," and check.mjs counts both scopes' targets in the client census.
-
-A route opts in with `data-theme="dark"` on its `<main>`, and every surface below inherits
-the ink treatment through the same variables it already read. /portfolio stays light;
-/mmarketing renders the same home component dark. Because it is one component, the marketing
-route adds no duplicated literals — S1–S5 hold at baseline. The baseline drops S2 34→33 and
-H1 32→29 in this change, the run that earned it in runs.log.
-
-## D-45 The dark theme reaches the solid surfaces, not only the page and text
-
-D-44 flipped the page ground and the running text. That left the SOLID chrome and
-card surfaces on their light values, because those read component tokens or fixed
-fills directly rather than the themed --port-* aliases: the utility strip and the
-footer stayed paper, and the .port-card fill stayed a light card, so white text on
-it lost contrast. The glass surfaces are deliberately untouched — glass is glass on
-either ground.
-
-Apple's dark mode is the reference for the fix: it uses a base/elevated split where
-a foreground surface advances by getting LIGHTER, not darker. So the card is not the
-page colour; it is one step up. Added `background.card-on-dark` ({color.surface-ink},
-#1a1e28 on the #101319 page) and a single `[data-theme="dark"] .port-card` rule that
-binds it — a property, not a re-declared custom property, so no invariant moves. The
-utility strip and footer switch to their existing on-dark tones by route/theme, and
-the nav's selected label now reads `surface.glass-fg-on-light` (always ink on its
-bright pill) instead of the themed text token, which is what its own comment always
-intended. Contrast on the ink ground clears Apple's 4.5:1 floor at every surface.
-
-## D-46 The viewer became the Ame Prototype Viewer, model-agnostic by a contract
-
-2026-08-03. Executes `docs/orders/AME-VIEWER-ORDER.md` (WO-V1 through WO-V6).
-
-`components/iphone-viewer.tsx` was a 2,265-line viewer that could render exactly
-one hardcoded iPhone: the glb path and five node names were literals in the render
-code. A "prototype viewer" that renders one device is an N6 defect, a name
-promising more than the code does. The rename is earned by removing the literals.
-
-**The shape now.** `components/prototype-viewer/`:
-- `model-contract.ts` — the `ModelContract` type and the producer-facing export
-  spec (the Blender steps, the node names, the "rename a node and the viewer names
-  it back" test). This is instrument 5's home: the definition of a valid input.
-- `models/iphone-17-pro.ts` — the single registered instance. Every node name lives
-  here once, in `nodes`; `requiredNodes` derives from it. A new device is a new file
-  here, and the render code does not change.
-- `load-model.ts` — loading plus validation. `validateModel` traverses the scene,
-  computes `requiredNodes` minus found, and throws one error naming the contract id
-  and each missing node. No silent fallback.
-- `viewer.tsx` — the machinery, exporting `AmePrototypeViewer` with a required
-  `model: ModelContract` prop. It greps clean of all five node names and the glb
-  path; it reads them from the prop.
-
-**The route-name call.** `app/prototypes/iphone/` keeps its name: it renders the
-iPhone contract specifically, so the name still states its concept. What changed is
-what it renders. It used to embed the standalone HTML twin through an `<iframe>`;
-it now renders `<AmePrototypeViewer model={iPhone17Pro} />`, which is the machinery
-the twin duplicated.
-
-**Three call sites, not one.** The order's P2 expected the iphone route to import
-the component; it did not — it embedded the twin. The real React import sites were
-`app/(portfolio)/portfolio/page.tsx` and `app/prototypes/ambient-engine/page.tsx`.
-Both were updated to import the contract and pass it as `model`, and the route was
-converted to render the component. N3: the rename moved every site in one change.
-
-**upAxis and unitScale are disclosed premises, not load-checks.** Node presence is
-machine-checked at load; upAxis (`y`) and unitScale (`1`) are stated by the contract
-and not re-verified by the viewer. They were measured once from the glb on
-2026-07-29 (Display extent 0.0664 x 0.1444 units against 66.4 x 144.4 mm). The doc
-block says so rather than implying all fields are checked. A false claim of checking
-is worse than a disclosed gap.
-
-**The twin is deleted.** `public/iphone-viewer.html` was a 45 KB second
-implementation of the concept (H4). Delete is the order's default and there was no
-reason to freeze it: the route that referenced it now renders the live component, so
-nothing is left pointing at a frozen file.
-
-**viewer.tsx stays large, and here is the next split.** At 2,378 lines it is over
-M2's 500. This pass extracted the contract, the model instance, and load+validation;
-it did not break up the render machinery, because that is a second reviewable diff,
-not a rider on the rename (STANDARD clause 9). The planned next split, recorded so it
-is a named work item not a vague intent: lift the material factories and the
-scratch/dither overlay builders (the `make*Material` functions and
-`createPhysicalScratchOverlay`, roughly the first 560 lines) into `materials.ts`, and
-the renderer/scene/light setup into `scene.ts`, each hiding one decision (M1). The
-node-name coupling that made the file un-decomposable is already gone; what remains is
-length, not entanglement. Recorded in DECISIONS.md R-8 as the viewer's current
-rationale.
-
-**The prior partial contract folded in.** `components/iphone-viewer-contract.ts`
-(a flat `MODEL_PATH` / `REQUIRED_NODES` / `assertModelContract` export from the WO-5
-runbook pass) was the earlier attempt. Its facts moved into the three new files and
-it was deleted; keeping it would have been a second home for the node names.
-
-## D-47 The gate got a disconfirming world, and a clause that watches its own scope
-
-2026-08-24. Executes the critical path of `docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md`
-(work order Phase 2, items 2.1 and 2.2, pulled ahead of Phase 1).
-
-The extraction preflight found that D2 — the clause carrying the system's
-central public claim, that a build fails when app code reads a raw value —
-scanned exactly one file, `app/(portfolio)/portfolio.css`. In a standalone Ame
-tree that file does not exist. D2 would have walked nothing, found nothing, and
-reported green, and the claim would have shipped with no instrument behind it.
-U4 and K1 had the same shape. The gate was not broken; its scan surfaces were
-portfolio-shaped, and nothing in the repo could tell the difference between a
-clause that passed and a clause that had nothing to look at.
-
-**X2, because a check that cannot fail is not a check.** The new clause asserts
-that every scan root a clause declares exists on disk. `invariants.json >
-scan_roots` maps an invariants key to the clause id that reads it — the keys,
-never the paths, so the roots keep one home and a clause cannot acquire a root
-X2 does not watch. It found a live one on its first run: `clients.sources` named
-`styles/`, a directory that does not exist, so H1's client census had been
-walking a phantom. Removed. The count did not move, which is exactly why nothing
-had caught it.
-
-**examples/, because a gate nobody has watched fail is not evidence.**
-`examples/compliant/` sits inside the real gate's scan surfaces and carries the
-same obligations as application code: when a clause changes, this example must
-still satisfy it or the change is not finished. `examples/violating/` carries
-five deliberate mistakes — a base-tier read, a hand-written shadow recipe the
-token layer already holds, an undeclared contrast pair, an off-scale size, an
-off-scale duration — and is out of the gate's normal scope.
-
-**The inversion has one home.** `check.mjs --fixtures` widens the scan lists
-named in `invariants.json > fixtures.scan_extends` and is otherwise the same
-gate reaching the same verdict. `tokens/gate-fixtures.mjs` is what turns "the
-gate said FAIL" into "the fixture run says PASS", and it checks *which* clauses
-fired against `fixtures.expect`, not merely that something did. Keeping the two
-apart means the gate itself has no mode in which failing is success.
-
-The harness was disconfirmed before it was believed: neutering the violating
-fixture turns `gate:fixtures` red on all six expected clauses plus the verdict.
-That is the property that matters — a clause that quietly stops catching now
-turns CI red instead of silent.
-
-**`tokens:check` became `gate`.** The work order asks for `pnpm gate`, and
-adding it as an alias would have put two names on one concept, which is the N3
-defect this repo already forbids. `gate` is also the better name: the check
-decides contrast, layering, asset weight, CI wiring and the census, not tokens
-alone, and `gate` is the word LEXICON.md already uses for the thing that decides
-conformance. `tokens:check:shipped` became `gate:shipped` in the same pass. W1
-verified the rename: every workflow step still resolves to a script that exists.
-
-**What this does not do.** The portfolio surfaces are still named in the clause
-lists — nothing was repointed *away* from them, because they exist and are still
-the real subject while Ame lives in this tree. The extraction repoints; this
-change makes the extraction detectable when it forgets to.
-
-## D-48 The format is DTCG, and it never was DTOS
-
-2026-08-24. Executes item 3 of the critical path in
-`docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md`. Corrects D-1, and every entry
-between D-1 and D-19 that inherited its spelling.
-
-The extraction preflight validated the token files against the published DTCG
-2025.10 JSON Schema and they passed — all eight, with the validator
-negative-controlled first so the pass meant something. The claim held. The name
-did not: this repo has called the format **DTOS**, expanded in `tokens/README.md`
-as "Design Token Open Standard", since D-1. There is no Design Token Open
-Standard. The specification is the Design Tokens Community Group's format module,
-DTCG, and 2025.10 is its version. The abbreviation was invented here and then
-propagated to 41 places across code, rule data, docs and the emitted stylesheet
-header.
-
-**Why this is not cosmetic.** A machine-readable surface has to speak the
-parser's noun. A tool, a schema registry, or a reader searching for the format
-this system uses searches for "DTCG" and finds nothing; the manifest's
-`"format": "DTOS 2025.10"` is a string no consumer can match on. That is the
-whole failure: the value was right and the name it announced itself by was
-unfindable. The repo standard already forbids it — N6, a name that promises one
-thing while the code does another, is the highest naming severity, and this one
-promised a standard that does not exist.
-
-**What changed.** Every live surface: the manifest, `build.mjs`, the token
-`$description`s, `check.mjs`, `docgen.mjs`, `contrast.mjs`, `invariants.json`,
-`contract.md`, both READMEs, `LEXICON.md`, the `/ame` docs shell and its content,
-`source.config.ts`, and the emitted `tokens.css` header, which now reads
-`/* ame@0.1.0 · DTCG 2025.10 · generated, do not edit */`. B4 and B5 re-passed on
-a rebuild, so the committed stylesheet and the manifest agree on the new string.
-
-**What did not change, on purpose.** `decisions.md`, `DECISIONS.md`, `audit.md`,
-`outcomes.md`, `wo-report.md`, `CHANGELOG.md`, `AME-HYGIENE-PLAN.md`, the
-`docs/orders/` work orders, and the dated `tokens/dipstick/` exports keep the old
-spelling. A record is annotated, never rewritten (STANDARD.md C8), and the
-dipstick files are measurements — a measurement does not change because a name
-did. Both decision logs carry a dated annotation at the top pointing at the
-correction, whose one home is the **DTCG** row in `docs/LEXICON.md`.
-
-**The heading of D-1 is left wrong.** It reads "The format is DTOS 2025.10, not
-Style Dictionary's dialect". Its argument — that the files were Style Dictionary
-v3 syntax and had to move to the community format — is correct and still binds;
-only the name it used is wrong. Rewriting the heading would erase the evidence
-that this repo carried an invented name for a month, which is exactly what the
-dated record exists to preserve.
-
-**One thing the validator did not check, now stated rather than implied.** The
-DTCG JSON Schema cannot express group-inherited `$type`, so a token whose type
-comes from its group is validated loosely: a bare-number dimension and a
-`fontWeight` of 1200 both pass the published schema. That is a limit of the
-schema, not of these tokens, and it belongs in the standalone repo's Scope and
-limits section rather than in a claim of full conformance.
-
-## D-49 The spacing scale is declared, and P6 makes Tailwind derive from it
-
-2026-08-24. Resolves the build-bound half of R-100 (2026-08-11), on the owner's
-instruction to declare a spacing scale for the standalone package. Reviewed
-against `Process Standardization/Design Token Standards` (the DTCG format module
-and its token-naming report) rather than decided ad hoc.
-
-**The scale already existed; the connection did not.** `base/space.json` holds
-`unit.0` through `unit.24` as DTCG `dimension` objects on the 0.25rem Tailwind
-step, and the five `space.*` semantic roles reference it — the three-tier
-base/alias/component shape the DTCG naming report prescribes, already correct.
-What R-100 measured was that nothing joined that ramp to the utilities doing the
-actual work: `var(--space-*)` had three consumers repo-wide, all shared chrome,
-against ~197 Tailwind spacing utilities on the product surface, and
-`app/globals.css`'s `@theme` block declared no spacing at all. Two authorities,
-unconnected.
-
-**R-100 named the instrument, and this is the case it named it for.** Its own
-words: *"Had the Tailwind scale derived from the tokens, a 0.000 coefficient
-would have meant 'build-bound', not 'ungoverned', and the correct deliverable
-would have been a parity clause rather than a constitutional decision."* Tailwind
-v4 generates every numeric spacing utility as a multiple of one variable,
-`--spacing`, so joining the two authorities is one declaration, not a migration.
-
-**`--spacing: 0.25rem` in `@theme`, held to `unit.1` by new clause P6.** After
-this, `p-4` is four token units and `gap-6` is six, on every surface, by
-derivation rather than by coincidence.
-
-**It repaints nothing, and that is the point.** Tailwind's own default is the
-same 0.25rem (`tailwindcss@4.2.0/theme.css:325`), so the emitted CSS is
-unchanged; what moved is where the number comes from. A change that alters the
-authority without altering a pixel is the one worth taking, because it cannot be
-wrong about the design and can only be wrong about the wiring — and P6 checks the
-wiring. Disconfirmed before being believed: setting `--spacing: 0.3rem` produces
-`P6  app/globals.css: literal 0.3 does not equal unit.1 (0.25)`.
-
-**Why a literal at all.** `@theme` is resolved at build time and cannot read a
-custom property scoped to `.portfolio-root`, which is where the token ramp is
-emitted. So the number exists twice, deliberately, and the check is what stops
-the two drifting — the same shape P1 (a JS constant), P4 (`LOGO_CYCLE_MS`) and
-P5 (`FADE_MS`) already use. This is what section P is for.
-
-**Found while doing it: P4 and P5 bound without being declared.** `contract.md`
-section P read "P1–P3" while `invariants.json` carried P1c, P1d, P2, P3, P4 and
-P5. The contract's own opening sentence says a clause not written there does not
-bind, so two live clauses were binding on nothing. Z1 did not catch it because Z1
-checks that every clause the contract *declares* has a census record, not the
-reverse. Section P now names all six individually, the stale `P1-P3` census
-record is replaced by six, and the census and contract agree again.
-
-**What is still open.** R-100's constitutional half stands: which mechanism
-*authors* layout spacing — a designer reaching for `space.gutter` or reaching for
-`px-6` — is unresolved, and this decision does not resolve it. It makes the two
-answers agree on the arithmetic; it does not say which one a person should write.
-That belongs in the standalone repo's Scope and limits until it is decided.
-
-**The gate caught its author, again (R-87's health signal).** The first version of
-P6 typed the regex `--spacing:\s*([0-9.]+)rem` straight into `invariants.json`.
-D3 went from 10 to 11 and the build went red — which is exactly what that ratchet
-is for: R-86 established that rule data holds literal text and pattern syntax is
-assembled in code, and that the listed sites are *held*, not forgiven, so a new
-pattern typed into one fails. The clause was migrated rather than the ratchet
-raised: P6 states `"custom_property": "--spacing"` as literal text, and
-`parityPattern()` in `check.mjs` builds the regex, escaping the property name
-once, where the escapes are read by the same eyes that read the code. D3 is back
-at 10 and can still only fall. A parity entry added from here takes the second
-form by default; the six older entries keep their typed patterns and stay on the
-ratchet, which is the migration R-86 described rather than a sweep.
-
-## D-50 The flowchart demo data is the HCD process, and client cases move out of Ame
-
-2026-08-24. Executes P-1 of `docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md` on the
-owner's instruction that the presets match the HCD and UX process standards.
-Reviewed against `Process Standardization/HCD Standards` and
-`Portfolio Standards/HCD Process Standard.txt`, not decided ad hoc.
-
-The extraction preflight found three flowchart presets carrying a client's
-internal product logic — a reward mechanic, an async failure path, and a member
-state machine — as the design system's demo data, plus four more splitting the
-same state machine for an explorer. Seven presets, all one project.
-
-**The split is the fix, not a rewrite.** Ame's `flowchart-presets.ts` now holds
-three neutral sheets; `components/portfolio/flowchart-cases.ts` holds the seven
-case sheets, unchanged, and the case study renders them through `CaseFlowchart`,
-which passes them to the sheet's existing `data` prop. Nothing was deleted and
-the case study is intact. `FlowchartSheet`'s `preset` prop resolves Ame's
-registry only, so a case name cannot resolve inside the design system — the
-partition is enforced by what each module can see, not by a convention.
-
-**`ScreenSelector` stopped knowing about presets.** A state now carries its
-diagram as `sheet: FlowchartData` rather than the name of a preset, which removes
-the registry from the generic component entirely: it cannot resolve a name it was
-not handed. `EnrollmentExplorer`, which is one case's instance of it, moved to
-`components/portfolio/`, and the file it left is renamed `screen-selector.tsx`
-after what it now contains (N2). AM1 immediately demanded registry rows for both
-new portfolio components — the gate noticing a component entering a watched
-directory, which is what it is for.
-
-**The new subject is the HCD loop itself, and that is a choice with a reason.**
-Three sheets: the six-stage loop with its two feedback returns; stage 5 opened up
-into the sample-size and analyst decisions; stage 3's testability gate. A
-flowchart component is most honestly demonstrated on a process whose content can
-be checked against a published standard — ISO 9241-210 for the activities,
-9241-11 for what usability means, 25065 for requirements, 25062 for the report,
-9241-220 for the audit — rather than on content a reader has to take on trust.
-Every annotation on the sheets cites the study it comes from.
-
-**The ISO 5807 claim was larger than the code.** The component's own header said
-"an ISO 5807 flowchart" while implementing three symbols: terminator, process,
-decision. That is the N6 defect D-46 fixed for the viewer — a name promising more
-than the code does — and the honest options were to narrow the claim or to earn
-it. Earned: preparation (9.2.2.3), manual input (9.1.2.5), document (9.1.2.4) and
-predefined process (9.2.2.1) are implemented, plus the dashed feedback line
-(9.3.2.3), and the header now states the implemented subset with a clause number
-against each symbol rather than the standard's name alone. The legend prints the
-clause numbers too, so the drawing and its documentation cannot disagree.
-
-**The geometry is not invented.** Symbol shapes follow the operator's own ISO
-5807 reference implementation, `HCD Standards/Metis UX_iso5807_charts.py`, so two
-drawings of one standard in one body of work cannot disagree about what a symbol
-looks like.
-
-**Each symbol earns its place in the loop.** Stage 1 is preparation because
-setting the targets is setup for everything after it. Stage 2 is manual input
-because the data is supplied by people at the time of study. Stage 5 is a
-predefined process because an evaluation is itself a defined procedure with its
-own rules — and sheet 2 is that procedure, which is what a predefined-process
-symbol promises the reader exists. The report is a document because it is the
-loop's memory and the only artefact that reaches the next iteration.
-
-**What this does not settle.** Ten client screen assets under `public/screens/` are
-still referenced by the case study — four by the state explorer, five by the
-onboarding walkthrough, one unused. They stay with the portfolio, and
-`public/` is outside the extraction subset — but that is the plan keeping them
-out, not a check, which is the condition X2 exists to make visible.
-
-## D-53 The package stands on its own, and four clauses left with their subjects
-
-2026-08-25. Executes `Ame-Standards-Audit-2026-08-25.md`, items 1 through 7 of
-its order of work. The audit read this tree against the repo-standards library
-(Wilson, Noble, Marwick, Perez-Riverol, Zhu-Mockus, Hu, Parnas, Deissenboeck,
-Feitelson, Tsay, Schema.org) and found ten failures. These are the fixes.
-
-**The license contradicted itself.** Root `LICENSE` was MIT while
-`packages/ame-tokens/package.json` said `UNLICENSED`. Wilson's rule is that an
-absent license implies all rights reserved; a self-contradicting one is worse,
-because it makes the cautious adopter's lawyer the decision-maker instead of the
-author. Both now say MIT. One line, and it was the only thing blocking anyone
-from binding the tokens at all.
-
-**The gate could not pass on a stranger's machine, which is the whole point of
-having one.** Wilson's smoke test exists to run on a fresh clone. This one died
-twice: `ERR_MODULE_NOT_FOUND` before install, then nineteen X2 violations. Fixed
-by pruning the dependency list to what the tree imports (57 packages to 4),
-committing the lockfile, deleting the scripts that invoked Next against an absent
-`app/`, and repointing every scan root at a directory that exists here.
-
-**Four clause families were removed rather than repointed.** U4 guarded a
-boundary between two competing token systems, and the second one stayed behind.
-K1 was a byte budget over `public/`, and this package ships no assets. AM1–AM3
-read a docs-site registry that did not travel. VN1–VN2 wanted a manifest for
-vendored code, and nothing here is vendored. The parity clauses P1–P6 held JS
-constants and a Tailwind config against tokens, and all six subjects stayed in
-the monorepo.
-
-Repointing any of them at a directory that merely exists would have produced
-exactly the failure X2 was written to catch four days ago: a clause that scans an
-empty tree and reports green. A clause with no subject is deleted, with its
-contract text and its census record, in the same change — CLAUDE.md's rule read
-in reverse. Z1 verified the result: contract, invariants, and checker still agree
-about which clauses exist.
-
-**Two drift numbers moved for real reasons, and the baseline was recalibrated
-rather than waived.** S2 rose to 1 because the scale clauses now scan
-`components/ame`, which they never did in the monorepo — the widened scope
-surfaced a `0.86539rem` glyph height that had always been there. It is kept: the
-comment above it records that the surrounding control was sized around that
-13.85px glyph, so rounding it to the scale would silently retune a tuned strip.
-Baselined with the reason, which is what D-9's drift doctrine is for. H1 rose to
-69 because most consumers of these tokens stayed behind; that is a fact about the
-extraction, and the ratchet stops it growing.
-
-**The citation graph had holes, and they are glossed rather than papered over.**
-`STANDARD.md` and `CLAUDE.md` travelled — 32 references between them, and both
-are Ame's own rules rather than the portfolio's. `DECISIONS.md`, `RUNBOOK.md` and
-`CHANGELOG.md` did not, and should not: they are a hundred entries about a
-different codebase, its operator procedures, and its release history.
-`docs/PROVENANCE.md` is the annotation, naming what each absent document was and
-where to read the part that governs Ame. Fifty dated entries were not edited to
-hide the seams, because a record edited after the fact is not a record.
-
-**A test lost its subject too.** `tests/decisions-format.test.ts` validated the
-premise-negation format of `DECISIONS.md`'s R-entries. That file is not here and
-the D-series does not use the format, so the test and its script were removed
-rather than left failing or pointed at the wrong log.
-
-**A README, at last.** The audit called its absence the largest standards
-violation in the tree: it fails Wilson 3a outright and forfeits all three of Hu's
-measured popularity features at once, since links, images, and the visible
-license all live there. Written to the audit's section-4 spec, with three
-corrections the draft needed — the clause-families table now lists the families
-that survived this decision, the numbers were re-measured on the tree that
-ships, and Getting started names the `.portfolio-root` scope an adopter has to
-put on an ancestor. That last one is a noun still lagging the extraction, and
-renaming it is a breaking change for every consumer, so it is written down
-instead of quietly changed.
-
-**Still open, and deliberately post-public:** semantic tags and a first release,
-a changelog, a Zenodo DOI, Schema.org `SoftwareSourceCode`, and seeded issues.
-Git rules 4 and 8 want all of them; none can be earned before the repository is
-public, and the font-licence review gates that.
+> **Trimmed 2026-08-25 to entries dated 2026-08-24 or later.** 75 earlier
+> entries (D-1 through D-75) were removed from this file. They are not gone —
+> `git log -p tokens/decisions.md` and any commit before this one still hold
+> them in full, and the reasoning they carry has not been withdrawn. This note
+> exists because a log that silently begins on a Tuesday reads as though the
+> work did, and the dates are the part of this record that does the work.
+>
+> Two entries carried numbers this branch had already used, from a port off a
+> stale branch: the keyword-links entry and the pills/language entry are now
+> D-78 and D-79. The originals they collided with — D-52 on `type.control-size`
+> and D-54 on the instrument being part of the experiment — were dated before
+> the cut and left with the rest. `packages/ame-tokens/build.mjs` cites that
+> D-54; the citation now points into git history rather than into this file.
+
+## D-76 A layer-wide opacity is a ceiling, and it reverses D-nothing quietly
+
+2026-08-24. The wall's scrim carried opacity 0.8, recorded in its own comment as a
+deliberate choice: a fifth off the finished thing rather than a re-mix of eighteen
+stops. That reasoning was right about cost and wrong about consequence. An element at
+0.8 has a CEILING -- nothing drawn on it paints more than 80% of any colour, INCLUDING
+the stop that says 100%. So the foot of the wall stopped at four fifths of the page's
+own ground, and the last row was a cut rather than a dissolve.
+
+Eyeballing a screenshot said "the scrim is not painting at all", which was wrong; a
+magenta control proved the scrim covered the full 550px box. What settled it was
+sampling the pixels: the wall's bottom row read luma 43 against a ground of 19, and
+mottled to 67 wherever a bright tile ran into the edge. A LAYER THAT CANNOT REACH THE
+COLOUR BEHIND IT CANNOT DISSOLVE INTO IT -- and no adjustment to the ramp's shape can
+fix that, because the ceiling is applied after the ramp is drawn.
+
+The fix moves the fifth off the element and onto the stops, chosen so that nothing
+already tuned moves: every alpha is now the authored value times 0.8, so both ramps
+composite exactly as before, and the only stop that changes behaviour is the linear's
+last one, which reaches full ink at 98% and holds to the edge. Bottom row now reads 19
+across the width, the same as the ground below it.
+
+Two things to carry forward. Baking a constant into values makes those values no longer
+the authored ones, so the authored numbers are written into the comment beside them --
+otherwise the next relative change compounds against a scaled baseline (D-73). And
+where a composite has to REACH a specific colour rather than merely approach it, the
+opacity belongs in the stops, never on the element.
+
+## D-77 The tracking ramp could not cross zero, so no headline could be tightened
+
+2026-08-24. Ame's letter-spacing was checked against the ordinary typographic rule --
+tighten large type, leave body alone, open up small type and capitals -- and it failed
+at the top end for a structural reason rather than a taste one: every rung of
+font.tracking was non-negative, floored at `tightest: 0`. A ramp that cannot go below
+zero cannot tighten anything, so the 38px hero line ran at +0.04em and the 48px stat
+figures at +0.023em, both of which push a headline apart rather than pulling it
+together.
+
+The ramp already KNEW the rule. `tighter` was documented as "the larger the type, the
+less tracking it wants", and `tightest` as "at display sizes the letterforms already
+have enough air, and any positive tracking reads as the word coming apart". Both
+descriptions argue for negative values; both held positive ones. The floor was the
+whole defect, and it had been argued against in its own docstring.
+
+Swept at the base tier so every surface follows: tightest 0 -> -0.03, tighter
+0.02 -> -0.02, tight 0.04 -> 0.02, base 0.07 -> 0.02, caps 0.14 -> 0.08. body stayed
+at 0.05.
+
+TWO RUNGS COULD NOT SIMPLY BE SHIFTED, and the reason is worth keeping. `tight` is
+bound by a 38px display line AND by 13-15px labels -- its own description said "at any
+size" -- and those two want opposite signs. Taking a token negative would have tightened
+small text, which is the one place tracking must be positive. So the fix was not a value
+but a BINDING: the hero line was repointed from tight-tracking to hero-tracking, and
+hero-tracking from font.tracking.tight to font.tracking.tighter. One token per job, the
+way the file's own note about a wrong NAME propagating already argued.
+
+Same for `body`, which serves 18px prose and 12-15px labels. Its dominant use is the
+small end -- 123 rendered elements against 7 -- so it kept 0.05, which is correct there
+and 0.05 too wide for the prose. That gap is open, and closing it means splitting the
+token, not moving it.
+
+THE LARGEST NUMBER ON THE PAGE WAS TRACKED BY ACCIDENT. metric.tsx set no
+letter-spacing, and letter-spacing inherits as a computed LENGTH rather than as the em
+it was written in -- so a 48px figure inherited 1.12px from a 14px ancestor, which is
+0.08em of that ancestor and 0.023em of itself. It happened to land near a defensible
+value, which is exactly why it survived. It is now bound to the display rung.
+
+Measured after: 48px and 38.4px both at -0.02em, 24px at +0.02em, 12-15px between
++0.02 and +0.05em. Gate counters unchanged except H1, which fell 13 -> 12 because
+font.tracking.tighter had no consumer until the hero was repointed onto it -- the
+orphan-token count is a live reading, not a static list.
+
+Nothing is public, so nothing is urgent. Recorded now because the decision is
+cheapest before the repo is shared and irreversible after.
+
+## D-78 A résumé keyword links to its evidence, and KW1 stops the link going stale
+
+2026-08-25. On the owner's instruction to give each résumé keyword a link to an
+example, with the passage highlighted on arrival.
+
+**The survey came first, and it is the finding.** Thirty-nine keywords across
+five columns, checked against every published route. **Eighteen have a real
+example. Twenty-one do not.** Rather than link all thirty-nine and let two thirds
+point at pages that merely say the word, the map records both states and the
+surface renders them differently: a keyword with evidence is a link, a keyword
+without is plain text. An unbacked claim stated plainly is honest; an unbacked
+claim wearing a link is a promise of evidence that delivers a mirror, which is
+the failure the whole token contract exists to refuse, moved from values to
+claims.
+
+Some near-misses were rejected on purpose. **Next.js**, **Claude Code**,
+**Product Designer** and **4 Years** all "appear" on the portfolio — in the
+résumé grid itself. Linking a claim to its own restatement is circular, so they
+stay unlinked. **Figma** appears only as a term-sheet `stack=` value: a claim
+about a tool, not an example of using it. **Instrument** appears nowhere at all;
+its two apparent hits are the word "instrumented" describing a measurement
+method. **WCAG 2.2** is the painful one — the gate measures fifteen contrast
+pairs against 4.5:1 and 7:1 on every run, and none of it is published on any
+route, so the strongest unbacked claim in the grid is one the repo already proves
+privately.
+
+**The mechanism has no runtime.** `<Kw id="…">` wraps the passage and carries the
+id; the browser scrolls; `:target` rings it (`.kw-anchor`, app/globals.css).
+Nothing to hydrate, nothing to clean up, and a copied link works. The cost is
+that re-clicking the same link does not re-flash, which is a fair price.
+
+**A ring, not a background wash.** A wash would place text on a colour no C
+clause measures — exactly what CV1 exists to prevent — so the highlight is an
+outline, which changes no foreground pair and leaves the passage at the contrast
+it was proven at. Under `prefers-reduced-motion` the ring is held rather than
+animated: dropping it entirely would take the information from the readers most
+likely to need it. Timing composes two existing semantic motion tokens rather
+than introducing a third, and no base primitive is bound (U2).
+
+**KW1, so a keyword cannot outlive its evidence.** contract.md section KW,
+`invariants.json > keywords`, `checkKeywords` — one change, per CLAUDE.md. It
+resolves every declared link against the file it names: a `<Kw>` wrapper whose
+inner text must still contain the declared phrase, or a heading that must still
+exist in a generated page. It also checks the other direction, so an anchor no
+keyword claims fails too. Disconfirmed three ways before being believed —
+anchor deleted, evidence reworded inside the anchor, orphan anchor added — each
+producing the message naming what to do.
+
+Data in `lib/portfolio/keywords.json` with `keywords.ts` as its typed view: the
+split R-37 established for the component registry, for the same reason — a
+checker in Node and a component in TypeScript must read one file.
+
+**The check's stated reach.** KW1 proves the anchor is in the *source*. It does
+not prove the source rendered. Both were verified by hand this pass — all twelve
+`<Kw>` ids and all six heading ids are present in the built HTML — but that is a
+measurement, not a clause, and a component that silently dropped its children
+would pass KW1. Naming the gap rather than implying coverage; closing it means
+running the check against the emitted tree, which is what `--shipped` mode
+already does for G1.
+
+**Twenty-one keywords are now a content work list**, exported as
+`KEYWORDS_WITHOUT_EVIDENCE` rather than hidden. Publishing the gate's contrast
+table would close WCAG 2.2 outright.
+
+## D-79 The résumé keywords become pills, and the language switch gets one home
+
+2026-08-25.
+
+**The keywords are pills now, and the pill already existed.** `PortfolioExpertisePill`
+was the expertise section's earlier treatment and had been left mounted only in
+the `/ame` catalog. Rather than write a second pill, its `icon` and `tooltip`
+became optional: the services row gives every pill a glyph, and 39 résumé
+keywords would have needed 39 arbitrary ones when the label is already the
+content. A pill with no tooltip no longer claims the single-open slot in the
+tooltip coordinator, or hovering it would close the tooltip of the pill you were
+reading, and it only takes a pointer cursor when it has somewhere to go.
+
+The card's expertise variant now renders one `dd` per column holding a `ul` of
+pills, which is the honest wrapper: the label is the term, the pills are the one
+definition. The stack is even because a single `gap` sets every step rather than
+each item carrying its own margin.
+
+**A linked pill carries its reason.** The tooltip is the map's `because` — what
+the reader will find, said before the click rather than after it. An unlinked
+keyword is a pill with no href and no tooltip, because there is no example on a
+published route yet; KW1 keeps the linked half honest.
+
+**The language switch has one home.** The top bar's button held the whole
+mechanism inline: the cycle, the timings, the bounce, the
+`document.documentElement.lang` write. A mobile glass pill showing the same
+language would have been a second switch that agrees with the first exactly
+until one of them is edited. `hooks/use-language-cycle` is the switch;
+`components/portfolio/language-pill.tsx` is the glass treatment, and the top bar
+now reads the hook rather than its own copy. The timing constants moved with it —
+179.4 / 772.8 / 993.6 and the derivation comment that explains them — because two
+surfaces reading one number is the whole reason they are a constant.
+
+The bounce is applied to the label, not the glass. Scaling a `backdrop-filter`
+element re-rasterises the blur every frame and the edge crawls; scaling the text
+inside it leaves the glass still. Same motion, drawn where it is cheap — the
+reasoning of D-36, which grew `mask-size` rather than transforming the masked
+element.
+
+**Mobile: the viewer and its exit are one screen.** The phone filled the view and
+gave the reader no visible reason to keep going. `.port-work-screen` makes the
+card and a case-studies link a single viewport-tall block, the link pinned to its
+bottom by `margin-top: auto` and resting 40px clear of the fold. The 40px is
+clearance from the fold, not a gap under the card — a fixed margin would have set
+a gap and only accidentally matched on one phone. `svh` rather than `vh`, because
+a phone's dynamic toolbar makes `vh` taller than what is on screen, which would
+put the link under the fold on exactly the browsers this exists for.
+
+**The viewer's frame moved to CSS to be able to change at all.** A media query
+cannot reach an inline style. It stays expressed in LAYOUT, never
+`transform: scale()`: both the WebGL renderers and the CSS3D perspective are
+built from `clientWidth`/`clientHeight`, so a transform hands the renderer one
+size and paints another — the defect the card's own comment records measuring
+(offsetWidth 976 against a painted 1073.6). Mobile takes the desktop overscan
+10% further, 121%, which is the zoom: the card crops the same rectangle, so a
+larger box puts more pixels behind that crop. Centred rather than top-anchored,
+because on a short viewport a top anchor pushes the device's foot out of the
+crop; at 121% the transparent top edge sits 10.5% clear of the card, so the
+anchor was buying nothing.
+
+**One thing caught in the writing.** The case-studies link was first pointed at
+`#work-case-studies`, an id that does not exist — a dangling anchor, in the same
+session that built KW1 to forbid exactly that. The real id is `#case-studies`.
+KW1 does not cover in-page hrefs on the portfolio surface, only keyword links
+into content, so nothing would have caught it. Worth knowing that the clause's
+reach stops there.
+
+H1 fell 16 → 15: the link binds `space.control-pad`, which had no client. The
+baseline moved down in the change that earned it (X1).
+
+## D-80 The resume is a legal-shell document, and the legal area drops the subnav
+
+2026-08-25
+
+**It lives in `content/legal/` and it is not a legal document.** The directory
+is where the loader with `baseUrl: '/portfolio'` reads from, and that loader is
+what puts a page at `/portfolio/<slug>`. Adding a third source for one page
+would mean a second copy of the shell decision, the chrome mapping and the
+route layout, to gain a directory name that reads better. The name describes
+the route group it serves, not a claim about the contents. If a third
+non-legal page arrives, rename the directory rather than duplicating the
+loader.
+
+**The download button is the home CTA's shape and not its colours.** Same
+filled pill, same height, same shimmer, a download icon in place of the arrow.
+The hero CTA binds the on-dark pair because it sits on the wall panel, which is
+dark in both themes; this page takes the page background, so the pill binds
+`text-body` on `background-page` -- the pair the Github button already uses. A
+straight copy would have been white-on-white in light mode.
+
+**The legal area makes the opposite mobile trade from the case studies.** Both
+had two header rows on a phone, roughly 110px before a word of the article. On
+a case study the subnav is worth keeping: it holds the search and the toggle
+for a sidebar that is a tree of pages. A legal page has one document, its
+sidebar is already hidden and inert, so the toggle opens nothing and the search
+leaves the page it was opened from. So the band stays and the subnav goes --
+`display: none`, not opacity, because unlike the sidebar this row holds no
+column open, and a duplicate mark should leave the tab order too. Below md
+only; above it neither rule applies.
+
+**RESUME_URL stays `[[RESUME_URL]]` and G1 keeps blocking it.** The button
+should point at a file and there is no file. A placeholder that fails the gate
+is the honest state, and reading it from `lib/portfolio/contact` means the day
+the file exists, one edit moves this button and the two Resume links that
+already bind the same token.
+
+**Flagged, then decided the same day: both links point at the page.** "Resume"
+means two things here and they are not interchangeable, so there are now two
+constants. `RESUME_PAGE` is where a reader goes to READ it; `RESUME_URL` is the
+file they take AWAY. A link labelled Resume goes to the page -- it resolves
+today, it carries the site's chrome, and the download button lives on it -- and
+the download button is the only thing that still reads the file token. G1 is
+therefore blocking exactly one thing, and it is the thing that is genuinely
+missing.
+
+## D-81 Scope is a property of the clause, so extraction stops being surgery
+
+2026-08-25. Replaces the manifest-plus-overlay plan, which treated the symptom.
+
+**What the 35 violations were saying.** Extracting the package twice produced,
+both times, a list of clauses with no subject in the copy — and the second list
+was longer and harder than the first, because the contract had grown 17 clauses
+in a month. Each pass ended in judgment: is the resolver check Ame's? yes; is
+the recipe-to-element mapping Ame's? no, its elements are this app's components.
+Those are two clauses in one invariants block, and telling them apart was a
+decision taken under time pressure with a checker open.
+
+That is not sync friction. It is the contract not knowing it governs two
+products. A process that recurs, worsens with scale, and puts the repo's central
+claim at risk each time is one to close rather than to schedule.
+
+**Every clause declares its subject.** `census.clauses[id].scope` is `package`
+or `portfolio`; `package` means "runs everywhere", so a clause governing both
+takes it. 37 package, 10 portfolio. A portfolio-scoped clause must also say why,
+because `portfolio` is the claim that something does NOT belong to the published
+product, and that is the half worth having to argue.
+
+**The package declares what it is made of.** `package_manifest.paths`, read by
+two things that must agree: the extraction copies it, and the gate filters every
+scan root through it. A root outside the manifest is OUT OF SCOPE, not MISSING —
+the distinction X2 exists to keep, so "the app is not here" and "something that
+should be here is gone" remain different answers.
+
+The filter substitutes rather than admits: a clause scanning `components` in
+this repo scans `components/ame` in the package, because admitting the parent on
+account of a listed child would walk the portfolio and report its files as the
+package's.
+
+**Extraction is now selection.** `node tokens/extract.mjs --out <dir> --verify`
+copies the manifest, writes the package's own `package.json` and CI workflow —
+written, not copied, because the monorepo's name scripts the package has no
+subject for and W1 would rightly fail on every one — then installs from clean
+and runs `gate --scope package`. One instrument judges the output and it is not
+the script: the extracted tree passes its own gate, or the run fails and prints
+the violations, each of which is a one-line fix in `invariants.json`.
+
+**A skipped clause is reported, never passed.** The run prints what it did not
+ask, so silence cannot be mistaken for a green light.
+
+**Two baselines, because a drift count measures a tree.** The package has 116
+clientless tokens against this repo's 15, since the surfaces that consume them
+are the application. Judging the package against the app's numbers would fail it
+for being itself; lowering the app's to suit would blind this repo. Package
+scope reads `baseline.package.json`, and X1's rule holds on each independently.
+
+**The regression class, not the instance.** `packages/ame-tokens/package.json`
+said `UNLICENSED` while the root LICENSE said MIT — fixed downstream during the
+first extraction and re-broken by the second copy, because the source was never
+changed. It is MIT here now, so no copy can carry the contradiction again.
+
+**Enforced where it is written.** `tests/clause-scope.test.ts` fails a clause
+added without a scope, on the run that adds it, rather than leaving it to
+surface as a mystery violation at the next sync. It is a test and not a clause
+because the gate reads scope to decide what to run, and a clause reading scope
+to police scope would ask the mechanism to validate itself.
+
+**Named gaps, not silent ones.** `examples/` and `tokens/gate-fixtures.mjs` are
+in the published package but not in this tree — they were built during the first
+extraction and never came back upstream. The manifest states what exists, so
+they are absent from it and recorded in `package_manifest.$gap`; porting them
+back is one line here once they land. Nothing has been pushed to `ame/main`: the
+merge condition is a green fresh-clone run, and that is a CI job on a branch of
+the standalone rather than a local claim.
+
+## D-82 The fixtures come home, and the extraction carries them
+
+2026-08-25. Closes the gap D-81 named rather than leaving it recorded.
+
+`examples/` and `tokens/gate-fixtures.mjs` were built during the first
+extraction and never came back upstream. Two consequences, and the second is the
+worse one: this repo had no disconfirming world, so every clause here was proven
+only in the direction that passes; and the manifest could not name them, so the
+next sync would have deleted them from the package. A gap that deletes evidence
+on the next run of the thing that found it is not a gap to record.
+
+**Adapted, not copied.** The fixtures bound unprefixed names; this branch emits
+`--ame-*`. Every token they name still exists here and `--ame-color-ink` is still
+base-tier, so the violating fixture still trips U1 and U2 for the reason it was
+written to.
+
+**FX1 enters all three homes in one change**, and its census record is
+`structural` on purpose. `check.mjs --fixtures` only widens a scan list; the
+inversion lives in `gate-fixtures.mjs`. A `checkFixtures()` inside the gate would
+be a mode in which the gate failing is the gate succeeding, which is the one
+thing it must not have — Z1 was right to refuse the first record that named one.
+
+**Two lists, because the clauses read roots two ways.** A walker takes a
+directory and descends it; D1 and D2 open a stylesheet and read it. Handing a
+directory to the second is exactly how the first attempt failed, so
+`scan_extends` and `file_extends` are declared rather than inferred from whether
+a path has a dot in it.
+
+**The evidence must name the fixture.** The runner's D2 check accepted any
+restated line, and this tree carries restated values of its own — so the run
+passed while the thing it exists to demonstrate went uncaught. It now requires
+the line to name `examples/violating`. Found by reading the output rather than
+the exit code, which is the whole argument for printing the evidence.
+
+Disconfirmed before believed: neutering the fixture fails the run on U2, CV1 and
+the missing evidence line. `extract --verify` runs both halves now, so the local
+proof and the CI proof are the same proof.

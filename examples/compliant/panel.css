@@ -14,20 +14,20 @@
 
 .example-panel {
   /* text.body on background.page is contrast pair C1, measured at 18.60:1. */
-  color: var(--text-body);
-  background: var(--background-page);
+  color: var(--ame-text-body);
+  background: var(--ame-background-page);
 
   /* The shadow recipe has one home. This binds it; it does not restate it. */
-  box-shadow: var(--elevation-glass-drop);
+  box-shadow: var(--ame-elevation-glass-drop);
 
-  border-radius: var(--component-card-radius);
-  padding: var(--space-control-pad);
-  transition: box-shadow var(--motion-card-duration) var(--motion-enter-ease);
+  border-radius: var(--ame-component-card-radius);
+  padding: var(--ame-space-control-pad);
+  transition: box-shadow var(--ame-motion-card-duration) var(--ame-motion-enter-ease);
 }
 
 .example-panel__label {
   /* No background is set here, so this states no pair for CV1 to measure. */
-  color: var(--text-secondary);
-  font-size: var(--type-meta-size);
-  letter-spacing: var(--type-meta-tracking);
+  color: var(--ame-text-secondary);
+  font-size: var(--ame-type-meta-size);
+  letter-spacing: var(--ame-type-meta-tracking);
 }

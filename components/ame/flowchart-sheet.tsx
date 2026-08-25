@@ -14,37 +14,12 @@ import { FLOWCHART_PRESETS } from './flowchart-presets'
   docs theme. SVG colours are set through `style` (not the fill/stroke attributes) so
   the token var()s resolve — a var() in an SVG presentation attribute would not.
 
-  Symbol vocabulary — the implemented subset of ISO 5807:1985, each with the
-  clause that defines it. The subset is stated rather than implied: the standard
-  is larger than this, and a component claiming "ISO 5807" while drawing three
-  shapes would promise more than it does (STANDARD.md N6).
-
-    process         9.2.1     a defined operation
-    predefined      9.2.2.1   an operation defined elsewhere (a named sub-process)
-    manual-input    9.1.2.5   data supplied by a person at the time of processing
-    preparation     9.2.2.3   setting up for what follows — targets, thresholds
-    decision        9.2.2.4   one entry, several mutually exclusive exits
-    document        9.1.2.4   a human-readable record
-    terminator      9.4       entry to, or exit from, the flow
-
-  Lines: solid flow line 9.3.1, dashed line 9.3.2.3 (used for a feedback return,
-  which carries control back rather than forward).
-
-  Geometry follows the operator's own ISO 5807 reference implementation in
-  `Process Standardization/HCD Standards/Metis UX_iso5807_charts.py`, so the two
-  drawings of the same standard cannot disagree about what a symbol looks like.
+  Node types: "terminator" | "process" | "decision".
 */
 
 // ---- Types --------------------------------------------------------------
 
-type NodeType =
-  | 'terminator'
-  | 'process'
-  | 'decision'
-  | 'predefined'
-  | 'manual-input'
-  | 'preparation'
-  | 'document'
+type NodeType = 'terminator' | 'process' | 'decision'
 
 export type FlowNode = {
   id: string
@@ -69,8 +44,6 @@ export type FlowEdge = {
   accent?: boolean
   label?: string
   labelAt?: [number, number]
-  /** ISO 5807 9.3.2.3. A feedback return: control going back, not forward. */
-  dashed?: boolean
 }
 
 export type FlowAnnotation = {
@@ -114,21 +87,21 @@ const defaultTheme: FlowchartTheme = {
   // The adaptive --port-* aliases, so the sheet tracks the docs theme: the ink is the
   // same colour as the running paragraph text (white on dark, ink on light), and the
   // paper flips with it so the two always contrast.
-  ink: 'var(--port-text-primary)',
-  accent: 'var(--port-brand)',
-  muted: 'var(--port-text-secondary)',
-  subtle: 'var(--port-text-secondary)',
-  paper: 'var(--port-page-bg)',
-  gridLine: 'color-mix(in oklab, var(--port-text-primary) 8%, transparent)',
+  ink: 'var(--ame-text-body)',
+  accent: 'var(--ame-text-brand)',
+  muted: 'var(--ame-text-secondary)',
+  subtle: 'var(--ame-text-secondary)',
+  paper: 'var(--ame-background-page)',
+  gridLine: 'color-mix(in oklab, var(--ame-text-body) 8%, transparent)',
   // The iPhone viewer card's edge: rgba(255,255,255,0.15), here as the adaptive mix.
-  border: 'color-mix(in oklab, var(--port-text-primary) 15%, transparent)',
-  page: 'color-mix(in oklab, var(--port-text-primary) 4%, transparent)',
-  surface: 'var(--port-page-bg)',
+  border: 'color-mix(in oklab, var(--ame-text-body) 15%, transparent)',
+  page: 'color-mix(in oklab, var(--ame-text-body) 4%, transparent)',
+  surface: 'var(--ame-background-page)',
   // The iPhone viewer card's dot: rgba(255,255,255,0.36) at 0.61px on a 16px tile,
   // here as the adaptive mix so it tracks the surface.
-  dot: 'color-mix(in oklab, var(--port-text-primary) 36%, transparent)',
-  radius: 'var(--component-card-radius)',
-  fontSans: 'var(--font-port-sans)',
+  dot: 'color-mix(in oklab, var(--ame-text-body) 36%, transparent)',
+  radius: 'var(--ame-component-card-radius)',
+  fontSans: 'var(--ame-type-font-body)',
   fontMono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
 }
 
@@ -177,12 +150,12 @@ const defaultData: FlowchartData = {
 
 // ---- Synthesized bold: the eyebrow's weight ------------------------------
 // The Neue Haas cuts have no bold axis, so the docs synthesize weight with a
-// stroke on the 400 face (--port-header-stroke), painted under the fill — the
+// stroke on the 400 face (--ame-type-heading-synthesis), painted under the fill — the
 // same custom thickness the ame eyebrows and headings use. Diagram bold matches
 // it rather than reaching for a heavier numeric weight.
 const synthBold: CSSProperties = {
   fontWeight: 400,
-  WebkitTextStroke: 'var(--port-header-stroke) currentColor',
+  WebkitTextStroke: 'var(--ame-type-heading-synthesis) currentColor',
   paintOrder: 'stroke fill',
 }
 
@@ -195,60 +168,28 @@ function NodeShape({ node, theme, fill }: { node: FlowNode; theme: FlowchartThem
   const sw = node.accent ? (node.type === 'terminator' ? 2.5 : 2) : 1
   const shapeStyle: CSSProperties = { fill, stroke, strokeWidth: sw }
 
-  const { x, y, w, h } = node
-  const cx = x + w / 2
-  const cy = y + h / 2
-
   if (node.type === 'terminator') {
-    return <rect x={x} y={y} width={w} height={h} rx={h / 2} style={shapeStyle} />
+    return <rect x={node.x} y={node.y} width={node.w} height={node.h} rx={node.h / 2} style={shapeStyle} />
   }
   if (node.type === 'decision') {
-    return <polygon points={`${cx},${y} ${x + w},${cy} ${cx},${y + h} ${x},${cy}`} style={shapeStyle} />
-  }
-  // 9.2.2.3 preparation — a hexagon. The corner inset is a fixed bevel, not a
-  // ratio, so a wide node stays a hexagon instead of collapsing to a diamond.
-  if (node.type === 'preparation') {
-    const c = Math.min(18, w / 4)
-    const pts = `${x + c},${y} ${x + w - c},${y} ${x + w},${cy} ${x + w - c},${y + h} ${x + c},${y + h} ${x},${cy}`
+    const cx = node.x + node.w / 2
+    const cy = node.y + node.h / 2
+    const pts = `${cx},${node.y} ${node.x + node.w},${cy} ${cx},${node.y + node.h} ${node.x},${cy}`
     return <polygon points={pts} style={shapeStyle} />
   }
-  // 9.1.2.5 manual input — the top edge slopes down to the left.
-  if (node.type === 'manual-input') {
-    const s = Math.min(13, h / 4)
-    return <polygon points={`${x},${y + s} ${x + w},${y} ${x + w},${y + h} ${x},${y + h}`} style={shapeStyle} />
-  }
-  // 9.1.2.4 document — a rectangle whose lower edge is a wave.
-  if (node.type === 'document') {
-    const d =
-      `M ${x},${y} L ${x + w},${y} L ${x + w},${y + h - 8} ` +
-      `C ${x + w - w * 0.28},${y + h - 22} ${x + w * 0.3},${y + h + 12} ${x},${y + h - 4} Z`
-    return <path d={d} style={shapeStyle} />
-  }
-  // 9.2.2.1 predefined process — a process with a bar inside each vertical edge.
-  if (node.type === 'predefined') {
-    return (
-      <>
-        <rect x={x} y={y} width={w} height={h} style={shapeStyle} />
-        <line x1={x + 7} y1={y} x2={x + 7} y2={y + h} style={{ stroke, strokeWidth: sw }} />
-        <line x1={x + w - 7} y1={y} x2={x + w - 7} y2={y + h} style={{ stroke, strokeWidth: sw }} />
-      </>
-    )
-  }
-  // 9.2.1 process.
-  return <rect x={x} y={y} width={w} height={h} style={shapeStyle} />
+  return <rect x={node.x} y={node.y} width={node.w} height={node.h} style={shapeStyle} />
 }
 
 function Edge({ edge, theme }: { edge: FlowEdge; theme: FlowchartTheme }) {
   const stroke = edge.accent ? theme.accent : theme.muted
   const sw = edge.accent ? 1.5 : 1
   const marker = edge.accent ? 'url(#fc-arr-accent)' : 'url(#fc-arr)'
-  const dash = edge.dashed ? '6 5' : undefined
   if (edge.via && edge.via.length) {
     const pts = [edge.from, ...edge.via, edge.to].map((p) => p.join(',')).join(' ')
-    return <polyline points={pts} markerEnd={marker} strokeDasharray={dash} style={{ fill: 'none', stroke, strokeWidth: sw }} />
+    return <polyline points={pts} markerEnd={marker} style={{ fill: 'none', stroke, strokeWidth: sw }} />
   }
   return (
-    <line x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} markerEnd={marker} strokeDasharray={dash} style={{ stroke, strokeWidth: sw }} />
+    <line x1={edge.from[0]} y1={edge.from[1]} x2={edge.to[0]} y2={edge.to[1]} markerEnd={marker} style={{ stroke, strokeWidth: sw }} />
   )
 }
 
@@ -308,25 +249,9 @@ function vocabSpecimens(view: VocabView, theme: FlowchartTheme): Specimen[] {
 
   if (view === 'legend') {
     return [
-      { label: 'Terminator · 9.4', node: <rect x={4} y={12} width={72} height={24} rx={12} style={ink} /> },
-      { label: 'Process · 9.2.1', node: <rect x={4} y={12} width={72} height={24} style={ink} /> },
-      {
-        label: 'Predefined · 9.2.2.1',
-        node: (
-          <>
-            <rect x={4} y={12} width={72} height={24} style={ink} />
-            <line x1={11} y1={12} x2={11} y2={36} style={ink} />
-            <line x1={69} y1={12} x2={69} y2={36} style={ink} />
-          </>
-        ),
-      },
-      { label: 'Decision · 9.2.2.4', node: <polygon points="40,8 76,24 40,40 4,24" style={ink} /> },
-      { label: 'Preparation · 9.2.2.3', node: <polygon points="18,12 62,12 76,24 62,36 18,36 4,24" style={ink} /> },
-      { label: 'Manual input · 9.1.2.5', node: <polygon points="4,17 76,12 76,36 4,36" style={ink} /> },
-      {
-        label: 'Document · 9.1.2.4',
-        node: <path d="M 4,12 L 76,12 L 76,30 C 56,26 24,40 4,33 Z" style={ink} />,
-      },
+      { label: 'Terminator', node: <rect x={4} y={12} width={72} height={24} rx={12} style={ink} /> },
+      { label: 'Process', node: <rect x={4} y={12} width={72} height={24} style={ink} /> },
+      { label: 'Decision', node: <polygon points="40,8 76,24 40,40 4,24" style={ink} /> },
       {
         label: 'Annotation',
         node: (
@@ -340,9 +265,8 @@ function vocabSpecimens(view: VocabView, theme: FlowchartTheme): Specimen[] {
   }
   if (view === 'lines') {
     return [
-      { label: 'Flow line · 9.3.1', node: <line x1={6} y1={24} x2={74} y2={24} style={ink} /> },
+      { label: 'Flow line', node: <line x1={6} y1={24} x2={74} y2={24} style={ink} /> },
       { label: 'Accent path', node: <polyline points="6,12 40,12 40,36 74,36" style={accent} /> },
-      { label: 'Feedback · 9.3.2.3', node: <line x1={6} y1={24} x2={74} y2={24} strokeDasharray="6 5" style={ink} /> },
       { label: 'Leader', node: <line x1={6} y1={24} x2={74} y2={24} strokeDasharray="4 4" style={muted} /> },
     ]
   }
@@ -479,6 +403,8 @@ export function FlowchartSheet({
   header = false,
   legend = true,
   transparent = false,
+  expand = true,
+  dots: showDots = true,
 }: {
   data?: FlowchartData
   /** Name of a worked-example dataset in flowchart-presets. Ignored when `data` is passed. */
@@ -493,6 +419,12 @@ export function FlowchartSheet({
   header?: boolean
   /** The ISO symbol legend footer. */
   legend?: boolean
+  /** The sheet's own dot field. Off where the page already draws one, so the two do
+   * not stack into a moire and the sheet's box stops having a visible edge. */
+  dots?: boolean
+  /** The mobile Expand link out to the full-screen view. Off inside that view itself,
+   * which would otherwise offer a link to the page the reader is already on. */
+  expand?: boolean
   /** Drop the paper fill, border and shadow: the grid shows on a transparent ground, node fills go clear, and the sheet scales to fit rather than scrolling. */
   transparent?: boolean
 } = {}) {
@@ -514,14 +446,39 @@ export function FlowchartSheet({
         color: theme.ink,
       }}
     >
+      {/*
+        EXPAND, on a phone only, and only when the sheet knows which preset it is.
+
+        These are drawn at 1180px. In an article column on a 390px screen that is a
+        third of the width they were laid out for, and the node labels stop being
+        readable before the shapes do — the diagram is still THERE, which is what
+        makes it easy to miss that it can no longer be read.
+
+        A preset is what gives the full view a URL, so a sheet passed inline `data`
+        gets no button rather than a link to a page that cannot exist. New tab: the
+        reader keeps their place in the study, and can leave the diagram open beside
+        it.
+      */}
+      {preset && expand && (
+        <a
+          href={`/portfolio/diagram/${preset}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="port-diagram-expand md:hidden"
+        >
+          Expand
+          <span aria-hidden="true"> ↗</span>
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      )}
       <style>{`
         .fc-screen-node .fc-screen-preview {
           opacity: 0;
           transform: translateX(-50%) translateY(10px) scale(0.96);
           transform-origin: 50% 100%;
           pointer-events: none;
-          transition: opacity var(--motion-card-duration, 220ms) var(--motion-enter-ease, ease),
-                      transform var(--motion-card-duration, 220ms) var(--motion-enter-ease, ease);
+          transition: opacity var(--ame-motion-card-duration, 220ms) var(--ame-motion-enter-ease, ease),
+                      transform var(--ame-motion-card-duration, 220ms) var(--ame-motion-enter-ease, ease);
         }
         .fc-screen-node:has(.fc-node-hit:hover) .fc-screen-preview { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
       `}</style>
@@ -533,7 +490,7 @@ export function FlowchartSheet({
           border: transparent ? 'none' : `1px solid ${theme.border}`,
           overflow: 'hidden',
           padding: transparent ? 0 : '20px 24px',
-          backgroundImage: dots,
+          backgroundImage: showDots ? dots : undefined,
           backgroundSize: '16px 16px',
         }}
       >
@@ -669,7 +626,23 @@ export function FlowchartSheet({
       </div>
 
       {/* Symbol legend: outside and under the sheet, centred, symbols only. */}
-      {legend && (
+      {legend && <FlowchartLegend theme={theme} />}
+    </div>
+  )
+}
+
+/*
+  The ISO symbol key, as its own component because it now has two callers: under
+  the sheet in an article, and pinned beside the controls in the full-screen view,
+  where it must NOT ride the pan and zoom — a key that scrolls off the moment the
+  reader moves the drawing is a key at exactly the wrong moment.
+
+  One definition rather than two that resemble each other. A second copy would
+  drift the first time a symbol is added, and the thing it documents is the
+  vocabulary the diagrams are drawn in.
+*/
+export function FlowchartLegend({ theme = defaultTheme }: { theme?: FlowchartTheme } = {}) {
+  return (
         <div
           style={{
             display: 'flex',
@@ -698,7 +671,5 @@ export function FlowchartSheet({
             <polyline points="12,2 5,2 5,16 12,16" style={{ fill: 'none', stroke: theme.muted, strokeWidth: 1.2 }} />
           </LegendItem>
         </div>
-      )}
-    </div>
   )
 }

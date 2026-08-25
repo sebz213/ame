@@ -1,9 +1,8 @@
 # Outcomes
 
-Numbers. Measured by `node tokens/check.mjs` on 2026-08-10 (the script that
-command ran; it was named `pnpm tokens:check` then and `pnpm gate` since
-2026-08-24, D-47). The conditions that produced them are in `contract.md`; why
-they are what they are is in `decisions.md`.
+Numbers. Measured by `pnpm tokens:check` on 2026-08-10. The conditions that
+produced them are in `contract.md`; why they are what they are is in
+`decisions.md`.
 
 Every number below is the gate's own output, re-read on the measuring date. The
 census had drifted before this pass — it reported 216 tokens, H1 32, and S2 34
@@ -84,8 +83,8 @@ U1's 0 is a stronger claim this pass than last. The tripwire always read `.ts` a
 `.tsx`, but only under `app/(portfolio)` and `components/portfolio`, so the `/ame`
 area was a surface it did not watch. Widened to the `/ame` tree, `components/docs-ui`,
 `components/mdx`, `content`, `lib`, and `hooks` (and to `.mdx`), it found 5 base
-primitives bound through inline `style` — `--color-ink`, `--radius-pill`,
-`--duration-slow`, `--font-size-13` in `nav.tsx`, `--font-leading-relaxed` in
+primitives bound through inline `style` — `--ame-color-ink`, `--ame-radius-pill`,
+`--ame-duration-slow`, `--ame-font-size-13` in `nav.tsx`, `--ame-font-leading-relaxed` in
 `footer.tsx`. Each was repointed at the role holding its value, so 0 is measured
 across the wider scope rather than preserved by a baseline (R-70). `components/ui`
 stays out as vendored (R-8) and `app/prototypes` as deliberately outside the token
@@ -107,7 +106,7 @@ scope (R-66); both are named in `invariants.json` rather than quietly absent.
 - **`type.meta-tracking`, `border.subtle`, and `space.control-pad`.**
 
 `component.pill.radius` left this list in the current pass: `nav.tsx` had been
-reading the base `--radius-pill` directly, so binding the component role removed a
+reading the base `--ame-radius-pill` directly, so binding the component role removed a
 base-tier read and a clientless clause with one edit. That is the same mechanism
 the 47-to-35 move used, where five tokens were clientless *because* the surface
 restated their value by hand. A clientless token and a raw base binding are often

@@ -1,0 +1,8 @@
+{
+  "recipe": {
+    "expertise-card": {
+      "$description": "From the large breakpoint up: the full five-up the home's skill lists are written for.",
+      "list": { "columns": { "$type": "number", "$value": 5 } }
+    }
+  }
+}

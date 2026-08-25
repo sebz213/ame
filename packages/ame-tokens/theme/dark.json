@@ -1,0 +1,28 @@
+{
+  "$description": "The dark theme, as a resolver context. Every token here is one this system already declares; the context re-points it at a different base primitive for the duration of the dark scope, which is what theming is. Nothing is renamed and no suffix convention is involved: a third theme is another file beside this one, sourced by another context of the same modifier, overriding whichever of these it disagrees with. Each override references BASE, exactly as the light value does (L2), so the layering reads the same in both contexts.",
+  "background": {
+    "page": {
+      "$value": "{color.ink}",
+      "$description": "The page ground goes to ink."
+    }
+  },
+  "text": {
+    "heading": {
+      "$value": "{color.white}"
+    },
+    "body": {
+      "$value": "{color.white}"
+    },
+    "secondary": {
+      "$value": "{color.slate-400}"
+    },
+    "quote": {
+      "$value": "{color.white-alpha.78}"
+    }
+  },
+  "status": {
+    "shipped-fg": {
+      "$value": "{color.success-fg-on-dark}"
+    }
+  }
+}

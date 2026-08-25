@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "If you reference the Ame design token system, please cite it as below."
-title: "Ame: a design token system with an enforcement gate"
+message: "If you reference this portfolio or the Ame design token system, please cite it as below."
+title: "Ame: a portfolio and the design system that ships it"
 authors:
   - family-names: Chery
     given-names: Sebastien

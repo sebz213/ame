@@ -1,0 +1,23 @@
+{
+  "$description": "Measured drift counts for the PACKAGE, read when the gate runs with --scope package. The monorepo's numbers are in baseline.json and are not comparable: this repo has an application binding the tokens, the package has demo chrome and fixtures, so H1 is properly larger here and the S-counts properly smaller. Judging the package against the app's numbers would fail it for being itself. X1's rule applies to each file independently — a number only moves down, in the change that earned it, with that run in runs.log.",
+  "$measured": "2026-08-25",
+  "$measured_by": "node tokens/extract.mjs --out <dir> --verify, then node tokens/check.mjs --scope package in the extracted tree",
+  "$H1_because": "116 of the system's tokens have no consumer inside the package, because the surfaces that consume them are the application and the application does not travel. That is a fact about the extraction rather than about the tokens, and the ratchet holds it from growing. It falls when the package grows consumers — an example that binds a role is the cheapest kind.",
+  "D2": 0,
+  "D3": 10,
+  "S1": 0,
+  "S2": 0,
+  "S3": 0,
+  "S4": 0,
+  "S5": 0,
+  "S6": 0,
+  "S7": 0,
+  "S8": 0,
+  "S9": 0,
+  "S10": 0,
+  "S11": 0,
+  "S12": 0,
+  "U1": 0,
+  "H1": 116,
+  "Z4": 5
+}

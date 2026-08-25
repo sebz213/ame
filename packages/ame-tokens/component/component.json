@@ -2,96 +2,266 @@
   "$description": "Component layer, namespaced so it cannot collide with base or semantic keys. Colour, duration, and easing are always references to semantic. Per-component measures are declared here as literals, because a measure used by exactly one element has no shared scale to sit on; that permission is stated in contract.md > Invariant L3 and checked.",
   "component": {
     "glass": {
-      "blur": { "$type": "dimension", "$value": "{surface.glass-blur}" },
-      "saturate": { "$type": "number", "$value": "{surface.glass-saturate}" },
-      "edge": { "$type": "shadow", "$value": "{elevation.glass-edge}" },
-      "edge-light": { "$type": "shadow", "$value": "{elevation.glass-edge-light}" },
-      "edge-on-dark": { "$type": "shadow", "$value": "{elevation.glass-edge-on-dark}" },
-      "edge-light-on-dark": { "$type": "shadow", "$value": "{elevation.glass-edge-light-on-dark}" },
-      "drop": { "$type": "shadow", "$value": "{elevation.glass-drop}" },
-      "drop-on-dark": { "$type": "shadow", "$value": "{elevation.glass-drop-on-dark}" },
-      "fill-opaque": { "$type": "color", "$value": "{surface.glass-fill-opaque-on-light}" },
-      "fill-opaque-on-dark": { "$type": "color", "$value": "{surface.glass-fill-opaque-on-dark}" }
+      "blur": {
+        "$type": "dimension",
+        "$value": "{surface.glass-blur}"
+      },
+      "saturate": {
+        "$type": "number",
+        "$value": "{surface.glass-saturate}"
+      },
+      "edge": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-edge}"
+      },
+      "edge-light": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-edge-light}"
+      },
+      "edge-on-dark": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-edge-on-dark}"
+      },
+      "edge-light-on-dark": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-edge-light-on-dark}"
+      },
+      "drop": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-drop}"
+      },
+      "drop-on-dark": {
+        "$type": "shadow",
+        "$value": "{elevation.glass-drop-on-dark}"
+      },
+      "fill-opaque": {
+        "$type": "color",
+        "$value": "{surface.glass-fill-opaque-on-light}"
+      },
+      "fill-opaque-ground": {
+        "$type": "color",
+        "$value": "{surface.glass-fill-opaque-on-light-ground}"
+      },
+      "fill-opaque-on-dark": {
+        "$type": "color",
+        "$value": "{surface.glass-fill-opaque-on-dark}"
+      },
+      "fill-opaque-on-dark-ground": {
+        "$type": "color",
+        "$value": "{surface.glass-fill-opaque-on-dark-ground}"
+      }
     },
-
+    "footer-logo": {
+      "scale": {
+        "$type": "number",
+        "$value": 0.72,
+        "$description": "The footer mark's size as a fraction of the header's. 0.72 - a tenth smaller, then a fifth smaller again. It is a ratio rather than a height so the two marks cannot drift: component.header-logo.height stays the only measurement, and if it moves the footer's moves with it. The previous form was a standalone 1.875rem, a second number describing the same mark."
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": { "value": 2.25, "unit": "rem" },
+        "$description": "The space around the footer mark: above it from the rule, and below it to the directory. 36px, one token for both so the mark stays centred between them. It replaces the section-gap the logo block carried by default: 3.5rem separates blocks of content, and a mark and the directory it sits over are one block, not two."
+      }
+    },
+    "docs-footer": {
+      "gap": {
+        "$type": "dimension",
+        "$value": { "value": 6.25, "unit": "rem" },
+        "$description": "The gap above the site footer on the case-study docs pages. 100px, which is not a step on the space scale and is deliberate: the scale's largest is section-gap at 3.5rem, which separates blocks WITHIN a document, and this separates the document from the site chrome below it. Naming it here rather than writing 100px into the shell keeps a surface from stating a raw measurement, and gives the next area that mounts a footer the same number to bind."
+      }
+    },
+    "dot-grid": {
+      "$description": "THE DOT GRID, WITH ONE HOME. Two surfaces paint it: the Metis marketing panel and the Ame case study's hero. It existed as a raw rgba literal in the marketing route, which is the value with no name this whole system exists to stop \u2014 and the second surface is where that stops being a nitpick and becomes two grids that drift apart. Declared here, both bind the same three numbers and neither can restate them.",
+      "fg": {
+        "$type": "color",
+        "$value": "{color.white-alpha.36}",
+        "$description": "The dot. White at low alpha so the grid reads on ink without becoming a texture that competes with what stands on it."
+      },
+      "dot": {
+        "$type": "dimension",
+        "$value": { "value": 0.61, "unit": "px" },
+        "$description": "The dot's radius. Sub-pixel on purpose: at 1px the grid reads as a texture, and the point is that it reads as a ground."
+      },
+      "cell": {
+        "$type": "dimension",
+        "$value": { "value": 16, "unit": "px" },
+        "$description": "The grid pitch."
+      }
+    },
+    "a11y-hero": {
+      "height": {
+        "$type": "dimension",
+        "$value": { "value": 32, "unit": "rem" },
+        "$description": "The accessibility panel hero's box. Taller than the nav hero's 22rem because it holds the panel \u2014 360px wide, a header and eight controls \u2014 with room around it. The figure shows the panel at three-quarter scale, applied with `zoom` so every dimension inside it scales together rather than a transform, which would kill the panel's backdrop-filter; the component's own source makes the same point where it explains why the real panel is centred with a negative margin. The box does not shrink with it: a smaller panel in the same frame is the point, and shrinking both would show no change at all."
+      }
+    },
+    "nav-hero": {
+      "$description": "The hero on the navigation spec page: a moving gradient with the live nav centred in it. Its colours are tokens rather than the literals the original pen used, because a surface stating a hex is the violation this page documents, and a doc that broke its own rule in its own hero would be the loudest possible place to do it.",
+      "tint": {
+        "$type": "color",
+        "$value": "{color.brand}",
+        "$description": "The lit end of the gradient. The brand hue, so the hero re-tones when the brand does."
+      },
+      "ground": {
+        "$type": "color",
+        "$value": "{color.ink}",
+        "$description": "The dark end. Ink, the system's only dark pigment, so the hero ends where every other dark surface starts."
+      },
+      "cycle": {
+        "$type": "duration",
+        "$value": "{duration.ambient}",
+        "$description": "One pass of the gradient, from the ambient step of the duration scale. It stated 6000ms here until L3 caught it: the component layer may only state dimension and number, and a duration written into a component is a value the next ambient surface has to guess at rather than reference. The reason it is long lives with the step now."
+      },
+      "height": {
+        "$type": "dimension",
+        "$value": {
+          "value": 22,
+          "unit": "rem"
+        },
+        "$description": "The hero box, matching the panel wall the case studies open with (panel-wall.tsx, height default). Same box, different content: the wall's isometric tiles are the wrong subject for a page about one component."
+      }
+    },
     "nav": {
       "item-gap": {
         "$type": "dimension",
-        "$value": { "value": 0.25, "unit": "rem" },
+        "$value": {
+          "value": 0.25,
+          "unit": "rem"
+        },
         "$description": "4px (on the spacing grid), the gap between nav pills. Single home: the rendered flex gap (gap-[0.25rem]) must equal it (invariant P2). The pills themselves size to their labels, so there is no longer an item-width token."
       },
       "pad": {
         "$type": "dimension",
-        "$value": { "value": 0.25, "unit": "rem" },
+        "$value": {
+          "value": 0.25,
+          "unit": "rem"
+        },
         "$description": "Segmented-pill inner padding, the ring around the items. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; the toggle and Segmented read var(--component-nav-pad)."
       },
       "item-height": {
         "$type": "dimension",
-        "$value": { "value": 1.75, "unit": "rem" },
+        "$value": {
+          "value": 1.75,
+          "unit": "rem"
+        },
         "$description": "Segmented-pill item height. One home for the nav, the 3D/2D toggle, and the accessibility Segmented; they read var(--component-nav-item-height)."
       },
       "logo-gap": {
         "$type": "dimension",
-        "$value": { "value": 12, "unit": "px" },
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        },
         "$description": "Logo lockup (comb + Sébastien wordmark) to glass nav, 12px (on the 4px grid). The wordmark's right spacing (marginRight 3 + this = 15) is set equal to its left (marginLeft 15) for symmetry. Single home: site-header.tsx LOGO_GAP must equal it (invariant P1)."
       },
       "offset-fallback": {
         "$type": "dimension",
-        "$value": { "value": 60, "unit": "px" },
+        "$value": {
+          "value": 60,
+          "unit": "px"
+        },
         "$description": "Nav offset used before the logo has measured. Single home: site-header.tsx NAV_OFFSET_FALLBACK (invariant P1)."
       },
-      "pill-bg": { "$type": "color", "$value": "{nav.bg}" },
-      "pill-bg-on-dark": { "$type": "color", "$value": "{nav.bg-on-dark}" },
-      "pill-shadow": { "$type": "shadow", "$value": "{elevation.pill}" },
-      "pill-shadow-on-dark": { "$type": "shadow", "$value": "{elevation.pill-on-dark}" },
+      "pill-bg": {
+        "$type": "color",
+        "$value": "{nav.bg}"
+      },
+      "pill-bg-on-dark": {
+        "$type": "color",
+        "$value": "{nav.bg-on-dark}"
+      },
+      "pill-shadow": {
+        "$type": "shadow",
+        "$value": "{elevation.pill}"
+      },
+      "pill-shadow-on-dark": {
+        "$type": "shadow",
+        "$value": "{elevation.pill-on-dark}"
+      },
       "pill-fg": {
         "$type": "color",
         "$value": "{text.body}",
         "$description": "The selected nav label, which sits on the bright pill in both themes (pill-bg is white 72%, pill-bg-on-dark white 92%), so it stays dark and takes no -on-dark counterpart. The unselected labels sit on the glass and read --port-glass-fg-muted instead."
       }
     },
-
     "topbar": {
-      "height": { "$type": "dimension", "$value": { "value": 38, "unit": "px" }, "$description": "Utility strip painted height, 38px. The a11y and language buttons carry their own hit area (p-1.5 around the glyph/label); this is the strip, not the tap target." },
-      "bg": { "$type": "color", "$value": "{background.utility}" },
-      "bg-on-dark": { "$type": "color", "$value": "{background.ink}", "$description": "The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site." },
+      "height": {
+        "$type": "dimension",
+        "$value": {
+          "value": 38,
+          "unit": "px"
+        },
+        "$description": "Utility strip painted height, 38px. The a11y and language buttons carry their own hit area (p-1.5 around the glyph/label); this is the strip, not the tap target."
+      },
+      "bg": {
+        "$type": "color",
+        "$value": "{background.utility}"
+      },
+      "bg-on-dark": {
+        "$type": "color",
+        "$value": "{background.ink}",
+        "$description": "The strip on an ink ground: ink itself, so it blends into the page and the utility-bar hairline is what separates it. One shared component across the light portfolio and the ink marketing site."
+      },
       "fg": {
         "$type": "color",
         "$value": "{text.secondary}",
-        "$description": "EN label and a11y glyph. The tightest contrast pair in the system; see invariant C1."
+        "$description": "EN label and a11y glyph. The tightest contrast pair in the system; see invariant C7."
       },
-      "fg-on-dark": { "$type": "color", "$value": "{surface.glass-fg-muted-on-dark}", "$description": "EN label and a11y glyph on the ink strip." },
-      "fg-hover": { "$type": "color", "$value": "{text.body}" },
-      "fg-hover-on-dark": { "$type": "color", "$value": "{surface.glass-fg-on-dark}" },
+      "fg-on-dark": {
+        "$type": "color",
+        "$value": "{surface.glass-fg-muted-on-dark}",
+        "$description": "EN label and a11y glyph on the ink strip."
+      },
+      "fg-hover": {
+        "$type": "color",
+        "$value": "{text.body}"
+      },
+      "fg-hover-on-dark": {
+        "$type": "color",
+        "$value": "{surface.glass-fg-on-dark}"
+      },
       "lang-min-width": {
         "$type": "dimension",
-        "$value": { "value": 20, "unit": "px" },
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
         "$description": "Fixed floor so the justify-end row does not shift as the label width changes."
       }
     },
-
     "header": {
       "max-width": {
         "$type": "dimension",
-        "$value": { "value": 1728, "unit": "px" },
+        "$value": {
+          "value": 1728,
+          "unit": "px"
+        },
         "$description": "The header shell cap on wide screens (utility bar + nav band). Wider than the max-w-5xl (1024px) content column on purpose, so the logo→icons composition breathes on ultrawide instead of stranding a narrow strip. site-header.tsx and portfolio-top-bar.tsx read var(--component-header-max-width)."
       },
       "edge-inset": {
         "$type": "dimension",
-        "$value": { "value": 111, "unit": "px" },
+        "$value": {
+          "value": 111,
+          "unit": "px"
+        },
         "$description": "Desktop (md+) inset pulling the header logo and both icon clusters in from the header band's edges, and the top bar's right cluster by the same amount so the icon columns line up. One home: site-header.tsx (md:px), portfolio-top-bar.tsx (md:pr on the strip's inner row), and the cookie banner's right edge all read var(--component-header-edge-inset). Mobile keeps the gutter."
       },
       "band-pad-top": {
         "$type": "dimension",
-        "$value": { "value": 18, "unit": "px" },
+        "$value": {
+          "value": 18,
+          "unit": "px"
+        },
         "$description": "Fixed top padding of the header band, the gap between the top bar and the nav row. One home: portfolio.css .port-head-band padding-top reads var(--component-header-band-pad-top). The band's bottom padding still collapses on scroll; only the top is pinned."
       }
     },
-
     "header-logo": {
       "height": {
         "$type": "dimension",
-        "$value": { "value": 2.8505532, "unit": "rem" },
+        "$value": {
+          "value": 2.8505532,
+          "unit": "rem"
+        },
         "$description": "Comb-mark height in the site header (2.79466rem reduced 15% to 2.375461rem, then increased 20%). Single home: site-header.tsx reads var(--component-header-logo-height); no source literal duplicates it."
       },
       "stretch-x": {
@@ -100,35 +270,66 @@
         "$description": "scaleX. The SVG keeps preserveAspectRatio, so width alone would only centre it."
       }
     },
-
     "eyebrow": {
       "$description": "The kicker above a page title: a short label in brand blue at 14px, the same treatment the /ame docs breadcrumb carries. One home for the case-studies page eyebrow; components/mdx/eyebrow.tsx reads both vars. Thickness is not a token here: the eyebrow uses the shared docs bold (the `font-medium` reset to 400 + synthesized header stroke under .ame-docs-root), the same the breadcrumb and headings use, so it matches rather than re-declaring a weight.",
-      "color": { "$type": "color", "$value": "{text.brand}", "$description": "Brand blue, the links-and-accents colour. Matches the docs breadcrumb (--color-fd-primary -> --port-brand -> text.brand)." },
-      "size": { "$type": "dimension", "$value": "{font.size.14}", "$description": "14px: small enough to read as a kicker above the title, not a second heading." }
+      "color": {
+        "$type": "color",
+        "$value": "{text.brand}",
+        "$description": "Brand blue, the links-and-accents colour. Matches the docs breadcrumb (--color-fd-primary -> --port-brand -> text.brand)."
+      },
+      "size": {
+        "$type": "dimension",
+        "$value": "{font.size.14}",
+        "$description": "14px: small enough to read as a kicker above the title, not a second heading."
+      }
     },
-
     "term-sheet-card": {
       "$description": "The case-study term sheet card's own grid spacing, distinct from the shared expertise card. The term sheet packs longer facts (roles, dates, a stack) than the home's short skill lists, so its columns size to content and wrap to new rows (auto-fit) instead of cramming into a fixed five. Bound by components/portfolio/expertise-card.tsx in its term-sheet variant.",
-      "col-min": { "$type": "dimension", "$value": { "value": 6, "unit": "rem" }, "$description": "Smallest a fact column shrinks to before auto-fit wraps it to a new row (96px). Narrow enough that all the facts pack into one row inside the 87%-width grid, wide enough that a role or a date still reads on one or two lines, not a stack of broken words." },
-      "item-gap": { "$type": "dimension", "$value": { "value": 1.5, "unit": "rem" }, "$description": "Space between fact columns and between wrapped rows (24px)." }
+      "col-min": {
+        "$type": "dimension",
+        "$value": {
+          "value": 6,
+          "unit": "rem"
+        },
+        "$description": "Smallest a fact column shrinks to before auto-fit wraps it to a new row (96px). Narrow enough that all the facts pack into one row inside the 87%-width grid, wide enough that a role or a date still reads on one or two lines, not a stack of broken words."
+      },
+      "item-gap": {
+        "$type": "dimension",
+        "$value": {
+          "value": 1.5,
+          "unit": "rem"
+        },
+        "$description": "Space between fact columns and between wrapped rows (24px)."
+      }
     },
-
     "accessibility": {
       "width": {
         "$type": "dimension",
-        "$value": { "value": 18, "unit": "rem" },
+        "$value": {
+          "value": 18,
+          "unit": "rem"
+        },
         "$description": "Panel width (288px) for the accessibility, contact, and cookie panels. Single home: portfolio.css --port-panel-w reads it (a D1 exception). At md, --port-panel-w is recomputed against the work-grid column; that calc is CSS-only and named in decisions.md."
       },
-      "panel-radius": { "$type": "dimension", "$value": "{radius.2xl}" },
-      "trigger-radius": { "$type": "dimension", "$value": "{radius.pill}" },
+      "panel-radius": {
+        "$type": "dimension",
+        "$value": "{radius.2xl}"
+      },
+      "trigger-radius": {
+        "$type": "dimension",
+        "$value": "{radius.pill}"
+      },
       "raise": {
         "$type": "number",
         "$value": 10,
-        "$description": "Pill anchor lift above the trigger, in vh. DTCG dimension admits px and rem only; see contract.md > Spec gaps.",
-        "$extensions": { "org.metis.css": { "unit": "vh" } }
+        "$description": "Pill anchor lift above the trigger, in vh. DTOS dimension admits px and rem only; see contract.md > Spec gaps.",
+        "$extensions": {
+          "org.metis.css": {
+            "unit": "vh"
+          }
+        }
       }
     },
-
     "splash": {
       "$description": "How the splash leaves: a quick fade, on the enter curve. The mask-cutout reveal that lived here was removed; see decisions D-38.",
       "cycle": {
@@ -147,34 +348,197 @@
         "$description": "Fast off the mark, settling at the end, so the page reads as arriving rather than the overlay as leaving."
       }
     },
-
+    "sidebar": {
+      "$description": "The case-study sidebar's controls: the search button and the nav rows. They are one family — same stadium, same inset, same height — so their metrics live together rather than being restated per rule in ame.css.",
+      "row-height": {
+        "$type": "dimension",
+        "$value": {
+          "value": 2.25,
+          "unit": "rem"
+        },
+        "$description": "The height of a nav row's highlight, and of the search button with it. A literal rather than a unit-scale reference because the scale has no 2.25rem member and this is not worth opening a closed set for; component.card.min-height is a literal for the same reason."
+      },
+      "fg-disabled": {
+        "$type": "color",
+        "$value": "{text.disabled-on-dark}",
+        "$description": "The held-back rows on an INK ground: the disabled Case Studies entry and the Documentation separator, which are one appearance — 'named here, not reachable yet'. A colour rather than a foreground at reduced opacity, so the tone is stated once instead of being whatever 40% of the live text colour happens to compute to. The white-ground counterpart is text.disabled; portfolio.css picks between them per theme as --port-disabled."
+      },
+      "pad-inline": {
+        "$type": "dimension",
+        "$value": "{unit.3_5}",
+        "$description": "Text inset inside the stadium. The system already answers this for a 2.25rem full-round control — the case-study chrome buttons are `rounded-full px-3.5` at h-9 — so this is that same 14px rather than a new opinion. An icon button's space.control-pad (10px) is too tight here: it is sized for a glyph in a square, not a label inside a curve."
+      }
+    },
+    "docs": {
+      "$description": "The docs reading column's side gutter, as the two ends of a range rather than one value per breakpoint. The article used to carry a flat 56px override, which beat fumadocs' own responsive px-4/md:px-6/xl:px-8 at every width and left a 375px phone with 112px of gutter — 30% of the viewport — because the rule was written for the xl case and never scoped to it. Expressed as a clamp between these two ends, the gutter needs no breakpoint at all: it is the narrow end until the viewport can afford more and the wide end from xl up, which is what the flat value was reaching for. Both ends reference the unit ramp, so neither is a new number.",
+      "gutter-min": {
+        "$type": "dimension",
+        "$value": "{unit.4}",
+        "$description": "The narrow end, matching the padding fumadocs sets at its own smallest breakpoint. Below this the text would run into the edge."
+      },
+      "gutter-max": {
+        "$type": "dimension",
+        "$value": "{unit.14}",
+        "$description": "The wide end: the reading gutter the docs settled on, and the value the contents column's own gutter takes so the two sides of the reading column agree."
+      }
+    },
     "card": {
-      "bg": { "$type": "color", "$value": "{surface.card-glass}" },
-      "min-height": { "$type": "dimension", "$value": { "value": 320, "unit": "px" } },
-      "radius": { "$type": "dimension", "$value": "{radius.xl}" },
-      "shadow": { "$type": "shadow", "$value": "{elevation.card}" },
-      "shadow-hover": { "$type": "shadow", "$value": "{elevation.card-hover}" },
+      "bg": {
+        "$type": "color",
+        "$value": "{surface.card-glass}"
+      },
+      "background-lift-on-dark": {
+        "$type": "color",
+        "$value": "{color.ink-lift.02}",
+        "$description": "What raises the card off the ink page: the faintest step of ink's own light, painted over background.ink rather than replacing it. The card is a lift of the page, not a second dark colour — so it keeps ink's blue cast and follows ink when ink moves. Lower than background.card-on-dark, which is the marketing site's heavier elevation; this is the portfolio's tuned step."
+      },
+      "min-height": {
+        "$type": "dimension",
+        "$value": {
+          "value": 320,
+          "unit": "px"
+        }
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.xl}"
+      },
+      "shadow": {
+        "$type": "shadow",
+        "$value": "{elevation.card}"
+      },
+      "shadow-hover": {
+        "$type": "shadow",
+        "$value": "{elevation.card-hover}"
+      },
       "lift": {
         "$type": "dimension",
-        "$value": { "value": -0.125, "unit": "rem" },
+        "$value": {
+          "value": -0.125,
+          "unit": "rem"
+        },
         "$description": "hover translate-y."
       }
     },
-
     "pill": {
-      "radius": { "$type": "dimension", "$value": "{radius.pill}" },
-      "bg-rest": { "$type": "color", "$value": "{color.ink-alpha.08}" },
-      "bg-hover": { "$type": "color", "$value": "{color.ink-alpha.14}" }
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.pill}"
+      },
+      "bg-rest": {
+        "$type": "color",
+        "$value": "{color.ink-alpha.08}"
+      },
+      "bg-hover": {
+        "$type": "color",
+        "$value": "{color.ink-alpha.14}"
+      }
     },
-
     "contact-row": {
-      "radius": { "$type": "dimension", "$value": "{radius.row}" }
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.row}"
+      }
     },
     "icon": {
       "size": {
         "$type": "dimension",
-        "$value": { "value": 1, "unit": "rem" },
+        "$value": {
+          "value": 1,
+          "unit": "rem"
+        },
         "$description": "Shared icon box size (h/w), 16px. One home for the small icons across the header, contact menu, accessibility modal, endorsements, and cookie panel; they read var(--component-icon-size)."
+      }
+    },
+    "metis-marketing": {
+      "strip-height": {
+        "$type": "dimension",
+        "$value": {
+          "value": 127.2,
+          "unit": "px"
+        },
+        "$description": "Height of the utility strip on metis-marketing, so that the accessibility + language pair centres on the same y as the Metis mark across the panel. Derived, not chosen: the mark sits at 40px of top padding and stands 2.94975rem (the header lockup's 2.565rem plus 15%), so its centre is 40 + 23.6 = 63.6px, and a strip whose content is vertically centred needs twice that. Resize the mark and this has to move with it — it is the mark's centre doubled, nothing else. Overrides the shared component.topbar.height, which is set inline on the element, so portfolio.css applies it with !important — the one place that is correct here."
+      },
+      "panel-width": {
+        "$type": "number",
+        "$value": 50,
+        "$description": "Width of the metis-marketing ink panel (the viewer side), as a percentage of the viewport. Read twice and therefore a token: the fixed panel is this wide, and .portfolio-root[data-metis-marketing] is inset from the left by the same amount so the utility strip, the header, and its hairline begin where the panel ends — the clip is the one measure, not two that agree by hand. DTOS dimension admits px and rem only, so a percentage is typed number with the css unit extension; see contract.md > Spec gaps.",
+        "$extensions": {
+          "org.metis.css": {
+            "unit": "%"
+          }
+        }
+      }
+    },
+    "skip-link": {
+      "$description": "The bypass-blocks link (WCAG 2.4.1). Its measures live here rather than being bound from the base ramp directly: a surface binds semantic and component names, never base (U1), and these five values belong to exactly one element.",
+      "offset": {
+        "$type": "dimension",
+        "$value": "{unit.2}",
+        "$description": "Inset from the top-left corner once focused."
+      },
+      "pad-block": {
+        "$type": "dimension",
+        "$value": "{unit.2}"
+      },
+      "pad-inline": {
+        "$type": "dimension",
+        "$value": "{unit.4}"
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.pill}"
+      },
+      "z": {
+        "$type": "number",
+        "$value": "{z.banner}",
+        "$description": "Above the sticky band and the page grain: a skip link that appears behind the header is not a skip link."
+      }
+    },
+    "github-button": {
+      "font-weight": {
+        "$type": "number",
+        "$value": "{font.weight.regular}",
+        "$description": "The button label weight, stated so the docs prose (which styles an <a> at 500) cannot make the same button read heavier inside a case study than on the home."
+      },
+      "min-width": {
+        "$type": "dimension",
+        "$value": "{unit.28}"
+      }
+    },
+    "search-dialog": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{radius.pill}",
+        "$description": "The search dialog's corner. Its own component token rather than a base binding, for the same reason the skip link has one: a surface may not reach into the radius ramp (U1). The stadium, the same round the controls take: the collapsed field is a capsule, and because one panel now carries both states the expanded list keeps the round rather than switching shape mid-interaction. Note what CSS does when the panel grows — a radius larger than half the box is scaled down proportionally, so at full height the corners resolve to wide arcs rather than a true stadium. That is the shape this token asks for at both sizes, not a fallback."
+      },
+      "results-offset": {
+        "$type": "dimension",
+        "$value": { "value": -2, "unit": "px" },
+        "$description": "Where the results panel sits relative to the field above it. Negative: the panel tucks 2px under the capsule instead of clearing it. It was a 1rem gap, which read as two unrelated slabs stacked on a scrim; closing the join makes the field read as sitting ON the panel. Stated as its own value rather than off the spacing ramp because it is not spacing — it is an overlap, and the ramp is a closed set of positive steps."
+      },
+      "prompt-fade-duration": {
+        "$type": "duration",
+        "$value": "{duration.moderate}",
+        "$description": "How long the prompt above the field takes to arrive and to leave. It ran at 200ms to be quick, and quick is what it was — too quick for its own curve to be visible, so the line read as switching rather than fading. The glass cross-fade's length is the shortest that lets an eased fade actually be seen as one; it is still shorter than the 400ms this started at."
+      },
+      "prompt-fade-ease": {
+        "$type": "cubicBezier",
+        "$value": "{ease.slide}",
+        "$description": "The prompt's curve, in both directions. The enter and exit curves are each eased at one end only — they start or stop abruptly by design, which is right for something arriving onto or leaving a surface, and wrong for a line that simply appears and disappears in place. The pill's slide curve is the system's one symmetric ease: slow at both ends, quick through the middle, so the fade has no hard edge at either end."
+      },
+      "prompt-return-delay": {
+        "$type": "duration",
+        "$value": "{duration.dwell}",
+        "$description": "The wait before the prompt comes back after the field is cleared. Without it the line snaps back between keystrokes — delete a query and it reappears, type again and it is gone — which turns a piece of copy into a flicker."
+      },
+      "prompt-font-size": {
+        "$type": "dimension",
+        "$value": "{font.size.42}"
+      },
+      "prompt-tracking": {
+        "$type": "number",
+        "$value": "{font.tracking.tightest}"
       }
     }
   }

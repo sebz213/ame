@@ -1,0 +1,24 @@
+{
+  "recipe": {
+    "expertise-card": {
+      "$description": "From the small breakpoint up: a third track, the card's wider padding, and the list inset that matches the endorsement quote.",
+      "root": {
+        "padding": {
+          "$type": "dimension",
+          "$value": "{unit.8}"
+        }
+      },
+      "list": {
+        "columns": {
+          "$type": "number",
+          "$value": 3
+        },
+        "padding-inline": {
+          "$type": "dimension",
+          "$value": "{unit.14}",
+          "$description": "The endorsement quote's inset, which that quote also only takes from sm up. Held here rather than in the base so the two cards agree at every viewport instead of just this one."
+        }
+      }
+    }
+  }
+}

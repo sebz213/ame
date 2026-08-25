@@ -13,9 +13,9 @@
        definitions the package actually ships.
 
     2. Binding discipline (U1). The consumer's own CSS binds semantic and
-       component names, never a raw base primitive. `var(--color-ink)` in a
-       surface is a raw-value binding; the semantic or theme name (--text-body,
-       --port-text-primary) is what a surface is meant to read.
+       component names, never a raw base primitive. `var(--ame-color-ink)` in a
+       surface is a raw-value binding; the semantic or theme name (--ame-text-body,
+       --ame-text-body) is what a surface is meant to read.
 
   This is the portable subset. The portfolio's tokens/check.mjs enforces more
   against its own tree (the uses-graph, scale membership, the /ame docs
@@ -67,7 +67,7 @@ for (const f of cssFiles(CWD)) {
   const rel = f.slice(CWD.length + 1)
   for (const m of src.matchAll(/var\((--[a-z0-9_-]+)/g))
     if (base.has(m[1]))
-      fail('U1', `${rel} binds base token ${m[1]} directly; bind a semantic or theme name (e.g. --text-body, --port-text-primary), never a base primitive.`)
+      fail('U1', `${rel} binds base token ${m[1]} directly; bind a semantic or theme name (e.g. --ame-text-body, --ame-text-body), never a base primitive.`)
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

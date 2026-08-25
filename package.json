@@ -1,15 +1,17 @@
 {
   "name": "ame",
   "version": "0.1.0",
-  "packageManager": "pnpm@11.5.1",
+  "description": "A design token system with an enforcement gate: DTCG tokens compiled to CSS custom properties, and a CI check that fails any build where a scanned surface hand-writes a value the tokens already own.",
+  "license": "MIT",
   "private": true,
+  "packageManager": "pnpm@11.5.1",
   "scripts": {
     "ame": "node tokens/ame.mjs",
     "tokens:build": "node packages/ame-tokens/build.mjs",
+    "gate": "node tokens/check.mjs --scope package",
+    "gate:fixtures": "node tokens/gate-fixtures.mjs",
     "diagram": "node tokens/readme-diagram.mjs",
     "diagram:check": "node tokens/readme-diagram.mjs --check",
-    "gate": "node tokens/check.mjs",
-    "gate:fixtures": "node tokens/gate-fixtures.mjs",
     "lint": "eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -19,7 +21,7 @@
     "ame-tokens": "workspace:*",
     "animejs": "^4.5.0",
     "lucide-react": "^0.564.0",
-    "react": "19.2.4"
+    "react": "19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -30,7 +32,5 @@
     "typescript": "5.7.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.10"
-  },
-  "description": "A design token system with an enforcement gate: DTCG tokens compiled to CSS custom properties, and a CI check that fails any build where a scanned surface hand-writes a value the tokens already own.",
-  "license": "MIT"
+  }
 }
