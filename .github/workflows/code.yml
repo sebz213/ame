@@ -42,6 +42,11 @@ jobs:
       - name: tokens build
         run: pnpm tokens:build
 
+      # The README's diagram is generated from the token values. Committed, so
+      # GitHub can render it; checked, so it cannot disagree with the tokens.
+      - name: diagram parity
+        run: pnpm diagram:check
+
       - name: gate
         run: pnpm gate
 

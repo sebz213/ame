@@ -6,12 +6,12 @@ Ame is a design token system with an enforcement gate: 3 layers of DTCG tokens c
 
 MIT licensed. Cite it via [CITATION.cff](CITATION.cff).
 
-```mermaid
-flowchart LR
-    B["base/*.json<br/>literals"] --> S["semantic/*.json<br/>roles"] --> C["component/*.json<br/>element measures"]
-    C --> CSS["tokens.css<br/>394 lines, generated"]
-    G["the gate<br/>check.mjs + invariants.json"] -.->|"rejects raw values,<br/>layer leaks, contrast failures"| CSS
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
+  <img alt="Three token layers — base literals, semantic roles, component measures — compile to tokens.css. The gate rejects raw values, layer leaks, and contrast failures." src="docs/architecture-light.svg">
+</picture>
+
+<sub>Drawn to ISO 5807-1985, in the same symbols the system's own flowchart component uses, and coloured from the tokens themselves — so a colour change in <code>base/color.json</code> changes this picture or fails the build (<code>pnpm diagram:check</code>). Both themes, because the system has both.</sub>
 
 ## What's in the box
 

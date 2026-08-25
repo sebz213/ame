@@ -6,12 +6,14 @@
   "scripts": {
     "ame": "node tokens/ame.mjs",
     "tokens:build": "node packages/ame-tokens/build.mjs",
+    "diagram": "node tokens/readme-diagram.mjs",
+    "diagram:check": "node tokens/readme-diagram.mjs --check",
     "gate": "node tokens/check.mjs",
     "gate:fixtures": "node tokens/gate-fixtures.mjs",
     "lint": "eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "pnpm tokens:build && pnpm gate && pnpm gate:fixtures"
+    "build": "pnpm tokens:build && pnpm diagram:check && pnpm gate && pnpm gate:fixtures"
   },
   "dependencies": {
     "ame-tokens": "workspace:*",
