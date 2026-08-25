@@ -72,7 +72,7 @@ The fixtures exist because a gate that has never been seen to fail is not eviden
 The gate governs what its scan roots name, and nothing else. Five things worth knowing before you rely on it.
 
 - **The restated-value check needs the token build present**, so the gate is a workspace citizen, never a standalone binary.
-- **Spacing has an open question, not an oversight.** Spacing arithmetic derives from the token unit, but which mechanism a designer should author layout spacing in — a `space.*` role or a utility class — is an unresolved decision recorded in the log (D-49), not a gap.
+- **Spacing is a scale here, not an enforced derivation.** The `unit.*` ramp exists and the `space.*` roles reference it, but the clause that held a utility framework's spacing base equal to `unit.1` (P6) governed a config file that stayed in the monorepo, so it left with its subject. Decision D-49 records that parity and reads as current; it describes the tree Ame was extracted from. Which mechanism should author layout spacing at all — a `space.*` role or a utility class — is genuinely open there and here.
 - **69 of 264 tokens have no consumer in this tree**, because the surfaces that consumed them stayed in the monorepo Ame was extracted from. The count is baselined and ratcheted so it cannot grow; it is a fact about the extraction, not about the tokens.
 - **One value sits off its scale on purpose**: a 13.85px glyph height in the top bar that the surrounding control was sized around. Baselined at 1, with the reason in the code.
 - **`components/ame` is demo chrome.** Treat it as reference, not product.

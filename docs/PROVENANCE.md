@@ -31,6 +31,28 @@ destination.**
 | `AGENTS.md` | A pointer file that said "read `CLAUDE.md`". | `CLAUDE.md`, present. |
 | `VENDORED.md` | A manifest for code the author did not write. Nothing in this tree is vendored, so clause VN left with its subject (D-53). | — |
 
+## Clauses that left, and the decisions that still name them
+
+Four clause families were removed in D-53 because their subject stayed with the
+monorepo. Dated entries written before that still name them and read as current;
+they describe the tree Ame was extracted from, and are left as written.
+
+| Named in a decision | What it checked | State here |
+|---|---|---|
+| **P6**, and D-49 in full | Held a utility framework's `--spacing` base equal to `unit.1`, so every numeric spacing utility derived from the token ramp | Gone. `app/globals.css` stayed behind, so the clause had no config file to read. The `unit.*` ramp and the `space.*` roles that reference it are here; the derivation and its check are not. |
+| **P1–P5** | Parity between JS constants in portfolio components and the tokens they had to equal | Gone with those components. |
+| **K1** | A per-class byte ceiling over `public/` | Gone; this package ships no assets. |
+| **AM1–AM3** | The `/ame` docs registry and its tiers | Gone with the docs site. |
+| **VN1–VN2** | A manifest for code the author did not write | Gone; nothing here is vendored. |
+| **U4** | That the portfolio surface bound one token system and not a second | Gone; there is one token system here. |
+
+This is the third time in three days that a dated record has been found naming a
+path or clause that no longer resolves — D-5 and D-43 were the first two, in
+`DECISION-STATUS-2026-08-24.md`. That document proposed the clause: verify that a
+token path or clause named in a decision still resolves, the way W1 verifies that
+a CI step names a script that exists. Three customers is enough; it is the next
+clause to write, and until it exists this table is the manual version of it.
+
 ## What this costs, stated
 
 A reader following an R-number gets a table entry, not the argument. That is a

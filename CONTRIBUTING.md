@@ -11,6 +11,13 @@ pnpm gate:fixtures
 `pnpm gate` green **is** the install test. If it fails on a fresh clone, that is a
 bug in this repository, not in your machine — open an issue with the output.
 
+One thing the gate cannot tell you, and the first thing to trip over: the tokens
+are emitted under a `.portfolio-root` class. Anything binding them needs that
+class on an ancestor, and `[data-theme="dark"]` under it re-points the themed
+aliases. The name lags the extraction; renaming it is breaking for every
+consumer, so it is written down here and in the README rather than changed
+quietly.
+
 `pnpm build` runs the build and both gate halves in order, which is what CI runs.
 
 ## The one rule
