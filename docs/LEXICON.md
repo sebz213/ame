@@ -36,6 +36,10 @@ global (N3) and its entry here moves with it.
 | **drift** | A measured count that carries a baseline and must not grow past it (the scale-membership counts S1–S5, the restated-literal count D2, the base-binding count U1, the clientless-token count H1). Distinct from a violation, which breaks a stated clause outright. A baseline moves down only, in the change that earned it (X1). |
 | **gate** | The falsifiable check chain CI and a deploy run: `pnpm build` runs `packages/ame-tokens/build.mjs`, `tokens/check.mjs`, `next build`, then `tokens/check.mjs --shipped`. The gate is verified by having failed for the reason it exists to catch (R-10), not by reading it. |
 | **placeholder** | A `[[TOKEN]]`-shaped copy marker standing in for content not yet written. A placeholder says on its face that a page is unfinished, so G1 blocks any placeholder from reaching a deployed route (STANDARD.md C5). |
+| **metis-marketing** | The ink-theme portfolio home: route `app/(portfolio)/metis-marketing/` and component `metis-marketing-splash.tsx` (`MetisMarketingSplash`). It renders the same home component as `/portfolio`, opening dark with the Metis splash and mark. |
+| **mmarketing** | Superseded name for **metis-marketing**. Renamed in full (route, component file, exported symbols, `DARK_ROUTES`) because it read as a typo, which fails Feitelson's derive-the-same-meaning test outright (R-20). Retained here only as the former spelling; no code uses it. |
+| **woven** | The verification feature: an intake-to-receipt pipeline for AI-generated deliverables. Home `packages/woven/`, versioned `woven@0.1.0` on a clock independent of `ame@x.y.z` (R-74). Written **Woven** in prose; the lowercase word is the banned metaphor verb for abstract work, and the coherence gate matches it case-sensitively so the name passes and the metaphor does not. One concept only: **woven** names this repo's feature. Any future external product carrying the name is a separate naming decision, deferred and deliberately not recorded here, so that `git grep woven` and a future deck cannot come to disagree about what the word refers to. |
+| **nagi** | 凪, the lull when wind and water go still. The state of the tree asserted after a removal: quiet residue, zero orphans, nothing left pointing at what was taken. Named by [NAGI-ORDER](orders/NAGI-ORDER.md), whose items each assert one part of it. Kept apart from its two neighbours: a **removal** is the act, a **rehearsal** is the proof the act would be clean, and nagi is the state that proof asserts — the noun the other two exist for. The homonym question, asked and answered as an absence: lowercase "nagi" has no ordinary-English sense and no occurrence anywhere in this tree at naming time (2026-08-11), so no meaning ban of the W1.3 kind is expected. Recorded rather than assumed, so a future collision arrives as a caught surprise instead of a silent drift. |
 | **instrument** | A derived, parity-checked statistic over rendered canon, emitting DRIFT readings. Built from the tree, byte-rebuildable from shipped embeddings, so it cannot go stale the way a golden screenshot does. An instrument measures and never decides; a policy over its readings is what produces a verdict. |
 | **convergence** | Resemblance to a reference cloud, read by an instrument. A reading, never a verdict. Its pair is **conformance**: compliance with stated rules, decided by clauses, output VIOLATION or pass. The two never share a meaning. |
 | **battery** | A fixed, versioned prompt set run against outside generators by dated recipe. Two exist: ambient (what the crowd makes) and counterfactual (what a machine makes of Ame's own assignment). Editing a prompt without bumping the battery version is a violation, because an undated recipe cannot be re-run. |
@@ -137,6 +141,7 @@ fourth time.
 | Layer | The mention that must not be caught | Where |
 |---|---|---|
 | A gate | The comment explaining that `SUBSTACK_URL` is a `[[token]]` — G1 flags its own documentation | `components/portfolio/contact-menu.tsx`, STANDARD.md C5 |
+| A lexicon clause | "Woven" the canonical name, against lowercase "woven" the banned metaphor verb (R-75) | `content/glossary.ts`, `scripts/check-coherence.ts` |
 | A config file | A `$description` that says a field reads `pending`, against a field that actually does (W-R1) | `packages/woven/experiments/recipe.mjs` |
 
 The working rule, stated once so a check author inherits it: when a ban is on how
@@ -148,6 +153,32 @@ matcher built to chase meaning fires on prose about a rule rather than on the ru
 
 Every check with a must-never-catch list carries its mention cases there, so the
 distinction is asserted on every run rather than remembered (STANDARD.md C6).
+
+## Ranks migrate, and only one direction is safe
+
+A receipt's three ranks — reproducible, reproducible-as-arithmetic, verifiable-only-
+as-a-signature — are not properties of the facts they hold. They are properties of
+what the system can currently *reach*. A fact sits at rank 3 because nothing
+mechanical can get at it, not because it is inherently a matter of testimony.
+
+So facts migrate as reach improves, and the direction to prefer is downward. The
+encoder's repository revision and its published hash were rank 3 on 2026-08-10:
+things a person had to read off a web page and carry across the boundary. They
+became rank 1 on 2026-08-11, when the Hub API turned out to expose both — the LFS
+ETag *is* the sha256 — and the comparison that had been an eyeball became a clause.
+Nothing about the facts changed. The reach did.
+
+The inverse migration is the one to watch for, because it is silent. A check that
+quietly degrades into "someone looked" leaves the receipt saying exactly what it
+said before while meaning something weaker. A rank that moves up must be recorded
+as a dated decision, with the reason the reach was lost; a rank that moves down is
+the system working.
+
+What does not migrate is what is bound to a vantage rather than to tooling. The
+weights download runs on one machine because that machine's disk is where the
+experiment reads and its network path is the third mirror. The port-of-entry role
+did not disappear when the facts became scriptable; it shrank to the part that is
+irreducibly located somewhere (E3's division of labour, WEIGHTS-ORDER).
 
 ## A threshold travels with the instrument, never with the subject
 
@@ -175,8 +206,9 @@ would mean re-deriving a constant of the instrument once per subject.
 
 The same theorem arrives through other doors in this repo, which is the strongest evidence
 it is one theorem. `WO-M7` says a verdict is a comparison and never a reading: what
-survives is the relation, not the absolute. Both are the observation that the quantities
-surviving a change of frame belong to the apparatus rather than to the object — so when a number is
+survives is the relation, not the absolute. Ranks migrate with reach rather than with the
+facts they hold (above). All three are the observation that the quantities surviving a
+change of frame belong to the apparatus rather than to the object — so when a number is
 asked to move, ask which of the two it was ever about.
 
 **A third category, and it is the one you actually want.** The rule as first written sorts

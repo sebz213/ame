@@ -51,8 +51,12 @@ There is no third behaviour: the build does not repair, warn, or guess.
 
 ## Postcondition — what the build guarantees when the precondition holds
 
-- **B1** Every token appears in `build/portfolio.tokens.css` exactly once, under
-  `.portfolio-root`, as `--` plus its path with `.` replaced by `-`.
+- **B1** Every token appears in `packages/ame-tokens/tokens.css` exactly once, at
+  `:root`, as `--ame-` plus its path with `.` replaced by `-`. The themed names
+  are re-pointed under `[data-theme="dark"]`. (This clause named
+  `build/portfolio.tokens.css` and `.portfolio-root` until 2026-08-27; both were
+  two versions stale, and B1 is structural, so no check read it and nothing
+  could disagree with it out loud.)
 - **B2** Every emitted value is a literal in the CSS syntax for its type. No
   emitted value contains an unresolved reference.
 - **B3** Every alias in `ALIASES` resolves to exactly one token and emits
@@ -453,16 +457,46 @@ R-55, R-57.
 ### K. Asset weight
 
 - **K1** Every file under `public/` sits within a byte ceiling for its class:
-  SVG, font, image, model. The ceilings, the extension-to-class map, and the
-  per-file waivers are data in `invariants.json > asset_budget`; the check is
-  `checkAssetBudget` in `check.mjs`, evaluated in the gate. A file over its
-  class ceiling is a violation. An asset that already exceeds its ceiling is
+  SVG, font, image, model, video. The ceilings, the extension-to-class map, the
+  deliberately unweighed extensions, and the per-file waivers are data in
+  `invariants.json > asset_budget`; the check is `checkAssetBudget` in
+  `check.mjs`, evaluated in the gate. A file over its class ceiling is a
+  violation. So is a file whose extension belongs to no class and is not listed
+  in `asset_budget.unweighed`: the world is closed, and an unclassed asset stops
+  the line rather than passing unweighed. That sentence used to be false. The
+  check skipped anything `classOf` could not place, so `.mp4` — in no class —
+  was never weighed, and `video/sheet-loop.mp4` grew to 5.9 MB, larger than the
+  GLB this clause was written to catch and the element `/portfolio`'s LCP
+  resolves against, while K1 reported green on the four classes it happened to
+  know about. An asset that already exceeds its ceiling is
   waived at its current byte size and may not grow past it: the X1 ratchet
   applied to bytes, so a waiver only moves down, in the reduction order that
   owns it. This is the performance budget the deliverables standard names as a
   gate instrument (`deliverables.md`, "the contrast check and performance
   budget"), so the 25 MB-SVG / 82 MB-GLB class of regression cannot land
   silently. WO-8.6, decision R-40.
+
+- **K2** Every model contract states the content hash of the glb it points at,
+  and that hash is the file's. The contracts directory, the public root, the
+  hash algorithm and the recorded prefix width are data in
+  `invariants.json > model_versioning`; the check is `checkModelVersioning` in
+  `check.mjs`. The clause exists because `next.config.mjs` serves
+  `/models/:path*` as `public, max-age=31536000, immutable`, which promises a
+  browser that the bytes at that URL will not change for a year, and the path
+  carried no version to make that true. It was false in this repo, not in
+  theory: `iphone17-pro.glb` went 82,689,464 to 4,340,480 B under the same name
+  after the 82 MB version had already shipped under that header, so a visitor
+  holding it keeps it into 2027 and no deploy reaches them. `modelRequestUrl`
+  now requests the file at `?v=<contentHash>`, which makes new bytes a new cache
+  key; K2 is what stops that constant drifting from the file it versions, since
+  a forgotten hash restores the original bug silently. Withdrawing the header
+  instead is not a fix and the clause should not be read as preferring it:
+  `max-age=31536000` alone already serves a stale copy for a year unasked, and
+  `immutable` only additionally suppresses the revalidation a manual reload
+  sends. A file that does not exist, a hash of the wrong shape, a contract
+  missing either field, and finding no contract at all are each violations --
+  the last one because a check that measures nothing must not report green,
+  which is the failure K1 shipped with. Decision R-193.
 
 ### LC. The licence
 

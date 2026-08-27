@@ -803,9 +803,10 @@
       "svg": 512000,
       "font": 512000,
       "image": 256000,
-      "model": 5242880
+      "model": 5242880,
+      "video": 2097152
     },
-    "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic compressed-GLB target; it was set against the 82.7 MB uncompressed model, and that model now measures 4.14 MB and clears it without a waiver.",
+    "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic compressed-GLB target; it was set against the 82.7 MB uncompressed model, and that model now measures 4.14 MB and clears it without a waiver. video 2 MB is the one ceiling here set by a consequence rather than by what is already in the tree, because the tree holds exactly one video and it is over. Over 20.03 s it is ~837 Kbps, comfortable for footage the sheets luma-key before showing; the reason it is not more generous is that the shared blob has no byte ranges, so the whole file lands before any sheet paints, and on the mobile profile Lighthouse throttles to (184,320 B/s) every megabyte here is about 5.4 s of transfer. THAT SENTENCE USED TO SAY '5.4 s of LCP' AND THAT WAS WRONG, corrected here rather than quietly reworded: the film went 5,942,668 -> 1,406,374 B and LCP moved 36.7 -> 36.4 s, three tenths of a second for four and a half megabytes (R-192). LCP was waiting on the delay before the request started, not on the transfer, so this ceiling is justified by page weight and by what a slow connection costs a reader -- which are real -- and not by an LCP figure it does not control. The class exists at all because it did not: .mp4 was in no class, classOf returned null, and the loop skipped it, so the largest asset in the repo was never weighed. See unweighed_because.",
     "extensions": {
       "svg": [
         ".svg"
@@ -827,31 +828,19 @@
       "model": [
         ".glb",
         ".gltf"
+      ],
+      "video": [
+        ".mp4",
+        ".webm",
+        ".mov",
+        ".m4v"
       ]
     },
+    "unweighed": [
+      ".html"
+    ],
+    "unweighed_because": "THE CLOSED WORLD, AND WHY THE SKIP HAD TO BECOME A LIST. classOf returns null for an extension in no class, and the loop used to `continue` on that -- so an unclassed asset was not under a generous ceiling, it was under none, and the clause's own sentence (every file under public/) was false for it without anything saying so. That is how sheet-loop.mp4 came to be the largest file in the tree, 5.9 MB and the element the portfolio's LCP resolves against, while a green K1 reported on nothing but the svg/font/image/model classes it happened to have been written for. The classes were drawn around the regression that existed in August 2026 -- a 25 MB SVG and an 82 MB GLB -- and video simply was not in view. So the skip is now a declared list rather than a default. Every extension under public/ is either classed and weighed, or named here and deliberately not weighed, and anything that is neither fails and asks to be classified. .html is here because the one file carrying it is a document, not an asset with a byte ceiling. The cost is a stop-the-line the first time a new kind of file lands in public/, which is exactly the moment someone should be deciding what it weighs.",
     "waived": {
-      "public/images/case-studies/kindle-manga-screens.png": {
-        "bytes": 580498,
-        "clause": "K1",
-        "ceiling": 256000,
-        "recorded": "2026-08-26",
-        "owner": "sebz213",
-        "because": "Four Kindle Manga purchase screens fanned in perspective, carrying legible Japanese UI type at the size the card renders them. It is the second slide of the Shipped carousel and the only place the flow is shown, so it cannot be dropped or replaced with a crop.",
-        "target": 256000,
-        "reduction": "Re-encode to AVIF with a WebP fallback and drop the alpha channel, which the card does not use -- the neighbouring kindle-challenges.webp is already WebP and sits under the ceiling, so the path is proven on this surface.",
-        "trigger": "before the next case study is published, or before a third image joins this carousel, whichever is first"
-      },
-      "public/images/case-studies/kindle-speed.png": {
-        "bytes": 373338,
-        "clause": "K1",
-        "ceiling": 256000,
-        "recorded": "2026-08-26",
-        "owner": "sebz213",
-        "because": "The reward mascot at full speed as the progress bar completes -- a wide, soft-gradient illustration that PNG stores badly and that banding would ruin if it were quantised carelessly.",
-        "target": 256000,
-        "reduction": "Re-encode to AVIF at the rendered height; gradients are what AVIF is best at and the same pass covers both files.",
-        "trigger": "before the next case study is published, or before a third image joins this carousel, whichever is first"
-      },
       "public/kindle-ux-collection.svg": 2417755,
       "public/images/art-covers/frieren-manga.jpg": 920836,
       "public/screens/6.svg": 719475,
@@ -860,7 +849,7 @@
       "public/screens/9.svg": 818049,
       "public/screens/10.svg": 1009929
     },
-    "waived_because": "TWO SHAPES, AND THE NEWER ONE IS THE SPEC. A waiver may be a plain byte count -- the ten legacy entries, held at their current size by the ratchet under the shared reduction order below -- or an object stating clause, ceiling, measured bytes, owner, date recorded, reduction target, the reduction itself and the trigger that ends it. New waivers take the object form. The difference between a waiver and a bypass is specification: a bypass says the check does not apply, a waiver says what it measured, what that exceeds, who owns closing it and when. The legacy ten keep their numbers rather than being given invented owners and dates, because a fabricated provenance is worse than an honest count. Waived assets are REPORTED, never silent: check.mjs prints a WAIVED block and the run's verdict carries the count, so a clean run reads PASS+2W rather than PASS. Seven assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg and kindle-ux-collection.svg were the SVG half of WO-8.1 and are re-encoded rather than re-authored (R-183): they are not raster in a wrapper, they are real vector documents whose <image> data URIs were 99.9% and 97% of their bytes. mascot went 10,068,158 -> 75,672 B and is NOT WAIVED ANY MORE -- one 3072x2048 PNG stretched into a 548x375 box. ux-collection went 15,026,420 -> 2,417,755 B and stays waived: 27 distinct images, so base64 alone floors it above the ceiling. Nothing in the tree references either file — they are kept and shrunk rather than deleted because WO-8.1 states re-authoring as the outcome, which presumes they survive; deleting them is a call for whoever owns that order. iphone17-pro.glb WAS the tenth and is not waived any more: it came in at 82,689,464 B against this class's 5,242,880 B and now measures 4,340,480 B, under the ceiling on its own merits, so the entry is deleted rather than lowered -- a waiver whose trigger has fired is closed, not ratcheted (R-182, scripts/pack-model.mjs). It got there on textures, not the DRACO/meshopt geometry compression this note used to anticipate: 97.3% of the file was five 4096px PNGs, one of them a 16-bit normal map at 54.69 MB that three.js was decoding to 8 bits anyway. frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. screens/6-10.svg are the Kindle Japan product screens feeding the case-study PanelWall hero. They came down from 3.8-8.1 MB to 0.57-1.0 MB (R-183) and stay waived, because each still carries 9-18 distinct WebP data URIs and base64's 33% floors them above 500 KB. They cannot be deduped into shared files -- and about half their weight IS duplication, the same eight covers in all five -- because PanelWall renders them through <img src>, where an SVG is in secure static mode and external references never load. screens/activating.svg was the same family and is NOT WAIVED ANY MORE at 425,270 B, down from 607,987. Its old note said its exact source bytes were kept unminified so the render matched the design file; that no longer applies and did not need to: every <image> here sits in a <pattern> with an explicit width/height and a preserveAspectRatio of none, so the bitmap is stretched to a declared box and re-encoding the pixels behind it cannot move anything on screen. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
+    "waived_because": "TWO SHAPES, AND THE NEWER ONE IS THE SPEC. A waiver may be a plain byte count -- the ten legacy entries, held at their current size by the ratchet under the shared reduction order below -- or an object stating clause, ceiling, measured bytes, owner, date recorded, reduction target, the reduction itself and the trigger that ends it. New waivers take the object form. The difference between a waiver and a bypass is specification: a bypass says the check does not apply, a waiver says what it measured, what that exceeds, who owns closing it and when. The legacy ten keep their numbers rather than being given invented owners and dates, because a fabricated provenance is worse than an honest count. Waived assets are REPORTED, never silent: check.mjs prints a WAIVED block and the run's verdict carries the count, so a clean run reads PASS+2W rather than PASS. Seven assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). SHEET-LOOP.MP4 IS NOT ONE OF THEM ANY MORE, and it was waived for less than a day: 5,942,668 -> 1,406,374 B, under the 2,097,152 ceiling on its own merits, so the entry is deleted rather than lowered (R-189). Its trigger read 'when ffmpeg is available', which turned out to be an npm install away rather than an environment fact -- worth remembering the next time a waiver's reason is tooling. Three findings paid for it: the file carried a 317 kb/s AAC track on a video the code mutes, roughly 793 KB that could never be heard; it was 2304x1440 for a surface that renders it about 573 CSS px wide; and the luma-to-alpha filter means chroma detail was being stored and then discarded. Y-plane SSIM against the original measures 0.9976, which is the number that matters here because on this surface luma IS alpha. The count is stated here and printed by the run, and it had drifted: this sentence said seven while the gate reported nine, because two object-form image waivers were added without anyone coming back to the prose. A number that lives in two places disagrees eventually, which is the same lesson the README figures taught, so treat the run's count as the true one and this line as something to re-read when a waiver lands. THE TWO KINDLE CARROUSEL IMAGES ARE GONE FROM THIS LIST, closed rather than ratcheted: kindle-manga-screens 580,498 -> 104,080 B and kindle-speed 373,338 -> 16,908 B, both now .webp and both under the 256,000 ceiling on their own merits (R-187). Their stated reduction was AVIF with a WebP fallback; WebP alone was taken because it needs no <picture> element on a surface that renders through a plain <img src>, and because it was already enough -- the mascot in particular was a soft-gradient illustration that PNG stored at 22x its WebP size, which is what the waiver had predicted in words and is now measured. Neither was resized: the tiles size them as a percentage of a responsive card, so a hard resize would be a guess about the widest breakpoint, and the format change alone cleared the ceiling. video/sheet-loop.mp4 is the tenth and the newest, and it is the first waiver here that exists because its class did not: .mp4 was in no class at all, so 5.9 MB -- more than the GLB this budget was built to catch -- was never weighed. kindle-mascot.svg and kindle-ux-collection.svg were the SVG half of WO-8.1 and are re-encoded rather than re-authored (R-183): they are not raster in a wrapper, they are real vector documents whose <image> data URIs were 99.9% and 97% of their bytes. mascot went 10,068,158 -> 75,672 B and is NOT WAIVED ANY MORE -- one 3072x2048 PNG stretched into a 548x375 box. ux-collection went 15,026,420 -> 2,417,755 B and stays waived: 27 distinct images, so base64 alone floors it above the ceiling. Nothing in the tree references either file — they are kept and shrunk rather than deleted because WO-8.1 states re-authoring as the outcome, which presumes they survive; deleting them is a call for whoever owns that order. iphone17-pro.glb WAS the tenth and is not waived any more: it came in at 82,689,464 B against this class's 5,242,880 B and now measures 4,340,480 B, under the ceiling on its own merits, so the entry is deleted rather than lowered -- a waiver whose trigger has fired is closed, not ratcheted (R-182, scripts/pack-model.mjs). It got there on textures, not the DRACO/meshopt geometry compression this note used to anticipate: 97.3% of the file was five 4096px PNGs, one of them a 16-bit normal map at 54.69 MB that three.js was decoding to 8 bits anyway. frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. screens/6-10.svg are the Kindle Japan product screens feeding the case-study PanelWall hero. They came down from 3.8-8.1 MB to 0.57-1.0 MB (R-183) and stay waived, because each still carries 9-18 distinct WebP data URIs and base64's 33% floors them above 500 KB. They cannot be deduped into shared files -- and about half their weight IS duplication, the same eight covers in all five -- because PanelWall renders them through <img src>, where an SVG is in secure static mode and external references never load. screens/activating.svg was the same family and is NOT WAIVED ANY MORE at 425,270 B, down from 607,987. Its old note said its exact source bytes were kept unminified so the render matched the design file; that no longer applies and did not need to: every <image> here sits in a <pattern> with an explicit width/height and a preserveAspectRatio of none, so the bitmap is stretched to a declared box and re-encoding the pixels behind it cannot move anything on screen. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
   },
   "workflows": {
     "$description": "STANDARD.md section W (decision R-69). A path spelled inside a CI step is a binding like any other, and until now it was the only binding in this repo that nothing verified. The break it closes, found on this branch: both workflows ran `node tokens/build.mjs` for the whole life of a branch that had already moved that script to packages/ame-tokens/build.mjs. Nothing went red, because the workflows had never been pushed and so had never run — the same vacuous pass V7 has while no tag exists. W1 verifies every script path and script name a workflow or a package.json script spells, against the tree, at gate time instead of at first-push time. W2 asserts each workflow declares a least-privilege token. Data here, logic in checkWorkflows in check.mjs, clause in STANDARD.md section W.",
@@ -1303,6 +1292,12 @@
         "check": "checkLicence",
         "scope": "package",
         "scope_because": "the licence travels with the package and is the first thing a stranger reads"
+      },
+      "K2": {
+        "invariant": "model_versioning",
+        "check": "checkModelVersioning",
+        "scope": "portfolio",
+        "scope_because": "a cache header over public/models and the viewer contracts that address it; the package ships neither"
       }
     },
     "allowlists": {
@@ -1317,13 +1312,65 @@
       "check": "checkDenominator"
     },
     "threshold_scan": {
-      "$description": "Z2. No threshold literal hardcoded in check.mjs. The scan strips comments, strings, and regex literals, then flags any decimal literal or any integer >= min_integer that is not allowlisted. A threshold a clause compares against (a contrast minimum, a byte ceiling) lives in invariants.json; the checker reads it, never restates it. allow names the legitimate non-threshold constants that remain in checker code, each with its reason.",
+      "$description": "Z2. No threshold literal hardcoded in the checker. One left-to-right pass (tokens/jscode.mjs) blanks comments, strings, template text and regex literals, and what remains is code; the scan then flags any decimal literal or any integer >= min_integer that is not allowlisted, naming the file and line. allow names the legitimate non-threshold constants that remain in checker code, each with its reason.",
       "id": "Z2",
       "min_integer": 100,
       "allow": {
         "120": "display truncation length for a violation message (slice(0, 120))",
         "1000": "seconds-to-milliseconds unit conversion in checkScales convert()"
-      }
+      },
+      "also_scan": [
+        "tokens/jscode.mjs"
+      ],
+      "also_scan_because": "The checker is more than one file, and the clause has to follow it. Moving the scanner into its own module for testability would otherwise have moved code out from under the rule that governs it, making 'put the literal in the other file' a legal answer to Z2 -- a bypass created by the very change that closed the last one. jscode.mjs is listed because it is pure mechanism and holds no domain constants. contrast.mjs, ratchet.mjs and hdr.mjs are deliberately NOT listed: their numbers are their subject, not thresholds restated from invariants (REFERENCE_WHITE_NITS is the definition of reference white, not a limit read from this file), so scanning them would generate allowlist entries Z4 only lets shrink, in exchange for no guarantee. That is a judgement about those three modules, and it should be revisited the day one of them starts comparing against a limit.",
+      "scanner_samples": [
+        {
+          "code": "const MAX = 512",
+          "sees_number": true,
+          "why": "a bare threshold in code is exactly what Z2 exists to catch"
+        },
+        {
+          "code": "/* a comment mentioning 512 */",
+          "sees_number": false,
+          "why": "prose about a number is not a restatement of it"
+        },
+        {
+          "code": "const s = 'contains /* an unclosed comment opener' \nconst MAX = 512",
+          "sees_number": true,
+          "why": "THE BUG THIS CLAUSE SHIPPED WITH. A /* inside a string is not a comment; the old strip opened one there and blanked everything to the next */ anywhere in the file, taking 23% of check.mjs and a real threshold out of the scan while the gate stayed green"
+        },
+        {
+          "code": "const re = /[0-9]{512}/",
+          "sees_number": false,
+          "why": "digits inside a pattern are the pattern, not a threshold restated"
+        },
+        {
+          "code": "const re = /pattern/g\nconst MAX = 512",
+          "sees_number": true,
+          "why": "a regex literal ends at its delimiter; the scan must resume after it rather than running to end of file, which is the unbounded-run failure in another costume"
+        },
+        {
+          "code": "const msg = `budget ${512} B`",
+          "sees_number": true,
+          "why": "code inside a template's ${} is code; a threshold restated there is still restated, and blanking whole templates hid that"
+        },
+        {
+          "code": "const msg = `a template mentioning 512 B`",
+          "sees_number": false,
+          "why": "template TEXT is a string like any other"
+        },
+        {
+          "code": "const ratio = total / 512 / count",
+          "sees_number": true,
+          "why": "division is not a regex; reading the first / as a literal would blank the rest of the line and hide the number after it"
+        },
+        {
+          "code": "// a line comment mentioning 512",
+          "sees_number": false,
+          "why": "the ordinary case, kept so a regression in line-comment handling fails loudly"
+        }
+      ],
+      "scanner_samples_because": "A scan that goes blind cannot report that it has gone blind: it returns fewer findings, which reads exactly like a clean tree. That is how the old strip survived -- it was not producing wrong answers, it was producing confident ones over 29% of the code. So the instrument is tested on every run against fragments whose classification is known, in both directions: sees_number true means the number must survive stripping (a real threshold the scan must catch), false means it must not (prose, pattern, or string that would be a false positive). CS1 does the same thing with must_catch and must_never_catch, for the same reason. Adding a construct to jscode.mjs means adding the sample that proves it. R-194."
     },
     "override": "none",
     "override_because": "Z1 and Z2 are deliberately exitless. They are the clauses that hold the contract to its own shape -- a bijection with an exception is not a bijection, and a threshold scan that can be waived is a threshold scan the checker may quietly reacquire. A meta-clause with an override does not constrain anything."
@@ -1488,7 +1535,8 @@
       "docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md",
       "docs/DECISION-STATUS-2026-08-24.md",
       "THIRD-PARTY-NOTICES",
-      "scripts/parse-ame-icons.mjs"
+      "scripts/parse-ame-icons.mjs",
+      "components/ame/chrome.css"
     ],
     "$workflow": "The CI workflow is written by tokens/extract.mjs rather than copied. The monorepo workflow names scripts the package does not have (docgen, woven, the shipped check over an app tree it has none of), and W1 would rightly fail on every one. Generating it keeps the steps and the scripts in one hand.",
     "$fixtures": "examples/ and tokens/gate-fixtures.mjs travel: a gate nobody has watched fail is indistinguishable from one that cannot, and that argument is the package's to make as much as this repo's.",
@@ -1594,5 +1642,20 @@
         "$because": "MIT is permissive but not unconditional: the permission notice must be included in all copies or substantial portions. 218 glyphs is a substantial portion. So the notice is not paperwork, it is the term that makes the use lawful, and it is checked rather than trusted to survive the next refactor. A link would not satisfy the condition; the text is reproduced."
       }
     ]
+  },
+  "model_versioning": {
+    "$description": "K2. The bytes a model contract claims are the bytes on disk, so an immutable URL can be trusted.",
+    "id": "K2",
+    "contracts_dir": "components/prototype-viewer/models",
+    "public_root": "public",
+    "hash_algorithm": "sha256",
+    "hash_prefix_hex": 16,
+    "because": "next.config.mjs serves /models/:path* as public, max-age=31536000, immutable -- a promise to the browser that the bytes at that URL will not change for a year. The path carries no content hash, so the promise was false, and this repo falsified it rather than a hypothetical: iphone17-pro.glb went 82,689,464 -> 4,340,480 B under the same name (R-182) AFTER the 82 MB version had shipped with that header, so every browser holding it keeps it into 2027 and no deploy reaches them. loadModel now requests the file at ?v=<contentHash>, which makes new bytes a new cache key and the promise true. THE HASH IS THE WHOLE FIX, so a hash nobody checks is the bug on a delay: re-export the glb, forget the constant, and the URL stops changing while the header keeps promising. K2 is that check. It reads the recorded prefix out of each contract under contracts_dir and compares it to the file's real sha256. Withdrawing the header instead was considered and is not a fix: max-age=31536000 on its own already serves a stale copy for a year unasked, and immutable only additionally suppresses the revalidation a manual reload would send, so dropping the keyword changes nothing a visitor experiences. hash_prefix_hex is 16 because the value is also the file's git-LFS oid prefix -- `git cat-file -p HEAD:<path>` states the same sha256 -- which is what lets the check read a pointer on a CI checkout that never fetched the object and still be byte-exact, the same reading K1 makes for byte counts. A path may carry the immutable header only when its URL changes with its bytes and something checks that; /video/ does not qualify today and is deliberately absent (R-192, R-193)."
+  },
+  "lfs_pointer": {
+    "$description": "How K1 and K2 read a git-LFS pointer instead of the stub standing in for the file.",
+    "prefix": "version https://git-lfs.github.com/spec/v1",
+    "max_bytes": 512,
+    "because": "Git LFS replaces a tracked file with a ~130-byte text stub stating the real object's size and its sha256 oid. Two clauses need to see past that stub: K1 weighs bytes and K2 hashes bytes, and both would otherwise measure the stub -- telling K1 that an 83 MB model is 130 bytes, and handing K2 the hash of a pointer instead of the hash of a model. Reading the pointer makes both byte-exact on any checkout, smudged or not, which is what lets CI skip fetching LFS objects entirely (lfs: false in both workflows) and still measure the real thing. max_bytes is comfortably above a real pointer and far below anything these classes hold, so the read stays bounded and a genuinely tiny asset still measures itself. It lives here rather than in check.mjs because it was a threshold restated in the checker, which is what Z2 exists to catch -- and Z2 had not caught it: the literal sat inside a region the scan's block-comment pass was swallowing. Two clauses now read one value, so a change to it cannot move K1 and leave K2 behind."
   }
 }

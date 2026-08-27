@@ -662,3 +662,54 @@ Worth naming: the false positive was invisible while it agreed with the true
 one. It was found only because the real failure was investigated rather than
 patched, and the first hypothesis for the red build was the date. Being wrong
 about the cause is what surfaced it.
+
+## D-90 The asset budget had four classes and the largest file in the tree was in none of them
+
+2026-08-27. Found by reading a Lighthouse run that was mostly good news.
+
+The reduction orders worked. `/portfolio` went from 112,577,308 B to 14,749,964
+B, and the sixteen-second blank screen went with them: first paint moved from
+15,970 ms to 225 ms. What did not improve was LCP, at 38.9 s, and the element it
+resolves against is `video/sheet-loop.mp4` — 5,942,668 B, 20.03 s of H.264 at
+2.37 Mbps, and now about 40% of everything that page weighs.
+
+The obvious question was why a file that big had never appeared in a K1 report.
+The answer is that it had never been weighed. `classOf` maps an extension to one
+of four classes — svg, font, image, model — and `.mp4` is in none of them, so it
+returned null and the loop said `if (!cls) continue`. Not a generous ceiling. No
+ceiling. Meanwhile the clause directly above read **"Every file under `public/`
+sits within a byte ceiling for its class"**, and every run went green.
+
+The classes were not drawn carelessly; they were drawn in August 2026 around the
+regression that existed then, a 25 MB SVG and an 82 MB GLB, and `budgets_because`
+still argues each ceiling against files that were in the tree at the time. Video
+was simply not in view. That is the failure mode worth naming: the check was
+correct about everything it had been pointed at, and silent about the category
+nobody had thought of. A budget with an open world does not fail when something
+new arrives — it just stops covering it, and says nothing.
+
+So two changes rather than one. A `video` class at 2 MB, which is the only
+ceiling here set by a consequence instead of by what is already in the tree,
+because the tree holds exactly one video and it is over: 2 MB over 20.03 s is
+~837 Kbps, affordable for footage the sheets luma-key before showing, and the
+reason it is not looser is that the shared blob has no byte ranges, so every
+sheet waits for the whole file and each megabyte costs about 5.4 s of LCP on the
+profile Lighthouse throttles to. And then the part that matters more: the world
+is closed. `asset_budget.unweighed` lists the extensions deliberately not
+weighed (`.html`, a document), and anything classed by neither fails and asks to
+be classified. Validated by planting a `.bin` under `public/`, watching K1 turn
+the gate red, and deleting it.
+
+The ceiling is not met today and the waiver says so plainly, including what it
+does **not** close. Byte weight and LCP are different problems here: even at 2 MB
+the un-streamable blob is still ~11 s of that page's LCP, and getting the film
+off the critical path is a separate change with its own choices — a poster the
+sheets paint first, or giving back the shared blob to take back range requests.
+A waiver that quietly implied it had booked that would be worse than no waiver.
+The encode itself was deferred for a dull reason, no ffmpeg in this environment,
+and the trigger says exactly that rather than inventing a milestone.
+
+One thing fell out of the audit. `waived_because` said seven waived assets while
+the run reported nine, because two object-form image waivers had landed without
+anyone returning to the prose. The same count in two places, drifting — which is
+the README-figures lesson again, in the file that exists to state the rules.

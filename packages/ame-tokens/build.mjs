@@ -6,12 +6,12 @@
 
   Postcondition (contract.md > Postcondition B2): given files that satisfy the
   preconditions, this writes a stylesheet in which every token appears exactly
-  once, resolved to a literal, under .portfolio-root. It throws rather than emit
+  once, resolved to a literal, at :root. It throws rather than emit
   a partial file.
 
   Output, all four committed and all four byte-checked against a fresh build
   (contract B4 for the first, B6 for the rest):
-    tokens.css    every token, resolved, under .portfolio-root
+    tokens.css    every token, resolved, at :root
     recipes.css   the compiled recipes: slots, and one scope per variant context
     tokens.mjs    the typed surface — three string builders, no values
     tokens.d.ts   the names this system publishes, as types
@@ -556,7 +556,7 @@ export function renderRecipesCss(compiled) {
   Each recipe emits its slots once, then one scope per variant context holding
   only what that context changes. A context re-declares the recipe token's own
   custom property in a narrower scope; the token's single home under
-  .portfolio-root (contract B1) is untouched, and the slot rules read the name,
+  :root (contract B1) is untouched, and the slot rules read the name,
   never the value, so they need no variant of their own.
 */
 `
@@ -849,11 +849,18 @@ export function renderTypes(tokens, compiled) {
 /** Every token's custom property, one per token in the four layers. */
 export type AmeTokenName =${union(tokens.map((t) => t.cssName))}
 
-/** The legacy --port-* spellings. Each resolves to one token per theme (contract B3). */
+/*
+  AmeVarName was \`AmeTokenName | AmeAliasName\` while the legacy --port-*
+  aliases existed. They were deleted; this reference was not, so the published
+  tokens.d.ts named a type it never declared and did not compile.
 
-
-/** Anything \`token()\` will accept: a token's own name, or an alias for one. */
-export type AmeVarName = AmeTokenName | AmeAliasName
+  Nothing here caught it because tsconfig sets skipLibCheck, which suppresses
+  errors in .d.ts files by design. The repo's own typecheck is therefore blind
+  to the one file it publishes for other people to typecheck against, and a
+  consumer without that flag inherits the error we cannot see.
+*/
+/** Anything \`token()\` will accept. */
+export type AmeVarName = AmeTokenName
 
 /** The recipes this system compiles. */
 export type AmeRecipeName =${union(recipeNames)}
