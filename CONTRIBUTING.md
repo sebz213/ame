@@ -52,17 +52,16 @@ Judgment calls become dated entries in `tokens/decisions.md`, appended, never re
 4. **A sign-off on every commit** (`git commit -s`), certifying the [DCO](DCO).
 ## The gate reads your change before I do
  
-This repository is open to contributions and intends to stay that way. The filter is the gate, running as a required check on every push, and it reads every contribution the same way. Nothing reaches a human until `pnpm gate` and `pnpm gate:fixtures` are green. Most of what a review would otherwise cover is settled before the conversation starts.
- 
-That arrangement is the whole claim of this project applied to itself. Ame exists to argue that a machine can hold a standard human attention cannot. Screening contributions by taste would make that argument in one direction and refuse it in the other.
+Nothing reaches a human until `pnpm gate` and `pnpm gate:fixtures` are green.
+
  
 **On the sign-off.** It is the one requirement here enforced without exception. `git commit -s` is you stating you wrote it or have the right to submit it. Every commit, including mine.
  
 **On AI.**
  
-- **Say so** in the pull request. The template has a box for "AI-assisted, and I have not fully reviewed it," and ticking it honestly costs nothing. Guessing does.
-- **Answer for it.** A change nobody has read will not be merged, and repeatedly submitting unread output is the one thing that ends access here.
-The objection is to arriving with work you cannot answer questions about, and that was possible long before the tool existed.
+- **Say so** in the pull request. The template has a box for "AI-assisted, and I have not fully reviewed it."
+- **Answer for it.** A change nobody has read will not be merged.
+
  
 ## Reporting a security issue
  
