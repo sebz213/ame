@@ -1,0 +1,22 @@
+{
+  "recipe": {
+    "expertise-card": {
+      "$description": "A case study's scope facts. They run longer than the home's one-word skills, so the columns size to content and wrap (auto-fit, a static in resolver.json) rather than cramming into fixed tracks where a long value overflows its neighbour.",
+      "list": {
+        "gap": { "$type": "dimension", "$value": "{component.term-sheet-card.item-gap}" },
+        "padding-inline": {
+          "$type": "dimension",
+          "$value": "{unit.0}",
+          "$description": "No fixed inset here: the columns are content-sized and auto-fit, and an inset on top of that would fight the wrap they depend on. The width static narrows the grid instead."
+        }
+      },
+      "label": {
+        "margin-bottom": {
+          "$type": "dimension",
+          "$value": "{unit.2}",
+          "$description": "Double the gap a value's own margin sets, so the title sits further from its sub text without widening the gaps between values."
+        }
+      }
+    }
+  }
+}

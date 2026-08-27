@@ -31,7 +31,7 @@ mistake a person actually makes.
 
 | File | Line | Mistake | Clause |
 |---|---|---|---|
-| `panel.css` | `color: var(--color-ink)` | binds a **base** primitive from a surface | U1, U2 |
+| `panel.css` | `color: var(--ame-color-ink)` | binds a **base** primitive from a surface | U1, U2 |
 | `panel.css` | `box-shadow: 0px 1px 6px 0px rgb(16 19 25 / 0.06)` | hand-writes a recipe the token layer already holds | D2 |
 | `panel.css` | `--text-secondary` on `--background-utility` | renders a contrast pair no C clause measures | CV1 |
 | `Panel.tsx` | `fontSize: '17px'` | a size off the type scale | S1 |

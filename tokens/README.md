@@ -1,11 +1,8 @@
-# Ame: the token layer and its gate
+# Ame: design tokens for the portfolio surface
 
-Ame is a three-layer token system in the Design Tokens Community Group (DTCG)
-format, version 2025.10. It holds every value a bound surface renders through:
-colour, spacing, typography, radii, elevation, motion, glass, and stacking.
-
-This directory is the gate. The tokens themselves are `packages/ame-tokens`;
-the repository front door is the root `README.md`.
+Ame is a three-layer token system in the Design Token Open Standard format (DTOS
+2025.10). It holds every value the surface renders through: colour, spacing,
+typography, radii, elevation, motion, glass, and stacking.
 
 ```
 tokens/

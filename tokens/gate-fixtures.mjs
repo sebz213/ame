@@ -58,10 +58,18 @@ for (const id of expect.drift_grows)
 // 4. Work order 2.2: the failure must name the raw value it found, not merely
 //    report that something is wrong. A reader who cannot see the literal cannot
 //    act on the message.
-const restatedLine = out.match(/^\s+D2 restated: .*$/m)
+/*
+  The line must name the VIOLATING FIXTURE, not merely exist. This tree carries
+  restated values of its own, and one of those satisfying this check would prove
+  nothing about the fixture — the run would pass while the thing it exists to
+  demonstrate went uncaught.
+*/
+const restatedLine = out
+  .split('\n')
+  .find((l) => /^\s+D2 restated: /.test(l) && l.includes(violating))
 if (!restatedLine) problems.push('D2 reported no restated value, so no raw literal was named.')
-else if (!/"[^"]*\d[^"]*"/.test(restatedLine[0]))
-  problems.push(`D2 fired without naming the literal it found: ${restatedLine[0].trim()}`)
+else if (!/"[^"]*\d[^"]*"/.test(restatedLine))
+  problems.push(`D2 fired without naming the literal it found: ${restatedLine.trim()}`)
 
 // ── Report ──────────────────────────────────────────────────────────────────
 if (problems.length) {
@@ -76,4 +84,4 @@ console.log(`gate:fixtures  PASS  (${violating})\n`)
 console.log('  The gate rejected the disconfirming fixture, for the stated reasons:')
 for (const id of expect.violations) console.log(`    ${id}   violation fired`)
 for (const id of expect.drift_grows) console.log(`    ${id}   drift grew past baseline`)
-console.log(`\n  ${restatedLine[0].trim()}`)
+console.log(`\n  ${restatedLine.trim()}`)

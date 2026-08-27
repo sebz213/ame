@@ -1,9 +1,3 @@
-# Every text file checks out with LF, on every platform.
-#
-# This is not a style preference. Clause B4 byte-compares the committed
-# packages/ame-tokens/tokens.css against a fresh build, and build.mjs emits LF.
-# Without this line a Windows clone converts the committed file to CRLF, the
-# comparison fails on a tree nobody touched, and the first thing a new adopter
-# sees is a gate that says their checkout is broken. Caught by running the
-# smoke test on a fresh clone, which is what smoke tests are for.
+# Every text file checks out with LF, on every platform. Clause B4 byte-compares
+# a generated file; a CRLF checkout fails it on a tree nobody touched.
 * text=auto eol=lf

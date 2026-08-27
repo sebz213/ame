@@ -22,7 +22,7 @@ export function oklabToLinearSrgb(L, a, b) {
 export const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
 export const linearToSrgb = (c) => (c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055)
 
-/** Any DTCG colour value to linear-light sRGB, plus its alpha. */
+/** Any DTOS colour value to linear-light sRGB, plus its alpha. */
 export function toLinear(v) {
   let lin
   if (v.colorSpace === 'srgb') lin = v.components.map(srgbToLinear)

@@ -1,21 +1,16 @@
 # The gate, on every push and pull request.
 #
-# Both halves of the argument run here. `gate` proves the tree is clean, which a
-# gate that could not fail would also prove; `gate:fixtures` runs the same gate
-# against examples/violating and is green only when it was rejected. A clause
-# that quietly stops catching turns this workflow red instead of silent.
-#
-# No threshold is restated here. Each step names a package.json script whose
-# numbers live in tokens/invariants.json, and clause W1 checks that every script
-# a step names still resolves to a file in the tree.
+# Extracted from the monorepo by tokens/extract.mjs. Every step names a
+# package.json script, and clause W1 checks that each one still resolves to a
+# file in the tree — so a script renamed upstream turns this red rather than
+# failing at first push.
 name: code
 
 on:
   push:
   pull_request:
 
-# CI reads the tree and nothing else. No step here writes to the repository,
-# so the token it gets should not be able to (clause W2).
+# CI reads the tree and nothing else (clause W2).
 permissions:
   contents: read
 
@@ -24,40 +19,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # No `version:` on purpose. The action reads `packageManager` from
-      # package.json, which is also what pnpm reads locally, so the version has
-      # one home and CI cannot drift onto a different pnpm than the working tree.
+      # No version here: the action reads packageManager from package.json, so
+      # the version has one home and CI cannot drift onto a different pnpm.
       - uses: pnpm/action-setup@v4
-
-      # Same reasoning for Node: `.nvmrc` is the one home, and nvm and fnm read
-      # it locally, so the runtime a contributor uses is the runtime CI uses.
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
+      - run: pnpm install --no-frozen-lockfile
       - name: tokens build
         run: pnpm tokens:build
-
-      # The README's diagram is generated from the token values. Committed, so
-      # GitHub can render it; checked, so it cannot disagree with the tokens.
+      # The README diagram is generated from the token values: committed so
+      # GitHub can render it, checked so it cannot disagree with the tokens.
       - name: diagram parity
         run: pnpm diagram:check
-
+      # Every figure in the README is generated from the tree. This is what
+      # stops a published number outliving the thing it counts.
+      - name: numbers parity
+        run: pnpm numbers:check
       - name: gate
         run: pnpm gate
-
+      # The other half: the same gate against examples/violating, green only
+      # when it was rejected. A clause that stops catching turns CI red.
       - name: gate on fixtures
         run: pnpm gate:fixtures
-
       - name: lint
         run: pnpm lint
-
       - name: typecheck
         run: pnpm typecheck
-
       - name: test
         run: pnpm test

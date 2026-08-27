@@ -41,9 +41,9 @@ Eight lines. No existing declaration changed value.
 ```
 + /* ame@0.1.0 · DTOS 2025.10 · generated, do not edit */     WO-1 header
 - --ease-out-expo    - --ease-in-back                          WO-4 deletions, both proven clientless
-+ --type-dense-leading      + --motion-overshoot-ease
-+ --motion-slide-ease       + --motion-slide-duration
-+ --motion-exit-ease                                           WO-4 additions
++ --ame-type-dense-leading      + --motion-overshoot-ease
++ --ame-motion-slide-ease       + --ame-motion-slide-duration
++ --ame-motion-exit-ease                                           WO-4 additions
 ```
 
 The two deletions are the exception P5 grants WO-4, and both tokens were proven

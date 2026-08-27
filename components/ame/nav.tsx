@@ -43,35 +43,101 @@ export function AmeNav({
   const listRef = useRef<HTMLDivElement>(null)
   const barRef = useRef<HTMLElement>(null)
   const [pill, setPill] = useState<{ x: number; w: number } | null>(null)
+  const [barW, setBarW] = useState<number | null>(null)
   const activeIndex = Math.max(0, items.findIndex((it) => it.id === activeId))
+  // The labels, as one string. A caller may build the items array inline, so its
+  // identity is not a dependency worth having; what the measurement actually
+  // depends on is the text being laid out. JSON.stringify rather than a join, so
+  // no separator can collide with a label of its own.
+  const labels = JSON.stringify(items.map((it) => it.label))
 
-  // Measured after layout and re-measured on resize: labels are text, so a font
-  // swap or wrap changes widths after first paint, and a pill positioned from the
-  // pre-swap measurement would stay wrong for the session.
+  /*
+    MEASURED FROM THE RENDERED ITEMS, AND RE-MEASURED WHENEVER THEY RESIZE.
+
+    This used to depend on [activeIndex, items.length], which is a proxy for "the
+    labels changed" that fails on the case that matters: swapping a label SET keeps
+    both the index and the count, so the effect did not re-run and the pill kept the
+    width of the label it no longer sat under. Translating the page does exactly that.
+
+    A ResizeObserver asks the layout instead of guessing from props, so it also covers
+    the case the old comment claimed and did not handle — a font swapping in after
+    first paint — and the wrap that a narrow viewport forces.
+
+    The bar's own width is measured too, from the list plus the bar's padding, so it
+    can be transitioned. An intrinsic `auto` width cannot be tweened; an explicit
+    pixel width equal to the intrinsic one looks identical and can be. It is set only
+    after the first measurement, so the bar sizes itself naturally on first paint and
+    nothing depends on JavaScript to have run.
+  */
   useEffect(() => {
+    const list = listRef.current
+    const bar = barRef.current
+    if (!list || !bar) return
+
     const measure = () => {
-      const list = listRef.current
-      const bar = barRef.current
-      if (!list || !bar) return
       const item = list.children[activeIndex] as HTMLElement | undefined
       if (!item) return
       // Both rects from the SAME element (the bar) the pill is positioned against,
       // so the bar's own padding doesn't offset the pill.
       const ir = item.getBoundingClientRect()
       const br = bar.getBoundingClientRect()
-      setPill({ x: ir.left - br.left, w: ir.width })
+
+      /*
+        RECTS ARE VISUAL PIXELS; EVERYTHING ELSE HERE IS LAYOUT PIXELS.
+
+        Under a CSS `zoom` anywhere above this component, getBoundingClientRect returns the
+        scaled size while getComputedStyle's padding — and the width we are about to write
+        back — are unscaled. Measured at zoom 0.67: the list's rect said 102.3 where its
+        offsetWidth said 153. Adding unscaled padding to a scaled width produced a bar set
+        to 0.67 x list + padding, so the zoom landed on part of the number twice and the nav
+        rendered about two thirds of the width it should have.
+
+        offsetWidth is layout, so their ratio is the effective zoom whatever the nesting.
+        Dividing by it puts every measurement back in the units the style expects, and the
+        whole correction is a no-op at zoom 1.
+      */
+      const z = br.width / (bar.offsetWidth || 1) || 1
+      const x = (ir.left - br.left) / z
+      const w = ir.width / z
+
+      const cs = getComputedStyle(bar)
+      const padX = parseFloat(cs.paddingLeft || '0') + parseFloat(cs.paddingRight || '0')
+      const bw = list.getBoundingClientRect().width / z + padX
+
+      /*
+        Bail out when nothing moved. A ResizeObserver fires on every size change, and
+        setting the bar's width is itself a size change — so returning a fresh object
+        each pass would re-render, re-observe and measure again without end. Sub-pixel
+        noise is treated as no change for the same reason.
+      */
+      const same = (a: number, b: number) => Math.abs(a - b) < 0.5
+      setPill((prev) => (prev && same(prev.x, x) && same(prev.w, w) ? prev : { x, w }))
+      setBarW((prev) => (prev !== null && same(prev, bw) ? prev : bw))
     }
+
     measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(list)
+    ro.observe(bar)
     window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [activeIndex, items.length])
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [activeIndex, labels])
 
   return (
     <nav
       ref={barRef}
       data-backdrop={tone === 'dark' ? 'dark' : undefined}
       className={`port-glass port-glass-quiet relative flex items-center${className ? ` ${className}` : ''}`}
-      style={{ borderRadius: 'var(--component-pill-radius)', padding: NAV_PAD }}
+      style={{
+        borderRadius: 'var(--ame-component-pill-radius)',
+        padding: NAV_PAD,
+        // Null until measured, so the first paint is the intrinsic width.
+        width: barW ?? undefined,
+        transition: `width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)`,
+      }}
       aria-label={ariaLabel}
     >
       {/* The pill. aria-hidden — it is the visual echo of aria-current below. */}
@@ -80,14 +146,14 @@ export function AmeNav({
           className="port-glass-pill pointer-events-none absolute"
           aria-hidden
           style={{
-            borderRadius: 'var(--component-pill-radius)',
+            borderRadius: 'var(--ame-component-pill-radius)',
             translate: `${pill.x}px 0`,
             width: pill.w,
             top: NAV_PAD,
             bottom: NAV_PAD,
             left: 0,
             transition:
-              'translate var(--motion-slide-duration) var(--motion-enter-ease), width var(--motion-slide-duration) var(--motion-enter-ease)',
+              'translate var(--ame-motion-slide-duration) var(--ame-motion-enter-ease), width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)',
           }}
         />
       )}
@@ -99,18 +165,21 @@ export function AmeNav({
             href={item.href}
             onClick={() => onNavigate?.(item.id)}
             aria-current={i === activeIndex ? 'true' : undefined}
-            className="relative z-10 flex items-center justify-center no-underline transition-colors"
+            // shrink-0 because the bar now carries an explicit width: without it a
+            // flex item would compress to fit the width that was measured FROM it,
+            // and the measurement would chase its own result.
+            className="relative z-10 flex shrink-0 items-center justify-center no-underline transition-colors"
             style={{
               height: NAV_ITEM_H,
-              paddingInline: 'var(--space-grid-gap)',
-              borderRadius: 'var(--component-pill-radius)',
-              fontSize: 'var(--type-meta-size)',
-              letterSpacing: 'var(--type-body-tracking)',
+              paddingInline: 'var(--ame-space-grid-gap)',
+              borderRadius: 'var(--ame-component-pill-radius)',
+              fontSize: 'var(--ame-type-meta-size)',
+              letterSpacing: 'var(--ame-type-body-tracking)',
               // The selected label sits on the bright pill, so it stays dark in
               // both tones (component.nav.pill-fg holds that, and takes no
               // -on-dark counterpart because the pill itself never darkens); the
               // others take the muted glass foreground (tone-aware, holds 0.78).
-              color: i === activeIndex ? 'var(--component-nav-pill-fg)' : 'var(--port-glass-fg-muted)',
+              color: i === activeIndex ? 'var(--ame-component-nav-pill-fg)' : 'var(--port-glass-fg-muted)',
             }}
           >
             {item.label}

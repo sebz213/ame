@@ -1,21 +1,104 @@
 {
-  "$description": "Base spacing ramp. DTCG dimension objects in rem. Tailwind-compatible (0.25rem = 1 Tailwind unit) so the utility classes and the tokens name the same distances. Closed set: invariant spacing-scale admits no spacing value outside it.",
+  "$description": "Base spacing ramp. DTOS dimension objects in rem. Tailwind-compatible (0.25rem = 1 Tailwind unit) so the utility classes and the tokens name the same distances. Closed set: invariant spacing-scale admits no spacing value outside it.",
   "unit": {
+    "0": {
+      "$value": {
+        "value": 0,
+        "unit": "rem"
+      }
+    },
+    "1": {
+      "$value": {
+        "value": 0.25,
+        "unit": "rem"
+      }
+    },
+    "2": {
+      "$value": {
+        "value": 0.5,
+        "unit": "rem"
+      }
+    },
+    "3": {
+      "$value": {
+        "value": 0.75,
+        "unit": "rem"
+      }
+    },
+    "4": {
+      "$value": {
+        "value": 1,
+        "unit": "rem"
+      }
+    },
+    "5": {
+      "$value": {
+        "value": 1.25,
+        "unit": "rem"
+      }
+    },
+    "6": {
+      "$value": {
+        "value": 1.5,
+        "unit": "rem"
+      }
+    },
+    "7": {
+      "$value": {
+        "value": 1.75,
+        "unit": "rem"
+      }
+    },
+    "8": {
+      "$value": {
+        "value": 2,
+        "unit": "rem"
+      }
+    },
+    "14": {
+      "$value": {
+        "value": 3.5,
+        "unit": "rem"
+      }
+    },
+    "24": {
+      "$value": {
+        "value": 6,
+        "unit": "rem"
+      }
+    },
+    "28": {
+      "$value": {
+        "value": 7,
+        "unit": "rem"
+      },
+      "$description": "7rem. The Github button's natural width at its longest label; the pill takes it as a floor so a shorter label (\"Live\") renders the same box."
+    },
     "$type": "dimension",
-    "0": { "$value": { "value": 0, "unit": "rem" } },
-    "px": { "$value": { "value": 0.0625, "unit": "rem" }, "$description": "1px at the default root size." },
-    "1": { "$value": { "value": 0.25, "unit": "rem" } },
-    "1_5": { "$value": { "value": 0.375, "unit": "rem" } },
-    "2": { "$value": { "value": 0.5, "unit": "rem" } },
-    "2_5": { "$value": { "value": 0.625, "unit": "rem" } },
-    "3": { "$value": { "value": 0.75, "unit": "rem" } },
-    "3_5": { "$value": { "value": 0.875, "unit": "rem" } },
-    "4": { "$value": { "value": 1, "unit": "rem" } },
-    "5": { "$value": { "value": 1.25, "unit": "rem" } },
-    "6": { "$value": { "value": 1.5, "unit": "rem" } },
-    "7": { "$value": { "value": 1.75, "unit": "rem" } },
-    "8": { "$value": { "value": 2, "unit": "rem" } },
-    "14": { "$value": { "value": 3.5, "unit": "rem" } },
-    "24": { "$value": { "value": 6, "unit": "rem" } }
+    "px": {
+      "$value": {
+        "value": 0.0625,
+        "unit": "rem"
+      },
+      "$description": "1px at the default root size."
+    },
+    "1_5": {
+      "$value": {
+        "value": 0.375,
+        "unit": "rem"
+      }
+    },
+    "2_5": {
+      "$value": {
+        "value": 0.625,
+        "unit": "rem"
+      }
+    },
+    "3_5": {
+      "$value": {
+        "value": 0.875,
+        "unit": "rem"
+      }
+    }
   }
 }

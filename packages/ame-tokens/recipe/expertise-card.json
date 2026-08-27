@@ -1,0 +1,44 @@
+{
+  "recipe": {
+    "expertise-card": {
+      "$description": "The expertise card. Two layouts and three viewports, resolved by packages/ame-tokens/resolver.json, which also holds the slots and their structural declarations. These values are the default resolution: layout=expertise at the base viewport. A context overrides only what it changes.",
+      "root": {
+        "padding": { "$type": "dimension", "$value": "{unit.6}" },
+        "border-radius": { "$type": "dimension", "$value": "{component.card.radius}" }
+      },
+      "list": {
+        "columns": {
+          "$type": "number",
+          "$value": 2,
+          "$description": "Track count. A number rather than a grid-template literal, so the count is the design decision and the track shape stays one static."
+        },
+        "gap": { "$type": "dimension", "$value": "{unit.6}" },
+        "padding-inline": {
+          "$type": "dimension",
+          "$value": "{unit.0}",
+          "$description": "No inset below sm, because the endorsement quote this matches is sm:px-14 and has none there either. It was {unit.14} at every viewport, which put the two cards' contents on different edges on a phone — the expertise pills 80px from the card edge against the quote's 24px — and spent 112px of a 430px screen on space the card beside it was not spending. The inset returns at sm, where there is width to give it. See viewport/sm.json."
+        }
+      },
+      "label": {
+        "font-size": { "$type": "dimension", "$value": "{font.size.13}" },
+        "letter-spacing": { "$type": "number", "$value": "{font.tracking.tight}" },
+        "font-weight": {
+          "$type": "fontWeight",
+          "$value": "{font.weight.regular}",
+          "$description": "400, so the bold is the portfolio's synthesized stroke rather than a heavier cut, and so it beats the prose `dt { font-weight: 600 }` a term sheet inherits inside DocsBody."
+        },
+        "margin-bottom": { "$type": "dimension", "$value": "{unit.0}" }
+      },
+      "value": {
+        "font-size": { "$type": "dimension", "$value": "{font.size.14}" },
+        "line-height": { "$type": "number", "$value": "{font.leading.normal}" },
+        "letter-spacing": { "$type": "number", "$value": "{font.tracking.body}" },
+        "margin-block": {
+          "$type": "dimension",
+          "$value": "{unit.1}",
+          "$description": "Equal space above and below each value."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "breakpoint": {
+    "$type": "dimension",
+    "$description": "The viewport widths the resolver's viewport modifier switches on. Base tier: a literal, referenced by name, never restated in a media query written by hand. Both values are the ones the surface already used through Tailwind's sm and lg, so nothing moves; they gain a home.",
+    "sm": { "$value": { "value": 40, "unit": "rem" } },
+    "lg": { "$value": { "value": 64, "unit": "rem" } }
+  }
+}

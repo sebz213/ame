@@ -16,7 +16,7 @@
     nothing breaks visually, and the layering the system publishes is gone.
     The role that already holds this value is --text-body.
   */
-  color: var(--color-ink);
+  color: var(--ame-color-ink);
 
   /*
     D2 — hand-writes a recipe the token layer already holds.
@@ -35,6 +35,6 @@
     (C3), never against background.utility. Nobody declared this pair, so nobody
     measured it.
   */
-  color: var(--text-secondary);
-  background: var(--background-utility);
+  color: var(--ame-text-secondary);
+  background: var(--ame-background-utility);
 }

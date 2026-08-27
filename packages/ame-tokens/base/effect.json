@@ -3,7 +3,10 @@
   "glass": {
     "blur": {
       "$type": "dimension",
-      "$value": { "value": 14, "unit": "px" },
+      "$value": {
+        "value": 14,
+        "unit": "px"
+      },
       "$description": "The one backdrop blur. Declared here and nowhere else."
     },
     "saturate": {
@@ -12,12 +15,11 @@
       "$description": "The one backdrop saturation."
     }
   },
-
   "dither": {
     "$description": "The grain that keeps 8-bit banding out of soft shadows and gradients. These four numbers ARE the noise: build.mjs serializes them into the feTurbulence data URI it emits as --dither-noise, so the SVG has no hand-written home. Change a number here and the grain changes everywhere.",
     "strength": {
       "$type": "number",
-      "$value": 0.035,
+      "$value": 0.09,
       "$description": "Overlay opacity. 0 turns the grain off everywhere at once."
     },
     "frequency": {
@@ -32,26 +34,81 @@
     },
     "tile": {
       "$type": "dimension",
-      "$value": { "value": 200, "unit": "px" },
+      "$value": {
+        "value": 200,
+        "unit": "px"
+      },
       "$description": "Repeat size of the noise tile. stitchTiles makes the seam invisible."
     }
   },
   "z": {
     "$type": "number",
     "$description": "Named stacking layers. Closed set: invariant z-scale admits no z-index outside it.",
-    "base": { "$value": 0 },
-    "grain": { "$value": 1, "$description": "The page-grain dither overlay and the card edge, painted just above normal flow." },
-    "card-raise": { "$value": 2, "$description": "The iPhone viewer card, above the page-grain overlay (z 1)." },
-    "raised": { "$value": 10 },
-    "sticky": { "$value": 50, "$description": "The sticky header." },
-    "float": { "$value": 55, "$description": "Floating Ask-AI trigger." },
-    "scrim": { "$value": 60, "$description": "Popover click-catcher." },
-    "popover": { "$value": 61, "$description": "Ask-AI panel." },
-    "intro": { "$value": 9000, "$description": "The intro curtain." },
-    "intro-fore": { "$value": 9001, "$description": "The intro statement and the elevated card during the intro, above the curtain." },
-    "menu": { "$value": 9990, "$description": "The contact popover, top of the overlay stack." },
-    "banner": { "$value": 9997, "$description": "The cookie-consent banner." },
-    "modal-scrim": { "$value": 9998, "$description": "A modal's click-catcher / scrim, just below its panel." },
-    "splash": { "$value": 9999, "$description": "Full-page loading overlay and the modal panels (cookie, contact, accessibility)." }
+    "base": {
+      "$value": 0
+    },
+    "grain": {
+      "$value": 1,
+      "$description": "The page-grain dither overlay and the card edge, painted just above normal flow."
+    },
+    "card-raise": {
+      "$value": 2,
+      "$description": "The iPhone viewer card, above the page-grain overlay (z 1)."
+    },
+    "raised": {
+      "$value": 10
+    },
+    "sticky": {
+      "$value": 50,
+      "$description": "The sticky header."
+    },
+    "float": {
+      "$value": 55,
+      "$description": "Floating Ask-AI trigger."
+    },
+    "scrim": {
+      "$value": 60,
+      "$description": "Popover click-catcher."
+    },
+    "popover": {
+      "$value": 61,
+      "$description": "Ask-AI panel."
+    },
+    "intro": {
+      "$value": 9000,
+      "$description": "The intro curtain."
+    },
+    "intro-fore": {
+      "$value": 9001,
+      "$description": "The intro statement and the elevated card during the intro, above the curtain."
+    },
+    "menu": {
+      "$value": 9990,
+      "$description": "The contact popover, top of the overlay stack."
+    },
+    "banner": {
+      "$value": 9997,
+      "$description": "The cookie-consent banner."
+    },
+    "modal-scrim": {
+      "$value": 9998,
+      "$description": "A modal's click-catcher / scrim, just below its panel."
+    },
+    "splash": {
+      "$value": 9999,
+      "$description": "Full-page loading overlay and the modal panels (cookie, contact, accessibility)."
+    }
+  },
+  "opacity": {
+    "$type": "number",
+    "$description": "The core opacity values a state is expressed with. They sit in the base tier because they are raw quantities with no usage context; the state roles above them say what each one means.",
+    "disabled": {
+      "$value": 0.4,
+      "$description": "A control that is present but not available. 0.4 is the value the carousel paddlenav already used and the one the codebase describes as \"the state treatment used elsewhere\"; it is canonical now rather than one of four."
+    },
+    "hover": {
+      "$value": 0.8,
+      "$description": "A control under the pointer. 0.8 dims a filled pill toward the ground behind it, which on the ink page reads as a darken and on the white page as a soften."
+    }
   }
 }
