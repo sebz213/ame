@@ -805,7 +805,7 @@
       "image": 256000,
       "model": 5242880
     },
-    "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic DRACO-compressed GLB target, against the 82.7 MB uncompressed model.",
+    "budgets_because": "svg 500 KB matches WO-8.1's stated re-authoring target for the Kindle SVGs; the real vector SVGs in the tree top out at 59 KB (logo/lockup.svg). font 500 KB clears the two InterVariable variable woff2 files (~388 KB, legitimately larger for two axes) and the InterDisplay/NeueHaas cuts (~110 KB) while blocking a return of the ~900 KB TTF class. image 250 KB clears the endorsement thumbnails (152 KB) and avatars (~100 KB) and catches the one ~0.9 MB art cover. model 5 MB is the repo's V4 large-binary sensibility and a realistic compressed-GLB target; it was set against the 82.7 MB uncompressed model, and that model now measures 4.14 MB and clears it without a waiver.",
     "extensions": {
       "svg": [
         ".svg"
@@ -852,18 +852,15 @@
         "reduction": "Re-encode to AVIF at the rendered height; gradients are what AVIF is best at and the same pass covers both files.",
         "trigger": "before the next case study is published, or before a third image joins this carousel, whichever is first"
       },
-      "public/kindle-mascot.svg": 10068158,
-      "public/kindle-ux-collection.svg": 15026420,
+      "public/kindle-ux-collection.svg": 2417755,
       "public/images/art-covers/frieren-manga.jpg": 920836,
-      "public/models/iphone17-pro.glb": 82689464,
-      "public/screens/6.svg": 4265821,
-      "public/screens/7.svg": 3773076,
-      "public/screens/8.svg": 6938670,
-      "public/screens/9.svg": 8143205,
-      "public/screens/10.svg": 7225743,
-      "public/screens/activating.svg": 607987
+      "public/screens/6.svg": 719475,
+      "public/screens/7.svg": 585217,
+      "public/screens/8.svg": 651315,
+      "public/screens/9.svg": 818049,
+      "public/screens/10.svg": 1009929
     },
-    "waived_because": "TWO SHAPES, AND THE NEWER ONE IS THE SPEC. A waiver may be a plain byte count -- the ten legacy entries, held at their current size by the ratchet under the shared reduction order below -- or an object stating clause, ceiling, measured bytes, owner, date recorded, reduction target, the reduction itself and the trigger that ends it. New waivers take the object form. The difference between a waiver and a bypass is specification: a bypass says the check does not apply, a waiver says what it measured, what that exceeds, who owns closing it and when. The legacy ten keep their numbers rather than being given invented owners and dates, because a fabricated provenance is worse than an honest count. Waived assets are REPORTED, never silent: check.mjs prints a WAIVED block and the run's verdict carries the count, so a clean run reads PASS+2W rather than PASS. Ten assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg (10.0 MB) and kindle-ux-collection.svg (15.0 MB) are almost certainly embedded raster in an SVG wrapper; re-authoring them to <=500 KB each is WO-8.1, and that outcome is what unblocks Agent 3 WO-3.2 (the V4 large-binary breach). iphone17-pro.glb (82.7 MB) waits on a DRACO/meshopt-compressed variant plus viewer lazy-load (WO-8.1, WO-8.5). frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. screens/6-10.svg (3.8-8.1 MB) are the Kindle Japan product screens feeding the case-study PanelWall hero: embedded raster in an SVG wrapper, they wait on a raster re-export (WebP/PNG) that both clears the ceiling and cuts the wall's ~15-20s first-paint. screens/activating.svg (0.6 MB) is the same family (the Activating-state screen, exact source bytes kept unminified so the render is identical to the design file) and waits on the same raster re-export. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
+    "waived_because": "TWO SHAPES, AND THE NEWER ONE IS THE SPEC. A waiver may be a plain byte count -- the ten legacy entries, held at their current size by the ratchet under the shared reduction order below -- or an object stating clause, ceiling, measured bytes, owner, date recorded, reduction target, the reduction itself and the trigger that ends it. New waivers take the object form. The difference between a waiver and a bypass is specification: a bypass says the check does not apply, a waiver says what it measured, what that exceeds, who owns closing it and when. The legacy ten keep their numbers rather than being given invented owners and dates, because a fabricated provenance is worse than an honest count. Waived assets are REPORTED, never silent: check.mjs prints a WAIVED block and the run's verdict carries the count, so a clean run reads PASS+2W rather than PASS. Seven assets exceed their class ceiling today and are held at their current byte size by the ratchet until a dedicated reduction order shrinks them (CLAUDE.md 9, the honest deferral). kindle-mascot.svg and kindle-ux-collection.svg were the SVG half of WO-8.1 and are re-encoded rather than re-authored (R-183): they are not raster in a wrapper, they are real vector documents whose <image> data URIs were 99.9% and 97% of their bytes. mascot went 10,068,158 -> 75,672 B and is NOT WAIVED ANY MORE -- one 3072x2048 PNG stretched into a 548x375 box. ux-collection went 15,026,420 -> 2,417,755 B and stays waived: 27 distinct images, so base64 alone floors it above the ceiling. Nothing in the tree references either file — they are kept and shrunk rather than deleted because WO-8.1 states re-authoring as the outcome, which presumes they survive; deleting them is a call for whoever owns that order. iphone17-pro.glb WAS the tenth and is not waived any more: it came in at 82,689,464 B against this class's 5,242,880 B and now measures 4,340,480 B, under the ceiling on its own merits, so the entry is deleted rather than lowered -- a waiver whose trigger has fired is closed, not ratcheted (R-182, scripts/pack-model.mjs). It got there on textures, not the DRACO/meshopt geometry compression this note used to anticipate: 97.3% of the file was five 4096px PNGs, one of them a 16-bit normal map at 54.69 MB that three.js was decoding to 8 bits anyway. frieren-manga.jpg (0.9 MB) waits on image optimization and the WO-8.7 display-size resize. screens/6-10.svg are the Kindle Japan product screens feeding the case-study PanelWall hero. They came down from 3.8-8.1 MB to 0.57-1.0 MB (R-183) and stay waived, because each still carries 9-18 distinct WebP data URIs and base64's 33% floors them above 500 KB. They cannot be deduped into shared files -- and about half their weight IS duplication, the same eight covers in all five -- because PanelWall renders them through <img src>, where an SVG is in secure static mode and external references never load. screens/activating.svg was the same family and is NOT WAIVED ANY MORE at 425,270 B, down from 607,987. Its old note said its exact source bytes were kept unminified so the render matched the design file; that no longer applies and did not need to: every <image> here sits in a <pattern> with an explicit width/height and a preserveAspectRatio of none, so the bitmap is stretched to a declared box and re-encoding the pixels behind it cannot move anything on screen. Each waiver may not grow: a larger re-export fails K1, so the ratchet only ever moves down."
   },
   "workflows": {
     "$description": "STANDARD.md section W (decision R-69). A path spelled inside a CI step is a binding like any other, and until now it was the only binding in this repo that nothing verified. The break it closes, found on this branch: both workflows ran `node tokens/build.mjs` for the whole life of a branch that had already moved that script to packages/ame-tokens/build.mjs. Nothing went red, because the workflows had never been pushed and so had never run — the same vacuous pass V7 has while no tag exists. W1 verifies every script path and script name a workflow or a package.json script spells, against the tree, at gate time instead of at first-push time. W2 asserts each workflow declares a least-privilege token. Data here, logic in checkWorkflows in check.mjs, clause in STANDARD.md section W.",
@@ -1472,6 +1469,7 @@
       "STANDARD.md",
       "CLAUDE.md",
       "LICENSE",
+      "DCO",
       "LICENSE-DOCS",
       "NOTICE",
       "CITATION.cff",
@@ -1499,7 +1497,9 @@
       "$description": "Files the package publishes under a different name than they carry here, because this repo already has a README of its own. Source on the left, destination in the package on the right. They live in this repo so the extraction OWNS them: the published README said 264 tokens over a tree holding 339 precisely because it lived only in the published repo, where nothing here could check it.",
       "docs/package/README.md": "README.md",
       "docs/package/CONTRIBUTING.md": "CONTRIBUTING.md",
-      "docs/package/PROVENANCE.md": "docs/PROVENANCE.md"
+      "docs/package/PROVENANCE.md": "docs/PROVENANCE.md",
+      "docs/package/SECURITY.md": "SECURITY.md",
+      "docs/package/PULL_REQUEST_TEMPLATE.md": ".github/PULL_REQUEST_TEMPLATE.md"
     }
   },
   "fixtures": {

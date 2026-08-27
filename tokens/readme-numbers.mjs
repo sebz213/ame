@@ -82,7 +82,20 @@ const contrastFailing = contrastRows.filter((l) => l.includes('FAIL')).length
 
 const clientless = Number((gate.match(/^ {2}H1: (\d+)/m) ?? [, '0'])[1])
 
-const today = new Date().toISOString().slice(0, 10)
+/*
+  NO DATE IN THE CHECKED BLOCK.
+
+  This used to print `new Date()` into the table, which made the parity check
+  fail on the calendar rather than on the tree: a README generated on one day
+  and pushed on the next disagreed with a fresh run, and CI went red with every
+  figure correct. A check that fails for a reason unrelated to what it measures
+  is worse than no check, because a gate that reads FAIL becomes background
+  noise and the first thing that noise hides is the next real failure.
+
+  Nothing is lost. A date says when someone last looked; `pnpm numbers:check`
+  runs on every push, which says these figures match THIS commit. The second is
+  the stronger claim, and it is the one that cannot go stale.
+*/
 
 const rows = [
   ['Tokens', String(tokenCount), '`pnpm gate` header'],
@@ -109,9 +122,10 @@ const rows = [
 const block = [
   START,
   '',
-  `Measured on the tree that ships, ${today}, by the commands shown. This table is`,
-  'generated from the tree and checked in CI (`pnpm numbers:check`), so a figure',
-  'here cannot outlive the thing it counts.',
+  'Measured on the tree that ships, by the commands shown, and regenerated from it',
+  'rather than typed. `pnpm numbers:check` re-runs every command on every push, so',
+  'these figures describe **this commit** — a stronger claim than a date, and one',
+  'that cannot quietly go stale.',
   '',
   '| | | |',
   '|---|---|---|',

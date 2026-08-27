@@ -121,16 +121,17 @@ Clauses whose subject stayed with the monorepo — a byte budget over `public/`,
 
 <!-- numbers:start -->
 
-Measured on the tree that ships, 2026-08-27, by the commands shown. This table is
-generated from the tree and checked in CI (`pnpm numbers:check`), so a figure
-here cannot outlive the thing it counts.
+Measured on the tree that ships, by the commands shown, and regenerated from it
+rather than typed. `pnpm numbers:check` re-runs every command on every push, so
+these figures describe **this commit** — a stronger claim than a date, and one
+that cannot quietly go stale.
 
 | | | |
 |---|---|---|
 | Tokens | 339 | `pnpm gate` header |
 | Contrast pairs | 19, both themes, all passing their minimums | `pnpm gate` contrast table |
 | Emitted CSS | 485 lines | `wc -l packages/ame-tokens/tokens.css` |
-| Decisions | 12, dated | `grep -c "^## D-" tokens/decisions.md` |
+| Decisions | 14, dated | `grep -c "^## D-" tokens/decisions.md` |
 | Tokens with no consumer here | 116 of 339 | `pnpm gate` H1 line |
 
 <!-- numbers:end -->
