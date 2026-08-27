@@ -56,9 +56,9 @@ This repository is open to contributions and intends to stay that way. The filte
  
 That arrangement is the whole claim of this project applied to itself. Ame exists to argue that a machine can hold a standard human attention cannot. Screening contributions by taste would make that argument in one direction and refuse it in the other.
  
-**On the sign-off.** It is the one requirement here enforced without exception. Projects have stopped accepting contributions entirely because they could not establish who owned the arriving code. The license a contribution carries matters more than the code does: bad code is reversible, and a licensing mistake is not. `git commit -s` is you stating you wrote it or have the right to submit it. Every commit, including mine.
+**On the sign-off.** It is the one requirement here enforced without exception. `git commit -s` is you stating you wrote it or have the right to submit it. Every commit, including mine.
  
-**On AI.** Use it. It is good at this work now, and pretending otherwise would be strange in a repository whose own history says which commits were assisted. Two conditions, both about you rather than the tool:
+**On AI.**
  
 - **Say so** in the pull request. The template has a box for "AI-assisted, and I have not fully reviewed it," and ticking it honestly costs nothing. Guessing does.
 - **Answer for it.** A change nobody has read will not be merged, and repeatedly submitting unread output is the one thing that ends access here.
