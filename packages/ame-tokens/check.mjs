@@ -14,8 +14,8 @@
 
     2. Binding discipline (U1). The consumer's own CSS binds semantic and
        component names, never a raw base primitive. `var(--ame-color-ink)` in a
-       surface is a raw-value binding; the semantic or theme name (--ame-text-body,
-       --ame-text-body) is what a surface is meant to read.
+       surface is a raw-value binding; a semantic or theme name is what a surface
+       is meant to read, and the failure message names two shipped ones.
 
   This is the portable subset. The portfolio's tokens/check.mjs enforces more
   against its own tree (the uses-graph, scale membership, the /ame docs
@@ -83,6 +83,22 @@ function cssFiles(dir, out = []) {
   }
   return out
 }
+/*
+  The two names the remedy offers, taken from the tokens actually shipped rather
+  than typed in. It read "(e.g. --ame-text-body, --ame-text-body)" — one name
+  printed twice where two examples were meant, which tells a reader the system
+  has one answer when the point is that it has a layer of them.
+
+  Derived for the same reason the README's figures are: an example spelled by
+  hand outlives the token it names, and a remedy that points at a renamed token
+  is worse than one that points at nothing.
+*/
+const semantic = tokens.map((t) => t.cssName).filter((n) => !base.has(n))
+const pick = (re) => semantic.find((n) => re.test(n))
+// One from each family, so the pair reads as a layer rather than a near-repeat.
+const examples = [pick(/^--ame-text-/), pick(/^--ame-surface-/)].filter(Boolean)
+const remedy = examples.length === 2 ? ` (e.g. ${examples[0]}, ${examples[1]})` : ''
+
 for (const f of cssFiles(CWD)) {
   const src = readFileSync(f, 'utf8')
   // A generated ame token file declares base names; it is not a consumer
@@ -91,7 +107,7 @@ for (const f of cssFiles(CWD)) {
   const rel = f.slice(CWD.length + 1)
   for (const m of src.matchAll(/var\((--[a-z0-9_-]+)/g))
     if (base.has(m[1]))
-      fail('U1', `${rel} binds base token ${m[1]} directly; bind a semantic or theme name (e.g. --ame-text-body, --ame-text-body), never a base primitive.`)
+      fail('U1', `${rel} binds base token ${m[1]} directly; bind a semantic or theme name${remedy}, never a base primitive.`)
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

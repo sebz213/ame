@@ -49,8 +49,28 @@ const RULES = JSON.parse(readFileSync(join(ROOT, 'invariants.json'), 'utf8'))
     there and is not must still fail loudly, while a clause pointed at the
     portfolio from inside the package was never going to find it and says so.
 */
+/*
+  THE DEFAULT SCOPE IS A PROPERTY OF THE TREE, NOT OF THE READER'S MEMORY.
+
+  A tree knows which scope it is. The monorepo holds both surfaces and defaults
+  to `all`; the extracted package holds one, and extract.mjs writes
+  census.scope_default: "package" into the invariants it copies.
+
+  Without this, `node tokens/check.mjs` with no flag ran full scope inside the
+  package and reported 40 violations — VN1, Z3, H2, W5 and the parity clauses,
+  every one of them pointing at a monorepo path that legitimately did not
+  travel. Those are not failures, they are clauses with no subject here, and
+  D-81 made scope a property of each clause precisely so they would say so. The
+  hole was that saying so depended on a flag: `pnpm gate` passed it, and the
+  invocation CLAUDE.md binds sessions to did not.
+
+  So a package contributor running the documented command saw a red gate that
+  was correct about nothing, which is the same class of noise as a clause that
+  goes quiet — it teaches a reader that the gate's verdict is not to be trusted.
+*/
 const scopeFlag = process.argv.indexOf('--scope')
-const SCOPE = scopeFlag !== -1 ? process.argv[scopeFlag + 1] : 'all'
+const SCOPE =
+  scopeFlag !== -1 ? process.argv[scopeFlag + 1] : (RULES.census?.scope_default ?? 'all')
 if (!['all', 'package', 'portfolio'].includes(SCOPE)) {
   console.error(`check: --scope takes all, package or portfolio; got "${SCOPE}"`)
   process.exit(2)
@@ -92,6 +112,21 @@ const scopedRoots = (roots) => {
   const out = []
   for (const r of roots) {
     if (MANIFEST.includes(r)) { out.push(r); continue }
+    /*
+      A root INSIDE a manifest entry travels with it and is kept as written.
+      This case was missing, and it dropped exactly one root in practice:
+      `examples/violating`, which the manifest carries as part of `examples`.
+      The fixture gate widens scan roots to that path and passes only when the
+      gate rejects what it finds there, so silently scoping it out made the
+      disconfirming fixture unreachable and the inversion reported the gate
+      could no longer fail.
+
+      Which is the failure the fixture exists to detect, produced by the thing
+      meant to detect it. It surfaced the moment the package started defaulting
+      to package scope; before that the fixture run was always full-scope and
+      the hole could not show.
+    */
+    if (MANIFEST.some((m) => r.startsWith(m + '/'))) { out.push(r); continue }
     const under = MANIFEST.filter((m) => m.startsWith(r + '/'))
     if (under.length) out.push(...under)
   }
@@ -199,10 +234,10 @@ const expand = (pat) =>
 const NAME_OK = new RegExp(RULES.naming.segment)
 ;(function checkFormat() {
   for (const t of tokens) {
-    if (!RULES.types.includes(t.type)) fail('F2', `${t.path} has $type "${t.type}", not a DTOS type`)
+    if (!RULES.types.includes(t.type)) fail('A2', `${t.path} has $type "${t.type}", not a DTOS type`)
     if (!NAME_OK.test(t.path.split('.').at(-1))) fail('N1', `${t.path} last segment is not ${RULES.naming.segment}`)
     for (const seg of t.path.split('.')) {
-      if (seg.startsWith('$') || /[.{}]/.test(seg)) fail('F5', `${t.path} segment "${seg}" is a reserved DTOS name shape`)
+      if (seg.startsWith('$') || /[.{}]/.test(seg)) fail('A5', `${t.path} segment "${seg}" is a reserved DTOS name shape`)
     }
     const v = t.value
     const B = RULES.type_bounds
@@ -223,7 +258,7 @@ const NAME_OK = new RegExp(RULES.naming.segment)
           (s) => s.color && s.offsetX && s.offsetY && s.blur && s.spread,
         ),
     }[t.type]
-    if (ok && !ok()) fail('F3', `${t.path} value does not satisfy the DTOS ${t.type} schema`)
+    if (ok && !ok()) fail('A3', `${t.path} value does not satisfy the DTOS ${t.type} schema`)
   }
   // F1 and F4 are structural: build.mjs throws on a missing $value, an
   // unresolved reference, or a cycle, so reaching this line proves them.

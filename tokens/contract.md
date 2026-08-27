@@ -28,7 +28,7 @@ statement that they should not. That is unfinished, not a category.
 | | Obligation | Benefit |
 |---|---|---|
 | **Consumer** (a component, a CSS rule, a build) | Read a value only by its generated name. Do not restate a value it can read. | Gets the value the design decided, resolved, typed, and re-toned whenever the design changes. |
-| **Supplier** (this directory) | Emit every token exactly once, resolved, correctly typed, under `.portfolio-root`. Hold every value the surface uses. | Is free to re-tone, retype, or re-file any token without a consumer changing. |
+| **Supplier** (this directory) | Emit every token exactly once, resolved, correctly typed, at `:root`. Hold every value the surface uses. | Is free to re-tone, retype, or re-file any token without a consumer changing. |
 
 Each row's obligation is the other row's benefit. A clause with no consumer
 obligates nobody; `check.mjs` H1 counts those and `outcomes.md` reports the count.
@@ -124,9 +124,9 @@ These hold before and after any change to any token, not of any one token.
   neutral ramp, the brand pair and danger are chosen by eye along a lightness or
   chroma progression, and OKLCH is the space that keeps those steps even. The fixed
   anchors — ink, paper, white, black, the alpha ladders — stay sRGB, because they are
-  exact values rather than points on a ramp. F3 bounds which spaces the *format*
+  exact values rather than points on a ramp. A3 bounds which spaces the *format*
   permits; this states which space these tokens must *use*, which is a different
-  claim and does not borrow F3's authority.
+  claim and does not borrow A3's authority.
 
   Known reach, stated rather than implied: this proves every base colour under the
   listed prefixes declares `oklch`. It does not prove the ramps are perceptually
@@ -236,6 +236,18 @@ These hold before and after any change to any token, not of any one token.
 ### D. One home per value
 
 - **D1** A generated custom property is not re-declared in hand-written CSS.
+- **D2** A hand-written literal in a scanned surface that equals a resolved token
+  value fails, named alongside the token it collides with. The scan roots and the
+  value comparison are data in `invariants.json > restated`; the check is
+  `checkRestated` in `check.mjs`. Drift is ratcheted downward only.
+
+  D2 was enforced, baselined, and asserted by the violating fixture while being
+  declared nowhere: absent from this file and therefore absent from the Z1
+  census, which walks contract-declared ids. An undeclared check is invisible to
+  the bijection that exists to catch exactly that, so the clause the README
+  quotes as the system's headline claim was the one clause the census could not
+  see. Declared 2026-08-27.
+
 - **D3** Pattern syntax in rule data does not grow. A regex written as text into a
   data file has to cross a serialization boundary to reach the code that runs it,
   and six defects in one evening came from an escape being eaten or reinterpreted

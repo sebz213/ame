@@ -29,8 +29,6 @@ yarn-error.log*
 # fumadocs-mdx generated output
 .source
 
-# check.mjs run log (mutable; regenerated every run, not versioned)
-tokens/runs.log
 
 # agent worktrees (isolated checkouts of this repo; never part of it)
 .claude/worktrees/

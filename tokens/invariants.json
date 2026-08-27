@@ -11,7 +11,7 @@
     "shadow"
   ],
   "type_bounds": {
-    "$description": "F3. Bounds the DTOS 2025.10 value schemas impose, held here rather than as literals in check.mjs, so the checker states no number of its own. Source: schemas/src/2025.10/format/values/*.json.",
+    "$description": "A3. Bounds the DTOS 2025.10 value schemas impose, held here rather than as literals in check.mjs, so the checker states no number of its own. Source: schemas/src/2025.10/format/values/*.json.",
     "dimension_units": [
       "px",
       "rem"
@@ -281,7 +281,7 @@
     "override_because": "C1-C15 are deliberately exitless. A contrast ratio is the one thing in this contract a reader experiences directly, and an override would let a surface ship unreadable text with a reason attached. There is no reason that makes 3:1 body copy legible. The fix for a failing pair is the colour, never the clause."
   },
   "color_space": {
-    "$description": "CS1. Perceptual ramps are declared in OKLCH. The neutral ramp, the brand pair and danger are the colours chosen by eye along a lightness or chroma progression, and OKLCH is the space that keeps those steps even; the fixed anchors (ink, paper, white, black and the alpha ladders) stay sRGB because they are exact values rather than points on a ramp. F3 already bounds which spaces the FORMAT permits — this states which space these tokens must actually use, which is a different claim and does not borrow F3 authority. Known reach, stated rather than implied: this proves every base colour under the listed prefixes declares oklch. It does not prove the ramps are perceptually uniform, that the steps are well chosen, or that an sRGB value declared elsewhere is not visually part of a ramp — a hex that happens to sit between two neutral steps is invisible to this and always will be. must_catch and must_never_catch are the C6 firing lists: samples run through the clause own predicate on every run, so a clause that has quietly stopped matching cannot report health it never established.",
+    "$description": "CS1. Perceptual ramps are declared in OKLCH. The neutral ramp, the brand pair and danger are the colours chosen by eye along a lightness or chroma progression, and OKLCH is the space that keeps those steps even; the fixed anchors (ink, paper, white, black and the alpha ladders) stay sRGB because they are exact values rather than points on a ramp. A3 already bounds which spaces the FORMAT permits — this states which space these tokens must actually use, which is a different claim and does not borrow A3 authority. Known reach, stated rather than implied: this proves every base colour under the listed prefixes declares oklch. It does not prove the ramps are perceptually uniform, that the steps are well chosen, or that an sRGB value declared elsewhere is not visually part of a ramp — a hex that happens to sit between two neutral steps is invisible to this and always will be. must_catch and must_never_catch are the C6 firing lists: samples run through the clause own predicate on every run, so a clause that has quietly stopped matching cannot report health it never established.",
     "id": "CS1",
     "space": "oklch",
     "prefixes": [
@@ -1298,6 +1298,11 @@
         "check": "checkModelVersioning",
         "scope": "portfolio",
         "scope_because": "a cache header over public/models and the viewer contracts that address it; the package ships neither"
+      },
+      "D2": {
+        "invariant": "restated",
+        "check": "checkRestated",
+        "scope": "package"
       }
     },
     "allowlists": {
@@ -1373,7 +1378,9 @@
       "scanner_samples_because": "A scan that goes blind cannot report that it has gone blind: it returns fewer findings, which reads exactly like a clean tree. That is how the old strip survived -- it was not producing wrong answers, it was producing confident ones over 29% of the code. So the instrument is tested on every run against fragments whose classification is known, in both directions: sees_number true means the number must survive stripping (a real threshold the scan must catch), false means it must not (prose, pattern, or string that would be a false positive). CS1 does the same thing with must_catch and must_never_catch, for the same reason. Adding a construct to jscode.mjs means adding the sample that proves it. R-194."
     },
     "override": "none",
-    "override_because": "Z1 and Z2 are deliberately exitless. They are the clauses that hold the contract to its own shape -- a bijection with an exception is not a bijection, and a threshold scan that can be waived is a threshold scan the checker may quietly reacquire. A meta-clause with an override does not constrain anything."
+    "override_because": "Z1 and Z2 are deliberately exitless. They are the clauses that hold the contract to its own shape -- a bijection with an exception is not a bijection, and a threshold scan that can be waived is a threshold scan the checker may quietly reacquire. A meta-clause with an override does not constrain anything.",
+    "scope_default": "package",
+    "scope_default_because": "This tree is the package. Clauses whose subject stayed in the monorepo report as skipped rather than failing, which is what D-81 made scope a clause property to achieve; defaulting here is what stops that depending on remembering a flag."
   },
   "pattern_escapes": {
     "$description": "D3, the migration ratchet for R-86. Counts strings in each site whose parsed value carries a backslash — keys and values alike. The unit is the string, not the character: one stored pattern costs one whether it holds one escape or six, so rewriting a pattern with fewer escapes cannot look like progress. The rule these sites migrate toward is that rule data holds literal text and pattern syntax is assembled in code, where the escapes exist once and are tested (R-86). A file that has completed the migration measures zero.",
@@ -1569,8 +1576,11 @@
       ],
       "drift_grows": [
         "D2",
-        "U1"
-      ]
+        "U1",
+        "S1",
+        "S4"
+      ],
+      "$drift_grows_because": "S1 and S4 were claimed by examples/README.md and by the fixture's own comments and asserted by neither, so the two plants a reader is told about were the two nothing verified. The gate did catch them; the fixture's postcondition simply did not say so, which meant a regression that stopped catching them would have kept the fixture run green."
     },
     "violating_css": "examples/violating/panel.css",
     "file_extends": [

@@ -111,6 +111,27 @@ if (missing.length) {
   version that lived only in the published one said 264 tokens over a tree
   holding 339, because nothing here could see it to check it.
 */
+/*
+  The package's default scope, stamped into the invariants it carries.
+
+  The monorepo holds both surfaces and defaults to `all`. This tree holds one,
+  so a bare `node tokens/check.mjs` here must mean `--scope package` — otherwise
+  it runs clauses whose subjects stayed behind and reports 40 violations that
+  are all correct about nothing. A contributor following CLAUDE.md saw exactly
+  that, while `pnpm gate` passed because it spelled the flag out.
+
+  Written here rather than committed into the monorepo's own invariants, because
+  it is a fact about the extracted tree and would be false upstream.
+*/
+{
+  const p = join(OUT, 'tokens/invariants.json')
+  const rules = JSON.parse(readFileSync(p, 'utf8'))
+  rules.census.scope_default = 'package'
+  rules.census.scope_default_because =
+    'This tree is the package. Clauses whose subject stayed in the monorepo report as skipped rather than failing, which is what D-81 made scope a clause property to achieve; defaulting here is what stops that depending on remembering a flag.'
+  writeFileSync(p, JSON.stringify(rules, null, 2) + '\n')
+}
+
 for (const [from, to] of Object.entries(RULES.package_manifest?.paratext ?? {})) {
   if (from.startsWith('$')) continue // a note in the map, not a path
   const src = join(REPO, from)
@@ -174,6 +195,31 @@ writeFileSync(join(OUT, 'package.json'), JSON.stringify(pkg, null, 2) + '\n')
   touched. Found by running the smoke test on a stranger's machine rather than
   by reasoning about it.
 */
+/*
+  The package tracks its run log; the monorepo does not.
+
+  X1 compares a baseline against the last logged run, so with no committed log
+  it returns early and the one-way ratchet passes vacuously — a guarantee that
+  holds only on the machine that happens to have run the gate. The package
+  therefore commits tokens/runs.log, and the .gitignore it inherits must stop
+  ignoring the file it is supposed to track.
+
+  Upstream the line is correct: the monorepo's log is mutable working state and
+  its own gate reads it locally. This is a difference between the two trees, so
+  it is written here, where the difference is produced.
+*/
+{
+  const p = join(OUT, '.gitignore')
+  if (existsSync(p)) {
+    const kept = readFileSync(p, 'utf8')
+      .split(/\r?\n/)
+      .filter((l) => l.trim() !== 'tokens/runs.log')
+      .filter((l, i, a) => !(l.startsWith('# check.mjs run log') && a[i + 1]?.trim() === ''))
+      .join('\n')
+    writeFileSync(p, kept)
+  }
+}
+
 writeFileSync(
   join(OUT, '.gitattributes'),
   '# Every text file checks out with LF, on every platform. Clause B4 byte-compares\n' +
