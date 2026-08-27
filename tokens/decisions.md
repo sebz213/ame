@@ -16,6 +16,12 @@ Reasoning. The conditions themselves are in `contract.md`; the numbers are in
 > and D-54 on the instrument being part of the experiment — were dated before
 > the cut and left with the rest. `packages/ame-tokens/build.mjs` cites that
 > D-54; the citation now points into git history rather than into this file.
+>
+> A third arrived the same way on 2026-08-26. The hydration entry below was
+> written as D-74 on 2026-08-23, before this trim, and was carried in later with
+> the fix it explains; 74 had since been removed with the rest, so it is D-88
+> here. Its date is the date it was reasoned, not the date it landed — which is
+> the whole point of keeping the dates.
 
 ## D-76 A layer-wide opacity is a ceiling, and it reverses D-nothing quietly
 
@@ -581,3 +587,78 @@ namespace nothing enforces uniqueness over, and every one was caught by a human
 noticing, or not caught at all. `ame` issue #1 proposed the decision-side check;
 the clause side is the same defect and would be the same check. Recorded here so
 the third instance is not filed as bad luck.
+
+
+## D-88 A hydration failure reports where React resumed, not where the HTML broke
+
+2026-08-23. A console error named app/layout.tsx:246 -- the pre-paint inline script in
+<head> -- and said scripts inside React components never execute on the client. Both
+statements were true and neither was the bug. The actual defect was four sections down
+the page: the case-study carousel wrapped each card in an <a>, and one card's artwork is
+live component specimens, so thirteen buttons and three anchors ended up inside an anchor.
+
+The chain runs one way only. <a> has a transparent content model but forbids INTERACTIVE
+descendants, and a parser will not nest anchors -- it closes the outer and promotes the
+inner. So the DOM the browser built was not the tree React had serialised, hydration
+failed, and React did what it does on failure: discarded the server tree and re-rendered
+the whole document on the client. Client rendering is the ONLY path where React creates a
+<script> element itself, and creating one is what it warns about. The warning fires in the
+<head> because that is where the first script is, not because anything in the head is
+wrong.
+
+So the rule: when React reports a client-render-only symptom, look FIRST for a hydration
+failure, and then for invalid HTML nesting as its cause. Fixing the reported location
+would have been fixing a symptom four sections away from the defect -- and the two
+plausible fixes were both wrong. next/script with beforeInteractive renders a <script>
+element too, so it warns identically, and in App Router it defers the body into
+self.__next_s for the Next runtime to replay, which is strictly later than parse and would
+have broken the one guarantee that script exists to give. Reading the framework's source
+settled that in a minute; reasoning about the docs would not have.
+
+The fix is the stretched-link pattern: the anchor moves onto the caption, which holds no
+interactive content, and an ::after grows it to the card. The card-sized target survives,
+and so does the accessible name, because heading and description are both inside the
+anchor. The tile is inert -- without it the overlay would leave the specimens dead to the
+mouse and still reachable by tab, which is worse than either state alone.
+
+WHAT MADE THIS FINDABLE was reading the console on a route basis rather than trusting the
+stack. / was clean and /portfolio was not, and since each document load resets React's
+once-per-session warning flag, that difference was real signal rather than noise -- it
+said the cause is route-specific, which a <head> shared by every route cannot be. The
+stack trace pointed at the shared file; the route difference pointed at the route.
+
+## D-89 The numbers table stops printing the date it was generated
+
+2026-08-27. Prompted by a real CI failure, and fixes a different bug found
+underneath it.
+
+`numbers parity` went red on the sync branch. The cause was exactly what the
+clause is for: D-88 was added, the decision count moved 12 to 13, and the
+committed table still said 12. The check caught a stale published figure, which
+is the entire reason it exists. Regenerating was the right fix and the whole fix
+for that failure.
+
+Underneath it was a second defect that had not fired yet and was certain to.
+The block printed `new Date()` into its own text, and `--check` regenerates and
+compares. So a README generated on one day and pushed on the next disagreed
+with a fresh run **with every figure correct**, and CI would have gone red on
+the calendar rather than on the tree.
+
+That is worse than a missing check. CLAUDE.md already says a gate that reads
+FAIL for a whole session becomes background noise, and the first thing that
+noise hides is the next real failure — a check with a scheduled false positive
+manufactures exactly that noise, and it would have arrived looking identical to
+the true failure it had just produced. The next person would have learned that
+`numbers parity` is the flaky one.
+
+The date is gone rather than special-cased. Nothing is lost by removing it: a
+date says when somebody last looked, while `pnpm numbers:check` runs on every
+push and says the figures match *this commit*. The second claim is strictly
+stronger and cannot go stale, so printing the weaker one beside it only created
+a way to be wrong. The generator is now idempotent — byte-identical output on
+repeated runs — which is what a parity check requires and what it never had.
+
+Worth naming: the false positive was invisible while it agreed with the true
+one. It was found only because the real failure was investigated rather than
+patched, and the first hypothesis for the red build was the date. Being wrong
+about the cause is what surfaced it.
