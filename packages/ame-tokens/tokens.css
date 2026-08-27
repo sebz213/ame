@@ -155,7 +155,7 @@ It is roughly three times the longest response on the scale, which is the gap th
   --ame-unit-3_5: 0.875rem;
 
   /* font */
-  --ame-font-family-sans: var(--font-neue-haas), var(--font-hanken), ui-sans-serif, system-ui, sans-serif;  /* The one portfolio face, with Hanken Grotesk ahead of the system stack. */
+  --ame-font-family-sans: var(--font-neue-haas, 'Neue Haas Display'), var(--font-hanken, 'Hanken Grotesk'), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;  /* The one portfolio face, then a generic stack that resolves on any machine. The branded faces are var() references with their own names as fallbacks, so where next/font has not declared them the browser walks on rather than dropping the declaration. Everything after Hanken is unbranded and installed almost everywhere: a consumer of the published package gets Arial or the platform's own sans, never nothing. */
   --ame-font-size-9: 9px;  /* Shortcut badge. */
   --ame-font-size-12: 12px;
   --ame-font-size-13: 13px;  /* Language switch, meta, error. */
@@ -265,7 +265,7 @@ It is roughly three times the longest response on the scale, which is the gap th
   --ame-type-meta-tracking: 0.14em;
   --ame-type-dense-leading: 1.4;  /* Line-height for dense rows: the footer's stacked links and meta lines. */
   --ame-type-root-tracking: 0.08em;
-  --ame-type-font-body: var(--font-neue-haas), var(--font-hanken), ui-sans-serif, system-ui, sans-serif;  /* The face the running text is set in. A surface binds this rather than font.family.sans, so a docs area that wants a different face re-points one semantic name instead of reaching into the base tier for the family list. */
+  --ame-type-font-body: var(--font-neue-haas, 'Neue Haas Display'), var(--font-hanken, 'Hanken Grotesk'), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;  /* The face the running text is set in. A surface binds this rather than font.family.sans, so a docs area that wants a different face re-points one semantic name instead of reaching into the base tier for the family list. */
   --ame-type-nav-synthesis: 0.0156em;  /* The synthesized stroke on the glass nav. The same 460 the headings take today, named separately because a nav is not a heading: if either moves, the other should not have to. */
   --ame-type-sidebar-label-size: 12px;  /* The docs sidebar smallest supporting text: group separators, the disabled shortcut row. Two steps below the row size, so a label reads as a label for the group rather than a sibling of the entries under it. */
 
