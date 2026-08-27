@@ -4,15 +4,6 @@ Ame is a design token system with an enforcement gate: 3 layers of DTCG tokens c
 
 **[Contract](tokens/contract.md)** · **[Decisions](tokens/decisions.md)** · **[Outcomes](tokens/outcomes.md)** · **[Fixtures](examples/README.md)** · **[Lexicon](docs/LEXICON.md)** · **[Standard](STANDARD.md)**
 
-Apache-2.0 — fork it, ship it, sell what you build on it. The one thing the
-licence withholds is the **name**: section 6 grants no trademark rights, so
-rename your fork. The four documents carrying the reasoning — [contract](tokens/contract.md),
-[decisions](tokens/decisions.md), [STANDARD.md](STANDARD.md), [lexicon](docs/LEXICON.md) —
-are additionally offered under CC BY 4.0 so they can be quoted in a paper or a
-talk without arguing about whether a software licence covers prose. See
-[LICENSE](LICENSE), [LICENSE-DOCS](LICENSE-DOCS) and [NOTICE](NOTICE); cite it
-via [CITATION.cff](CITATION.cff).
-
 **New here?** Three doors, and they want different things.
 
 | You are | Start at | It takes |
@@ -21,31 +12,13 @@ via [CITATION.cff](CITATION.cff).
 | **Adopting the tokens** in your own app | [Getting started](#getting-started) | one install |
 | **Contributing** a change | [CONTRIBUTING.md](CONTRIBUTING.md) — `pnpm gate` green *is* the install test | one install |
 
-## The one claim, checked
-
-This system says a build fails when a scanned file hand-writes a value the
-tokens already own. You do not have to take that on trust, and you do not have
-to clone anything to see it: `examples/violating/` is a panel written to break
-the rules on purpose, and [the CI log](../../actions) shows the gate rejecting
-it on every push, naming the literal it found and the token it collided with.
-
-```
-D2 restated: examples/violating/panel.css:
-  "0px 1px 6px 0px rgb(16 19 25 / 0.06)" == component.glass.drop
-```
-
-A gate nobody has watched fail is indistinguishable from a gate that cannot.
-That fixture is the difference, and `pnpm gate:fixtures` is green only when the
-gate rejected it — so a clause that quietly stops catching turns CI red instead
-of silent.
-
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
   <img alt="Three token layers — base literals, semantic roles, component measures — compile to tokens.css. The gate rejects raw values, layer leaks, and contrast failures." src="docs/architecture-light.svg">
 </picture>
 
-<sub>Drawn to ISO 5807-1985, in the same symbols the system's own flowchart component uses, and coloured from the tokens themselves — so a colour change in <code>base/color.json</code> changes this picture or fails the build (<code>pnpm diagram:check</code>). Both themes, because the system has both.</sub>
+<sub>Drawn to ISO 5807-1985, in the same symbols the system's own flowchart component uses.</sub>
 
 ## What's in the box
 
@@ -102,16 +75,13 @@ Every condition lives once in `contract.md`, as data in `invariants.json`, and i
 The fixtures exist because a gate that has never been seen to fail is not evidence. `pnpm gate:fixtures` runs the gate against a deliberately violating panel and passes only when the gate rejects it, so a silent regression in the gate itself turns the fixture run red.
 
 ## Scope and limits
-
-The gate governs what its scan roots name, and nothing else. Five things worth knowing before you rely on it.
-
-- **The restated-value check needs the token build present**, so the gate is a workspace citizen, never a standalone binary.
-- **Spacing is a scale here, not an enforced derivation.** The `unit.*` ramp exists and the `space.*` roles reference it, but the clause that held a utility framework's spacing base equal to `unit.1` (P6) governed a config file that stayed in the monorepo, so it left with its subject. Decision D-49 records that parity and reads as current; it describes the tree Ame was extracted from. Which mechanism should author layout spacing at all — a `space.*` role or a utility class — is genuinely open there and here.
-- **Many tokens have no consumer in this tree** — the count is the H1 row in the table above, generated rather than typed — because the surfaces that consumed them stayed in the monorepo Ame was extracted from. It is baselined and ratcheted so it cannot grow; a fact about the extraction, not about the tokens.
-- **One value sits off its scale on purpose**: a 13.85px glyph height in the top bar that the surrounding control was sized around. Baselined at 1, with the reason in the code.
-- **`components/ame` is demo chrome.** Treat it as reference, not product.
-
-Clauses whose subject stayed with the monorepo — a byte budget over `public/`, the docs-site registry, a vendored-code manifest, the parity checks against portfolio components — were removed rather than pointed at something that merely exists, because a clause scanning an empty tree reports green (D-53). `docs/PROVENANCE.md` says what every absent citation pointed at.
+ 
+- **The restated-value check needs the token build present.** It compares against Ame's resolved token values, so the gate runs alongside the token build as a workspace citizen, never as a standalone binary.
+- **Spacing is a scale here, not an enforced derivation.** The `unit.*` ramp exists and the `space.*` roles reference it. The clause that held a utility framework's spacing base equal to `unit.1` (P6) governed a config file that stayed in the monorepo, so it left with its subject. Decision D-49 records that parity and describes the tree Ame was extracted from. Whether a `space.*` role or a utility class should author layout spacing is an open question, there and here.
+- **69 of 264 tokens have no consumer in this tree.** The surfaces that consumed them stayed in the monorepo Ame was extracted from. The count is baselined and ratcheted so it cannot grow; it is a fact about the extraction, not about the tokens.
+- **One value sits off its scale on purpose:** a 13.85px glyph height in the top bar that the surrounding control was sized around. Baselined at 1, with the reason in the code.
+- **`components/ame` is demo chrome, not a component library.** Nothing else here is one either. Treat it as reference, not product.
+Clauses whose subject stayed with the monorepo (a byte budget over `public/`, the docs-site registry, a vendored-code manifest, the parity checks against portfolio components) were removed rather than pointed at something that merely exists, because a clause scanning an empty tree reports green (D-53). `docs/PROVENANCE.md` records what every absent citation pointed at.
 
 ## Method
 
