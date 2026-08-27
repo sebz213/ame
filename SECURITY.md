@@ -12,29 +12,11 @@ values. It has:
 - no dependencies in the token build at all (`build.mjs` uses Node's standard
   library and nothing else)
 
-That is not a boast, it is the scope. **The realistic vulnerability surface here
-is close to nil**, and saying so plainly is more useful to you than a policy that
-implies otherwise. If you are looking for something to find, the honest answer is
-that the interesting failures in this project are correctness failures in the
-gate — a clause that stops catching what it claims to catch — and those are bugs,
-reported as issues, not vulnerabilities.
+That list is the scope. The realistic vulnerability surface is close to nil.
 
 ## There is no bug bounty, and there will not be one
 
-No payment is offered for any report. This is deliberate and worth explaining,
-because the reasoning is not stinginess.
-
-A bounty inverts the economics of reporting. Generating a plausible-looking
-vulnerability report now takes about a minute; verifying one still takes a human
-an hour or two. curl ran a bounty for six years at roughly 15% accuracy, watched
-that fall below 5% once report generation became free, and shut the programme
-down in January 2026 — not because the reports were unreadable, but because the
-volume of *plausible* ones exceeded any ability to triage them. The money was the
-incentive, so the money went.
-
-Ame will never be curl and will never see that volume. The policy is here
-because the right time to state it is before the first report, not after the
-twentieth.
+No payment is offered for any report, now or later. This is deliberate, and the reasoning is economic.
 
 ## Reporting
 
@@ -51,17 +33,12 @@ a report — and the tools that generate those at scale are the reason this
 paragraph exists. Running it costs you one command; not running it costs someone
 else an afternoon.
 
-AI is fine. AI is genuinely good at this now. **Unverified** is the problem, and
-it always was — the tooling only changed how cheap it became.
+AI is fine. 
 
 ## Scope
 
 In scope: `tokens/check.mjs`, `packages/ame-tokens/build.mjs`, and the emitted
 `tokens.css`.
-
-Out of scope: vulnerabilities in dependencies, which belong with their
-maintainers (a heads-up here is still welcome); anything about the portfolio
-application, which is a different repository and does not ship in this package.
 
 ## Supported versions
 
