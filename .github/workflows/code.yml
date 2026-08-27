@@ -35,6 +35,11 @@ jobs:
         run: pnpm diagram:check
       # Every figure in the README is generated from the tree. This is what
       # stops a published number outliving the thing it counts.
+      # icon-data.ts is generated from icon-source.html and committed. Without
+      # this a hand edit to 218 glyphs of third-party path data is undetectable,
+      # in the file THIRD-PARTY-NOTICES rests on.
+      - name: icons parity
+        run: pnpm icons:check
       - name: numbers parity
         run: pnpm numbers:check
       - name: gate

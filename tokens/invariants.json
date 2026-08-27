@@ -83,6 +83,10 @@
       {
         "canonical": "button",
         "deprecated": "btn"
+      },
+      {
+        "canonical": "accessibility",
+        "deprecated": "a11y"
       }
     ],
     "symbol_sources": [
@@ -105,9 +109,45 @@
       "component.pill.bg-hover": "bg",
       "status.shipped-bg": "bg",
       "surface.btn-secondary": "btn",
-      "surface.btn-secondary-edge": "btn"
+      "surface.btn-secondary-edge": "btn",
+      "component.a11y-hero.height": "a11y",
+      "A11yHdr": "a11y",
+      "A11yHero": "a11y",
+      "A11yHeroPlayer": "a11y",
+      "A11yPrefs": "a11y",
+      "A11yTextSize": "a11y",
+      "a11yControlLabels": "a11y",
+      "a11yControlSpecs": "a11y",
+      "PortfolioA11yProvider": "a11y",
+      "usePortfolioA11y": "a11y"
     },
-    "waived_because": "Each waived name is a bound token deliverable: a rename is a consumer migration, global-or-nothing (DECISIONS R-1's boundary on CSS custom-property renames), so the abbreviation stays until a dedicated migration order. The two concepts already carry both spellings in the tree, background/bg and button/btn, and the canonical is the fuller word the semantic role home and the component symbols already use. N2 blocks a third occurrence from landing, which is what the ratchet is for."
+    "waived_because": "Each waived name is a bound token deliverable: a rename is a consumer migration, global-or-nothing (DECISIONS R-1's boundary on CSS custom-property renames), so the abbreviation stays until a dedicated migration order. The two concepts already carry both spellings in the tree, background/bg and button/btn, and the canonical is the fuller word the semantic role home and the component symbols already use. N2 blocks a third occurrence from landing, which is what the ratchet is for. accessibility/a11y was registered on 2026-08-27 with one instance already in the tree: component.a11y-hero.height, bound by components/docs-ui/a11y-hero.tsx. The whole component family is spelled a11y-*, so renaming the token alone would leave the component named one thing and binding another, which is worse than the inconsistency. It moves when that family moves, and registering the pair is what stops a SECOND one appearing meanwhile. The nine exported symbols in that family (A11yHero*, A11yPrefs, A11yTextSize, A11yHdr, a11yControl*, PortfolioA11yProvider, usePortfolioA11y) are waived on the same ground and move in the same order: registering the pair made them visible, which is the point, and renaming a component family mid-audit would be the drive-by migration R-1 forbids.",
+    "open_questions": {
+      "$description": "Naming collisions that are real, measured, and NOT yet decided. Written here rather than left to an audit to rediscover: an unregistered pair is invisible to N2, and a pair registered with the wrong canonical word is worse than none.",
+      "elevation / shadow": {
+        "counts": {
+          "elevation": 10,
+          "shadow": 4
+        },
+        "instances": [
+          "component.nav.pill-shadow",
+          "component.nav.pill-shadow-on-dark",
+          "component.card.shadow",
+          "component.card.shadow-hover"
+        ],
+        "why_open": "Two words for one concept, but `shadow` is also the DTCG $type these tokens carry, so deprecating it would put the lexicon in conflict with the format. Whether the role word should be elevation and the type word shadow, or the two collapsed, is a design decision."
+      },
+      "paper-surface / surface-paper": {
+        "instances": [
+          "color.paper-surface.06",
+          "color.surface-paper"
+        ],
+        "why_open": "The same two words in both orders, naming different concepts, and neither is in the lexicon. Deissenboeck & Pizka bijection says one concept per name and one name per concept; a reversed compound satisfies the letter and breaks the intent, because a reader cannot tell which is which without opening both."
+      },
+      "duration.settle 780 / duration.long 800": {
+        "why_open": "motion.json's own description calls them near-duplicates. 20ms apart is below any perceptual threshold, so the tree carries two scale members a person cannot tell apart. Collapsing them is a consumer migration; keeping both wants a stated reason that is not 'they already exist'."
+      }
+    }
   },
   "layering": {
     "$description": "L1 to L3. A layer may reference only the layers listed. literalTypes lists the $types a layer may state outright rather than reference.",
@@ -452,6 +492,13 @@
         "file": "components/portfolio/loading-screen.tsx",
         "pattern": "const FADE_MS = ([0-9.]+)",
         "token": "component.splash.fade",
+        "as": "ms"
+      },
+      {
+        "id": "P6",
+        "file": "components/ame/top-bar.tsx",
+        "pattern": "const EXIT_MS = ([0-9.]+)",
+        "token": "duration.exit",
         "as": "ms"
       }
     ]
@@ -919,7 +966,8 @@
       "docgen": "the writing half of docgen:check, run by hand when generated docs must be regenerated. The checking half is what the gate needs, and it is wired.",
       "diagram": "The writer half of the README diagram. CI runs diagram:check; this one is run by a person when the tokens move, the same relationship tokens:build has to the gate.",
       "numbers": "The writer half of the README figures. CI runs numbers:check; this one is run by a person after the tokens move, the same relationship diagram has to diagram:check.",
-      "icons": "The writer half of the icon set. CI runs icons:check; this one is run by a person when icon-source.html is re-exported, the same relationship numbers has to numbers:check. It writes 218 third-party glyphs, so it is deliberately hand-run: a regeneration is a decision about vendored data, not a file CI rewrites."
+      "icons": "The writer half of the icon set. CI runs icons:check; this one is run by a person when icon-source.html is re-exported, the same relationship numbers has to numbers:check. It writes 218 third-party glyphs, so it is deliberately hand-run: a regeneration is a decision about vendored data, not a file CI rewrites.",
+      "lint:census": "The writer half of the warning census. CI runs lint:census:check; this one is run by a person after a warning is actually fixed, so a count falls in the change that earned it."
     }
   },
   "vendored": {
@@ -1330,6 +1378,12 @@
         "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
       },
       "P5": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P6": {
         "invariant": "parity",
         "check": "checkParity",
         "scope": "portfolio",
