@@ -40,6 +40,10 @@ jobs:
       # in the file THIRD-PARTY-NOTICES rests on.
       - name: icons parity
         run: pnpm icons:check
+      # The warning census, ratcheted. lint-baseline.json held a per-rule count
+      # and nothing read it; a baseline nobody compares against is a note.
+      - name: lint census
+        run: pnpm lint:census:check
       - name: numbers parity
         run: pnpm numbers:check
       - name: gate

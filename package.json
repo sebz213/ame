@@ -16,6 +16,8 @@
     "numbers:check": "node tokens/readme-numbers.mjs --check",
     "icons": "node scripts/parse-ame-icons.mjs",
     "icons:check": "node scripts/parse-ame-icons.mjs --check",
+    "lint:census": "node tokens/lint-census.mjs",
+    "lint:census:check": "node tokens/lint-census.mjs --check",
     "lint": "eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs scripts/*.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

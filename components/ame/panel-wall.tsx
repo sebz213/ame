@@ -151,7 +151,7 @@ function Panel({ item, eager = false }: { item: PanelItem; eager?: boolean }) {
 
 // ---- Drifting column ----------------------------------------------------
 
-function DriftColumn({ items, speed = 80, offset = 0, gap = 32, reduceMotion }: PanelColumn & { gap?: number; reduceMotion: boolean }) {
+function DriftColumn({ items, speed = 80, offset = 0, gap = 32, reduceMotion, eagerFirstTile = true }: PanelColumn & { gap?: number; reduceMotion: boolean; eagerFirstTile?: boolean }) {
   const style: CSSProperties = reduceMotion
     ? { transform: `translateY(-${offset * 25}%)` }
     : { animation: `panelwall-drift ${speed}s linear infinite`, animationDelay: `-${offset * speed}s` }
@@ -164,7 +164,7 @@ function DriftColumn({ items, speed = 80, offset = 0, gap = 32, reduceMotion }: 
               // Copy 0 is the one on screen at rest; copy 1 is the drift's
               // second lap and is aria-hidden. Only the first tile of the first
               // copy can be the largest contentful paint.
-              <Panel key={`${copy}-${i}`} item={item} eager={copy === 0 && i === 0} />
+              <Panel key={`${copy}-${i}`} item={item} eager={eagerFirstTile && copy === 0 && i === 0} />
             ))}
           </div>
         ))}
@@ -184,6 +184,7 @@ export function PanelWall({
   href,
   frame = true,
   overlay,
+  eagerFirstTile = true,
 }: {
   /** The columns of screens (six by default). Each item is an image ({src}), a node ({node}), or an ame mock ({mock}). Overrides `screens`. */
   columns?: PanelColumn[]
@@ -196,6 +197,24 @@ export function PanelWall({
   height?: string
   /** Wrap the wall in a link. */
   href?: string
+  /**
+   * Whether the first tile of the first column is fetched eagerly, at high priority.
+   *
+   * THE DOCBLOCK ON `Panel` SAYS "the caller decides, because only the caller knows
+   * which tiles are above the fold" -- and until now the caller could not, because
+   * the decision was hardcoded here. This is that prop.
+   *
+   * It defaults true, which keeps every existing caller exactly as it was: eager is
+   * right when the wall opens the page, and lazy-loading the LCP image is the named
+   * anti-pattern that comment is about.
+   *
+   * It is wrong when the wall is below the fold. The portfolio home is that case --
+   * its hero occupies the first screen at every breakpoint -- and the cost of getting
+   * it wrong there was 438,553 B of SVG fetched at HIGH priority, ahead of the
+   * things the first screen actually paints, for a tile nobody had scrolled to
+   * (R-200).
+   */
+  eagerFirstTile?: boolean
   /**
    * Draw the wall's own outer hairline. Off when the wall sits inside a card
    * that already frames it, so the two do not stack into a double edge.
@@ -298,7 +317,8 @@ export function PanelWall({
             }}
           >
             {cols.map((col, i) => (
-              <DriftColumn key={i} items={col.items} speed={col.speed} offset={col.offset} gap={gap} reduceMotion={reduceMotion} />
+              <DriftColumn key={i} items={col.items} speed={col.speed} offset={col.offset} gap={gap} reduceMotion={reduceMotion}
+              eagerFirstTile={eagerFirstTile} />
             ))}
           </div>
         </div>
