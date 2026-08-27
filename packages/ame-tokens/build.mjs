@@ -225,10 +225,31 @@ const cssDimension = (v) => `${n(v.value)}${v.unit}`
 const cssDuration = (v) => `${n(v.value)}${v.unit}`
 const cssBezier = (v) => `cubic-bezier(${v.map(n).join(', ')})`
 
+/*
+  EVERY var() IN A FONT STACK CARRIES ITS OWN FAMILY NAME AS THE FALLBACK.
+
+  familyVars maps a family to the custom property next/font injects for it, so
+  the portfolio picks up the loaded face. This emitted a bare `var(--font-neue-
+  haas)`, and a bare var() referencing an UNDEFINED property is invalid at
+  computed-value time: the whole declaration is dropped rather than falling
+  through to the next family. The chain does not degrade, it breaks.
+
+  Which is exactly what a consumer of the published package gets. The property is
+  declared by app/layout.tsx, and neither that file nor the font binaries travel,
+  so the flagship type token resolved to nothing for everyone outside this repo
+  while looking like a careful five-deep stack.
+
+  `var(--font-neue-haas, 'Neue Haas Display')` keeps both readings true: the
+  portfolio still resolves the variable to its loaded face, and anywhere the
+  variable is absent the browser reads the literal name, fails to find it
+  installed, and walks on to the generic families at the end of the list. The
+  declaration stays valid either way, which is the whole point.
+*/
 function cssFontFamily(v, ext) {
   const vars = ext?.['org.metis.css']?.familyVars ?? {}
   const names = Array.isArray(v) ? v : [v]
-  return names.map((f) => (vars[f] ? `var(${vars[f]})` : /\s/.test(f) ? `'${f}'` : f)).join(', ')
+  const quoted = (f) => (/\s/.test(f) ? `'${f}'` : f)
+  return names.map((f) => (vars[f] ? `var(${vars[f]}, ${quoted(f)})` : quoted(f))).join(', ')
 }
 
 function cssShadow(v) {

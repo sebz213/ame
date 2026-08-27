@@ -14,13 +14,29 @@ the rules (casing, the 30-character cap, no misleading names); this file holds t
 vocabulary those rules are applied to. When a concept is renamed, the rename is
 global (N3) and its entry here moves with it.
 
+## Which tree an entry governs
+
+This file travels into the published `ame` package and is written for the
+monorepo that produced it, so some entries name things the package does not
+contain. Rather than two lexicons that can disagree, entries carry a marker:
+
+- **no marker** — governs both trees. The token vocabulary, the gate's own
+  words, the naming rules themselves.
+- ***(monorepo)*** — the concept exists only in the repository Ame was extracted
+  from. Its cited paths (`app/`, `content/`, `lib/`, `docs/orders/`,
+  `packages/woven`) are real there and absent here, by design: the extraction
+  carries the token system and the gate, not the portfolio they paint.
+
+A reader of the package can take an unmarked entry as binding and a marked one
+as context. `docs/PROVENANCE.md` says what every absent citation pointed at.
+
 ## Name elements
 
 | Word | The one concept it names |
 |---|---|
 | **ame** | The repository as a whole: the portfolio and the design token system that ships it, in one tree. Also the token system specifically, versioned as `ame@x.y.z` in `packages/ame-tokens/ame.json`, which is the package boundary a consumer binds. One brand at two scales; the version is what distinguishes them (R-1). |
-| **metis** | The sister marketing brand, rendered on the ink (dark) ground. Written **Metis** in prose. The `/metis-marketing` route and the Metis lockup are its surface inside this repo; the top bar, nav, and footer are shared ame components tinted for it (R-12). |
-| **surface** | A rendered consumer that binds tokens: the portfolio routes under `app/(portfolio)/` and the components under `components/portfolio/`. Surfaces bind semantic and component tokens, never base tokens (U1). Note the homonym: the semantic token group `surface.*` names the glass foreground and fill roles, which are values a surface binds, not a surface itself. |
+| **metis** *(monorepo)* | The sister marketing brand, rendered on the ink (dark) ground. Written **Metis** in prose. The `/metis-marketing` route and the Metis lockup are its surface inside this repo; the top bar, nav, and footer are shared ame components tinted for it (R-12). |
+| **surface** | A rendered consumer that binds tokens. The concept governs both trees and 17 `--ame-surface-*` tokens ship in the package; the examples that follow are *(monorepo)*: the portfolio routes under `app/(portfolio)/` and the components under `components/portfolio/`. Surfaces bind semantic and component tokens, never base tokens (U1). Note the homonym: the semantic token group `surface.*` names the glass foreground and fill roles, which are values a surface binds, not a surface itself. |
 | **token** | A named design value in Design Token Open Standard (DTOS) format, emitted once as a CSS custom property. Tokens live in three layers: base, semantic, component. |
 | **base** | The bottom token layer. A base token states a literal and references nothing (L1). `packages/ame-tokens/base/`. |
 | **semantic** | The middle token layer. A semantic token references base and names a role (`background.page`, `text.body`); shadow geometry is its one stated-literal exception (L2). `packages/ame-tokens/semantic/`. |
@@ -38,8 +54,8 @@ global (N3) and its entry here moves with it.
 | **placeholder** | A `[[TOKEN]]`-shaped copy marker standing in for content not yet written. A placeholder says on its face that a page is unfinished, so G1 blocks any placeholder from reaching a deployed route (STANDARD.md C5). |
 | **metis-marketing** | The ink-theme portfolio home: route `app/(portfolio)/metis-marketing/` and component `metis-marketing-splash.tsx` (`MetisMarketingSplash`). It renders the same home component as `/portfolio`, opening dark with the Metis splash and mark. |
 | **mmarketing** | Superseded name for **metis-marketing**. Renamed in full (route, component file, exported symbols, `DARK_ROUTES`) because it read as a typo, which fails Feitelson's derive-the-same-meaning test outright (R-20). Retained here only as the former spelling; no code uses it. |
-| **woven** | The verification feature: an intake-to-receipt pipeline for AI-generated deliverables. Home `packages/woven/`, versioned `woven@0.1.0` on a clock independent of `ame@x.y.z` (R-74). Written **Woven** in prose; the lowercase word is the banned metaphor verb for abstract work, and the coherence gate matches it case-sensitively so the name passes and the metaphor does not. One concept only: **woven** names this repo's feature. Any future external product carrying the name is a separate naming decision, deferred and deliberately not recorded here, so that `git grep woven` and a future deck cannot come to disagree about what the word refers to. |
-| **nagi** | 凪, the lull when wind and water go still. The state of the tree asserted after a removal: quiet residue, zero orphans, nothing left pointing at what was taken. Named by [NAGI-ORDER](orders/NAGI-ORDER.md), whose items each assert one part of it. Kept apart from its two neighbours: a **removal** is the act, a **rehearsal** is the proof the act would be clean, and nagi is the state that proof asserts — the noun the other two exist for. The homonym question, asked and answered as an absence: lowercase "nagi" has no ordinary-English sense and no occurrence anywhere in this tree at naming time (2026-08-11), so no meaning ban of the W1.3 kind is expected. Recorded rather than assumed, so a future collision arrives as a caught surprise instead of a silent drift. |
+| **woven** *(monorepo)* | The verification feature: an intake-to-receipt pipeline for AI-generated deliverables. Home `packages/woven/`, versioned `woven@0.1.0` on a clock independent of `ame@x.y.z` (R-74). Written **Woven** in prose; the lowercase word is the banned metaphor verb for abstract work, and the coherence gate matches it case-sensitively so the name passes and the metaphor does not. One concept only: **woven** names this repo's feature. Any future external product carrying the name is a separate naming decision, deferred and deliberately not recorded here, so that `git grep woven` and a future deck cannot come to disagree about what the word refers to. |
+| **nagi** *(monorepo)* | 凪, the lull when wind and water go still. The state of the tree asserted after a removal: quiet residue, zero orphans, nothing left pointing at what was taken. Named by [NAGI-ORDER](orders/NAGI-ORDER.md), whose items each assert one part of it. Kept apart from its two neighbours: a **removal** is the act, a **rehearsal** is the proof the act would be clean, and nagi is the state that proof asserts — the noun the other two exist for. The homonym question, asked and answered as an absence: lowercase "nagi" has no ordinary-English sense and no occurrence anywhere in this tree at naming time (2026-08-11), so no meaning ban of the W1.3 kind is expected. Recorded rather than assumed, so a future collision arrives as a caught surprise instead of a silent drift. |
 | **instrument** | A derived, parity-checked statistic over rendered canon, emitting DRIFT readings. Built from the tree, byte-rebuildable from shipped embeddings, so it cannot go stale the way a golden screenshot does. An instrument measures and never decides; a policy over its readings is what produces a verdict. |
 | **convergence** | Resemblance to a reference cloud, read by an instrument. A reading, never a verdict. Its pair is **conformance**: compliance with stated rules, decided by clauses, output VIOLATION or pass. The two never share a meaning. |
 | **battery** | A fixed, versioned prompt set run against outside generators by dated recipe. Two exist: ambient (what the crowd makes) and counterfactual (what a machine makes of Ame's own assignment). Editing a prompt without bumping the battery version is a violation, because an undated recipe cannot be re-run. |

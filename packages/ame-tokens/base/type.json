@@ -9,9 +9,14 @@
           "Hanken Grotesk",
           "ui-sans-serif",
           "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
           "sans-serif"
         ],
-        "$description": "The one portfolio face, with Hanken Grotesk ahead of the system stack.",
+        "$description": "The one portfolio face, then a generic stack that resolves on any machine. The branded faces are var() references with their own names as fallbacks, so where next/font has not declared them the browser walks on rather than dropping the declaration. Everything after Hanken is unbranded and installed almost everywhere: a consumer of the published package gets Arial or the platform's own sans, never nothing.",
         "$extensions": {
           "org.metis.css": {
             "familyVars": {
