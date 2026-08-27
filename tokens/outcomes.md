@@ -1,6 +1,9 @@
 # Outcomes
 
-Numbers. Measured by `pnpm tokens:check` on 2026-08-10. The conditions that
+Numbers. The Size block below is generated from the tree by `pnpm numbers` and
+verified on every push by `pnpm numbers:check`, so it cannot outlive what it
+counts. It read 253 tokens against a tree measuring 339, dated 2026-08-10, and
+cited `pnpm tokens:check`, a script that no longer exists. The conditions that
 produced them are in `contract.md`; why they are what they are is in
 `decisions.md`.
 
@@ -13,11 +16,22 @@ measuring date belongs in the heading and the run belongs in `runs.log` (R-70).
 
 ## Size
 
-| | |
-|---|---|
-| Tokens | 253 |
-| Aliases | 30 |
-| Violations | 1 |
+<!-- numbers:start -->
+
+Measured on the tree that ships, by the commands shown, and regenerated from it
+rather than typed. `pnpm numbers:check` re-runs every command on every push. So
+these figures describe **this commit**, which is a stronger claim than a date,
+and one that cannot quietly go stale.
+
+| | | |
+|---|---|---|
+| Tokens | 339 | `pnpm gate` header |
+| Contrast pairs | 19, both themes, all passing their minimums | `pnpm gate` contrast table |
+| Emitted CSS | 485 lines | `wc -l packages/ame-tokens/tokens.css` |
+| Decisions | 15, dated | `grep -c "^## D-" tokens/decisions.md` |
+| Tokens with no consumer here | 94 of 339 | `pnpm gate` H1 line |
+
+<!-- numbers:end -->
 
 The one violation is AM1: `components/portfolio/expertise-card.tsx` has no `/ame`
 registry row. It is the open edge of the card-extraction work, not a token defect.

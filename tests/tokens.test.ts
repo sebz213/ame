@@ -6,6 +6,7 @@ import { FLOWCHART_PRESETS } from '../components/ame/flowchart-presets'
 import { resolveValue, toCss, buildTokens } from 'ame-tokens/build.mjs'
 import { contrast } from '../tokens/contrast.mjs'
 import { ratchetExceeded } from '../tokens/ratchet.mjs'
+import { stripNonCode } from '../tokens/jscode.mjs'
 import { pqToNits, nitsToPq, hdrLuminance, exceedsReferenceWhite, REFERENCE_WHITE_NITS } from '../tokens/hdr.mjs'
 import { ROOT_PROPS, DARK_REPOINTS } from 'ame-tokens/tokens.mjs'
 
@@ -404,5 +405,70 @@ describe('the HDR rendition is emitted safely', () => {
     // rec2100-linear(...) is a string no engine parses; color(rec2100-linear ...) is.
     expect(css).toContain('color(rec2100-linear ')
     expect(css).not.toMatch(/[^(\s]rec2100-linear\(/)
+  })
+})
+
+describe('the threshold scanner lexer (jscode.mjs)', () => {
+  /*
+    Z2's verdict is only as good as this function, and its predecessor failed in
+    the one way a scanner must not: silently. A `/*` inside a string opened a
+    comment the source never opened, and 23% of check.mjs left the scan with a
+    real threshold inside the hole, over a green gate.
+
+    jscode.mjs says it is "exported for tests ... an instrument every other
+    clause is measured by should be provable on its own". Nothing imported it
+    until this block, so the sentence was true about intent and false about the
+    tree. These are the cases that sentence is for.
+  */
+  const sees = (code: string) => /\d/.test(stripNonCode(code))
+
+  it('keeps a threshold that is really in the code', () => {
+    expect(sees('const MAX = 512')).toBe(true)
+  })
+
+  it('strips a number mentioned in a line comment', () => {
+    expect(sees('// a comment mentioning 512')).toBe(false)
+  })
+
+  it('strips a number mentioned in a block comment', () => {
+    expect(sees('/* a comment mentioning 512 */')).toBe(false)
+  })
+
+  it('strips digits inside a regex literal, which are the pattern', () => {
+    expect(sees('const re = /[0-9]{512}/')).toBe(false)
+  })
+
+  it('does not let a comment opener inside a string eat the code after it', () => {
+    // The exact regression: the old passes opened a comment at the `/*` in this
+    // string and swallowed everything to the next `*/` anywhere in the file.
+    const code = ["const s = 'contains /* an unclosed comment opener'", 'const MAX = 512'].join('\n')
+    expect(sees(code)).toBe(true)
+  })
+
+  it('does not let a comment opener inside a regex eat the code after it', () => {
+    expect(sees(['const re = /[/*]/', 'const MAX = 512'].join('\n'))).toBe(true)
+  })
+
+  it('tells a regex literal from division by what precedes it', () => {
+    // `total / 512 / count` is two divisions, so 512 is code and must survive.
+    expect(sees('const ratio = total / 512 / count')).toBe(true)
+  })
+
+  it('strips template text but keeps an interpolated expression', () => {
+    expect(sees('const msg = `a template mentioning 512 B`')).toBe(false)
+    expect(sees('const msg = `budget ${512} B`')).toBe(true)
+  })
+
+  it('preserves line count and offsets so a violation can name its line', () => {
+    const src = ['const a = 1 // comment', 'const b = 2', '/* block */', 'const c = 3'].join('\n')
+    const out = stripNonCode(src)
+    expect(out.split('\n').length).toBe(src.split('\n').length)
+    expect(out.length).toBe(src.length)
+  })
+
+  it('classifies every byte exactly once, never dropping a region', () => {
+    // Blanked bytes become spaces; nothing is deleted. Same length is the proof.
+    const src = readFileSync('tokens/check.mjs', 'utf8')
+    expect(stripNonCode(src).length).toBe(src.length)
   })
 })

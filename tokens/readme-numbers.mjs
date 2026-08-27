@@ -40,6 +40,20 @@ const REPO = join(ROOT, '..')
 const README = [join(REPO, 'docs/package/README.md'), join(REPO, 'README.md')].find((p) =>
   existsSync(p),
 )
+/*
+  outcomes.md carries the same figures and drifted the same way, faster.
+
+  contract.md names it as the home for "what the system currently measures", and
+  it stood at 253 tokens over a tree measuring 339, dated 2026-08-10, citing a
+  script (`pnpm tokens:check`) that no longer exists. Its own opening paragraph
+  narrates the previous time it drifted and concludes that "a census nobody
+  re-reads is a second home for counts baseline.json already holds" -- and then
+  it became that census again.
+
+  So it gets the same treatment as the README rather than another hand pass: one
+  generator, two targets, both checked in CI.
+*/
+const OUTCOMES = join(REPO, 'tokens/outcomes.md')
 if (!README) {
   console.error('readme-numbers: no docs/package/README.md and no README.md')
   process.exit(2)
@@ -134,24 +148,34 @@ const block = [
   END,
 ].join('\n')
 
-const current = readFileSync(README, 'utf8')
-const a = current.indexOf(START)
-const b = current.indexOf(END)
-if (a === -1 || b === -1) {
-  console.error(`readme-numbers: ${README} has no ${START} / ${END} markers`)
-  process.exit(2)
-}
-const next = current.slice(0, a) + block + current.slice(b + END.length)
+const targets = [README, existsSync(OUTCOMES) ? OUTCOMES : null].filter(Boolean)
+const CHECK = process.argv.includes('--check')
+let wrote = 0
 
-if (process.argv.includes('--check')) {
-  if (next !== current) {
-    console.error('readme-numbers: the committed numbers disagree with the tree.')
-    console.error('Run: node tokens/readme-numbers.mjs')
-    process.exit(1)
+for (const file of targets) {
+  const current = readFileSync(file, 'utf8')
+  const a = current.indexOf(START)
+  const b = current.indexOf(END)
+  if (a === -1 || b === -1) {
+    console.error(`readme-numbers: ${file} has no ${START} / ${END} markers`)
+    process.exit(2)
   }
-  console.log(`readme-numbers parity PASS: ${rows.length} figures match the tree.`)
+  const next = current.slice(0, a) + block + current.slice(b + END.length)
+  if (CHECK) {
+    if (next !== current) {
+      console.error(`readme-numbers: the committed numbers in ${file.replace(REPO, '.')} disagree with the tree.`)
+      console.error('Run: node tokens/readme-numbers.mjs')
+      process.exit(1)
+    }
+  } else if (next !== current) {
+    writeFileSync(file, next)
+    wrote++
+  }
+}
+
+if (CHECK) {
+  console.log(`readme-numbers parity PASS: ${rows.length} figures match the tree in ${targets.length} file(s).`)
 } else {
-  writeFileSync(README, next)
-  console.log(`readme-numbers: wrote ${rows.length} figures to ${README.replace(REPO, ".")}`)
+  console.log(`readme-numbers: ${rows.length} figures, ${wrote} of ${targets.length} file(s) updated`)
   for (const [a2, b2] of rows) console.log(`  ${a2.padEnd(30)}${b2}`)
 }

@@ -39,7 +39,7 @@ The consumable unit is `packages/ame-tokens` plus the gate.
 | `tokens/check.mjs` + `tokens/invariants.json` + `tokens/contract.md` | the gate; its rules are in [The gate](#the-gate) below |
 | `examples/` | 1 compliant fixture inside the real gate's scan, and 1 violating fixture the gate must reject on every run |
 | `tokens/decisions.md` + `docs/` | the dated decision log, the naming lexicon, the extraction preflight, and what the citations point at |
-| `components/ame/` | demo chrome for the docs surface (nav, footer, top bar, panel wall, flowchart) |
+| `components/ame/` | demo chrome for the docs surface (nav, footer, top bar, panel wall, flowchart). Using any of it means importing `components/ame/chrome.css` too, which defines the `.port-glass*` classes and `--port-*` properties they bind |
 
 ## Requirements
 
@@ -62,6 +62,13 @@ pnpm gate:fixtures # proves the gate still rejects the violating fixture
 ```
 
 **Adopt the tokens as-is.** Import `packages/ame-tokens/tokens.css` and bind the custom properties. You inherit a system in which every rendered contrast pair is measured in both themes. The tokens are declared at `:root`, so they are available anywhere on the page with no wrapper class. For the dark theme, set `data-theme="dark"` on any ancestor: the emitted `[data-theme="dark"]` scope re-points the themed names beneath it.
+
+**Use the demo components.** They are reference, not a component library, and they
+need two imports rather than one: `packages/ame-tokens/tokens.css` for the tokens,
+and `components/ame/chrome.css` for the `.port-glass*` classes and `--port-*`
+properties they bind. Importing only the first renders an unstyled bar with colors
+silently dropped, which is how those classes were found missing from the package
+in the first place.
 
 **Point the gate at an existing codebase.** Retarget `scan_roots` at your own CSS and components. It will catch hand-written values, base-layer reads, and unmeasured contrast pairs. One limit applies, and it is first in [Scope and limits](#scope-and-limits).
 
