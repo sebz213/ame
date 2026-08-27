@@ -27,11 +27,7 @@ Include what you actually observed: the file, the input, what happened, and what
 you expected instead. A report that describes a real thing gets a real answer.
 
 **A report will be closed without detailed analysis if it does not show evidence
-of having been run.** No hedge about this: a description of a vulnerability class
-that might theoretically apply, without a reproduction against this tree, is not
-a report — and the tools that generate those at scale are the reason this
-paragraph exists. Running it costs you one command; not running it costs someone
-else an afternoon.
+of having been run.** 
 
 AI is fine. 
 
