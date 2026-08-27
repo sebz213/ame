@@ -1,11 +1,16 @@
 {
   "name": "ame-tokens",
   "version": "0.1.0",
-  "description": "Ame design tokens: three DTCG layers compiled to CSS custom properties. No dependencies outside the Node standard library.",
-  "license": "MIT",
+  "description": "Ame design tokens: three DTCG layers compiled to CSS custom properties, CSS recipes, and TypeScript types. No dependencies outside the Node standard library.",
+  "license": "Apache-2.0",
   "type": "module",
   "exports": {
     "./tokens.css": "./tokens.css",
+    "./recipes.css": "./recipes.css",
+    "./tokens.mjs": {
+      "types": "./tokens.d.ts",
+      "default": "./tokens.mjs"
+    },
     "./build.mjs": "./build.mjs",
     "./package.json": "./package.json"
   },
@@ -14,11 +19,16 @@
   },
   "files": [
     "tokens.css",
+    "recipes.css",
+    "tokens.mjs",
+    "tokens.d.ts",
     "build.mjs",
     "check.mjs",
     "ame.json",
+    "resolver.json",
     "base",
     "semantic",
-    "component"
+    "component",
+    "recipe"
   ]
 }

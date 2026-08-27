@@ -4,7 +4,41 @@ Ame is a design token system with an enforcement gate: 3 layers of DTCG tokens c
 
 **[Contract](tokens/contract.md)** · **[Decisions](tokens/decisions.md)** · **[Outcomes](tokens/outcomes.md)** · **[Fixtures](examples/README.md)** · **[Lexicon](docs/LEXICON.md)** · **[Standard](STANDARD.md)**
 
-MIT licensed. Cite it via [CITATION.cff](CITATION.cff).
+Apache-2.0 — fork it, ship it, sell what you build on it. The one thing the
+licence withholds is the **name**: section 6 grants no trademark rights, so
+rename your fork. The four documents carrying the reasoning — [contract](tokens/contract.md),
+[decisions](tokens/decisions.md), [STANDARD.md](STANDARD.md), [lexicon](docs/LEXICON.md) —
+are additionally offered under CC BY 4.0 so they can be quoted in a paper or a
+talk without arguing about whether a software licence covers prose. See
+[LICENSE](LICENSE), [LICENSE-DOCS](LICENSE-DOCS) and [NOTICE](NOTICE); cite it
+via [CITATION.cff](CITATION.cff).
+
+**New here?** Three doors, and they want different things.
+
+| You are | Start at | It takes |
+|---|---|---|
+| **Assessing the work** — a hiring manager, a peer, anyone deciding whether this is real | [The one claim, checked](#the-one-claim-checked) | 60 seconds, no clone |
+| **Adopting the tokens** in your own app | [Getting started](#getting-started) | one install |
+| **Contributing** a change | [CONTRIBUTING.md](CONTRIBUTING.md) — `pnpm gate` green *is* the install test | one install |
+
+## The one claim, checked
+
+This system says a build fails when a scanned file hand-writes a value the
+tokens already own. You do not have to take that on trust, and you do not have
+to clone anything to see it: `examples/violating/` is a panel written to break
+the rules on purpose, and [the CI log](../../actions) shows the gate rejecting
+it on every push, naming the literal it found and the token it collided with.
+
+```
+D2 restated: examples/violating/panel.css:
+  "0px 1px 6px 0px rgb(16 19 25 / 0.06)" == component.glass.drop
+```
+
+A gate nobody has watched fail is indistinguishable from a gate that cannot.
+That fixture is the difference, and `pnpm gate:fixtures` is green only when the
+gate rejected it — so a clause that quietly stops catching turns CI red instead
+of silent.
+
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
@@ -19,10 +53,10 @@ The consumable unit is `packages/ame-tokens` plus the gate.
 
 | Piece | What it is |
 |---|---|
-| `packages/ame-tokens/` | 264 DTCG-format tokens in 3 layers (base, semantic, component), a build with no dependencies outside Node's standard library, and the emitted `tokens.css` |
+| `packages/ame-tokens/` | DTCG-format tokens in 3 layers (base, semantic, component; the count is generated in the table above), a build with no dependencies outside Node's standard library, and the emitted `tokens.css` |
 | `tokens/check.mjs` + `tokens/invariants.json` + `tokens/contract.md` | the gate: every rule stated once in the contract, held as data in invariants, judged in one place |
 | `examples/` | 1 compliant fixture inside the real gate's scan, 1 violating fixture the gate must reject on every run |
-| `tokens/decisions.md` + `docs/` | 50 dated decision records, the naming lexicon, the extraction preflight, and what the citations point at |
+| `tokens/decisions.md` + `docs/` | dated decision records (counted in the table above), the naming lexicon, the extraction preflight, and what the citations point at |
 | `components/ame/` | demo chrome for the docs surface (nav, footer, top bar, panel wall, flowchart). It is not a component library, and nothing else here is either |
 
 ## Requirements
@@ -73,7 +107,7 @@ The gate governs what its scan roots name, and nothing else. Five things worth k
 
 - **The restated-value check needs the token build present**, so the gate is a workspace citizen, never a standalone binary.
 - **Spacing is a scale here, not an enforced derivation.** The `unit.*` ramp exists and the `space.*` roles reference it, but the clause that held a utility framework's spacing base equal to `unit.1` (P6) governed a config file that stayed in the monorepo, so it left with its subject. Decision D-49 records that parity and reads as current; it describes the tree Ame was extracted from. Which mechanism should author layout spacing at all — a `space.*` role or a utility class — is genuinely open there and here.
-- **69 of 264 tokens have no consumer in this tree**, because the surfaces that consumed them stayed in the monorepo Ame was extracted from. The count is baselined and ratcheted so it cannot grow; it is a fact about the extraction, not about the tokens.
+- **Many tokens have no consumer in this tree** — the count is the H1 row in the table above, generated rather than typed — because the surfaces that consumed them stayed in the monorepo Ame was extracted from. It is baselined and ratcheted so it cannot grow; a fact about the extraction, not about the tokens.
 - **One value sits off its scale on purpose**: a 13.85px glyph height in the top bar that the surrounding control was sized around. Baselined at 1, with the reason in the code.
 - **`components/ame` is demo chrome.** Treat it as reference, not product.
 
@@ -85,15 +119,22 @@ Clauses whose subject stayed with the monorepo — a byte budget over `public/`,
 
 ## Numbers
 
-Measured on this tree, 2026-08-25, by the commands shown:
+<!-- numbers:start -->
+
+Measured on the tree that ships, 2026-08-27, by the commands shown. This table is
+generated from the tree and checked in CI (`pnpm numbers:check`), so a figure
+here cannot outlive the thing it counts.
 
 | | | |
 |---|---|---|
-| Tokens | 264 (31 aliases) | `pnpm gate` header |
-| Contrast pairs | 15, both themes, all passing their minimums | `pnpm gate` contrast table |
-| Emitted CSS | 394 lines | `wc -l packages/ame-tokens/tokens.css` |
-| Decisions | 50, dated | `grep -c "^## D-" tokens/decisions.md` |
+| Tokens | 339 | `pnpm gate` header |
+| Contrast pairs | 19, both themes, all passing their minimums | `pnpm gate` contrast table |
+| Emitted CSS | 485 lines | `wc -l packages/ame-tokens/tokens.css` |
+| Decisions | 12, dated | `grep -c "^## D-" tokens/decisions.md` |
+| Tokens with no consumer here | 116 of 339 | `pnpm gate` H1 line |
+
+<!-- numbers:end -->
 
 ## Contributing, license, citation
 
-Issues and PRs are welcome; [CONTRIBUTING.md](CONTRIBUTING.md) is the 5-minute version, and `pnpm gate` green is the install test. MIT, stated in [LICENSE](LICENSE) and matching in every package file. To cite the system, use [CITATION.cff](CITATION.cff).
+Issues and PRs are welcome; [CONTRIBUTING.md](CONTRIBUTING.md) is the 5-minute version, and `pnpm gate` green is the install test. Apache-2.0, stated in [LICENSE](LICENSE), and clause L1 in the gate reads every file that declares it so the eight declarations cannot disagree. The name is withheld (§6, [NOTICE](NOTICE)); the four reasoning documents are additionally offered under CC BY 4.0 ([LICENSE-DOCS](LICENSE-DOCS)). One piece of this tree is not the author's: the 218 icons under `components/ame/icons/` are the Schweizerische Eidgenossenschaft's set, MIT, whose permission notice is reproduced in [THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) because MIT requires it to travel — L1 checks that too. To cite the system, use [CITATION.cff](CITATION.cff).

@@ -1,0 +1,57 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+for the documentation named below.
+
+Copyright 2026 Sebastien Chery
+
+
+WHAT THIS COVERS
+
+These four files, and only these four:
+
+    tokens/contract.md
+    tokens/decisions.md
+    STANDARD.md
+    docs/LEXICON.md
+
+They are prose. They carry the reasoning — what each clause is for, what was
+decided and why, the vocabulary the rules are applied to — rather than the
+mechanism that enforces it. Everything else in this repository, the enforcement
+included, is under the Apache License 2.0; see LICENSE.
+
+
+WHAT IT MEANS
+
+These four are offered under BOTH licences, and you pick. Take them under
+Apache-2.0 with the rest of the tree, or take them under CC BY 4.0 on their
+own. Nothing is withheld by choosing either; the second is added because a
+software licence answers the wrong question about prose.
+
+The use this exists for is quotation. Citing a clause in a paper, quoting the
+reasoning behind a decision in a post, putting the lexicon on a slide — CC BY
+states plainly what a software licence leaves implied: use it anywhere,
+commercially included, adapt it, and give credit.
+
+    Full text:  https://creativecommons.org/licenses/by/4.0/legalcode
+    Summary:    https://creativecommons.org/licenses/by/4.0/
+
+The full legal text at that URL governs. The summary is not a substitute for it.
+
+
+ATTRIBUTION
+
+CC BY 4.0 asks for reasonable credit: the author, this notice, a link to the
+licence, and a note if you changed anything. CITATION.cff at the root carries
+the machine-readable form. In prose, this is enough:
+
+    Sebastien Chery, "Ame: a design token system with an enforcement gate,"
+    <repository URL>, licensed CC BY 4.0.
+
+If you adapt the text, say so, and do not imply the result is endorsed.
+
+
+WHAT IT DOES NOT COVER
+
+The name. Neither licence grants rights in the marks "Ame" or "Mētis" or in the
+logo artwork — Apache-2.0 withholds them in section 6, and CC BY 4.0 states in
+section 2(b) that it grants no trademark rights either. Quote the documents
+freely; do not name your fork after the project. See NOTICE.

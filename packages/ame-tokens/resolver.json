@@ -1,0 +1,219 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "version": "2025.10",
+  "name": "ame",
+  "description": "The Ame resolver. Sets name the four token layers; modifiers name the axes a recipe varies on, one modifier per axis, its contexts the values that axis takes. This is the DTCG Resolver module doing what it was written for: alternate values per context, deduplicated, with the permutations enumerable rather than written out. What it deliberately does NOT yet carry is the theme axis: light and dark are still the -on-dark token pairs the alias map re-points under [data-theme=dark] (contract B3), which predates this document. That is the next axis to move here, and it is named rather than left implied by a document that looks like it covers theming and does not.",
+  "sets": {
+    "base": {
+      "description": "Primitives. No usage context.",
+      "sources": [
+        {
+          "$ref": "base/breakpoint.json"
+        },
+        {
+          "$ref": "base/color.json"
+        },
+        {
+          "$ref": "base/effect.json"
+        },
+        {
+          "$ref": "base/motion.json"
+        },
+        {
+          "$ref": "base/shape.json"
+        },
+        {
+          "$ref": "base/space.json"
+        },
+        {
+          "$ref": "base/type.json"
+        }
+      ]
+    },
+    "semantic": {
+      "description": "Decisions, each a reference to a base primitive.",
+      "sources": [
+        {
+          "$ref": "semantic/semantic.json"
+        }
+      ]
+    },
+    "component": {
+      "description": "Element-specific values, references to semantic.",
+      "sources": [
+        {
+          "$ref": "component/component.json"
+        }
+      ]
+    },
+    "recipe": {
+      "description": "Per-slot values for one component, in its default resolution.",
+      "sources": [
+        {
+          "$ref": "recipe/expertise-card.json"
+        }
+      ],
+      "$extensions": {
+        "org.metis.recipe": {
+          "$description": "The structure of each recipe: which element it dresses, the class its root carries, and its slots. It lives here rather than in the token files because the DTCG format has no notion of a slot, and $extensions on a set is where the spec puts vendor data. `static` holds the declarations no DTOS type expresses — a keyword, a percentage, a function over tokens — the same disclosure contract.md > Spec gaps already makes for em, vh and the dither asset. Every var() inside a static names a real token, and RC1 checks it, so a static cannot drift from the token layer either.",
+          "recipes": {
+            "expertise-card": {
+              "element": "components/portfolio/expertise-card.tsx",
+              "class": "ame-expertise-card",
+              "slots": {
+                "root": {
+                  "description": "The card itself: the bordered surface both callers share."
+                },
+                "list": {
+                  "description": "The definition list, laid out as the column grid.",
+                  "internal": [
+                    "columns"
+                  ],
+                  "static": {
+                    "display": "grid",
+                    "grid-template-columns": "repeat(var(--ame-recipe-expertise-card-list-columns), minmax(0, 1fr))",
+                    "margin-block": "0"
+                  }
+                },
+                "cell": {
+                  "description": "One column. min-width 0 lets it shrink to its grid track; a grid item defaults to min-width:auto and would refuse to shrink below its content, which is where the overflow came from.",
+                  "static": {
+                    "min-width": "0"
+                  }
+                },
+                "block": {
+                  "description": "The label-and-values block inside a cell. display:contents by default, so on the home the wrapper is not in the layout at all; the term sheet gives it a box to centre.",
+                  "static": {
+                    "display": "contents"
+                  }
+                },
+                "label": {
+                  "description": "The dt. margin-top 0 drops the prose `dt { margin-top: 1.25em }` it inherits inside DocsBody.",
+                  "static": {
+                    "margin-top": "0"
+                  }
+                },
+                "value": {
+                  "description": "The dd. padding-inline-start 0 drops the prose `dd { padding-inline-start: 1.625em }`; overflow-wrap breaks a long unbroken value inside its column rather than through its neighbour.",
+                  "static": {
+                    "padding-inline-start": "0",
+                    "overflow-wrap": "break-word"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Light or dark. The system-wide axis: it re-points tokens rather than any one component's slots, so it carries no recipe and compiles to a document-wide scope instead of a class.",
+      "contexts": {
+        "light": [],
+        "dark": [
+          {
+            "$ref": "theme/dark.json"
+          }
+        ]
+      },
+      "default": "light",
+      "$extensions": {
+        "org.metis.theme": {
+          "$description": "Dark used to be six hand-listed alias pairs in build.mjs plus an -on-dark naming convention, which meant a third theme needed new suffixed tokens and a new convention rather than a file. It is a context now: theme/dark.json overrides the tokens it disagrees with, and a high-contrast theme is another context beside it.\n\n`document` is what makes it reach further than a class scope. The attribute sits on a wrapper deep in the page, but html, body and any body-level portal are ABOVE that wrapper and inherit nothing from it — which is why the page ground and the scrollbar were hand-mirrored literals for so long. Emitting the scope for the document element as well, selected with :has(), gives them the same values every other element gets.",
+          "attribute": "data-theme",
+          "document": true
+        }
+      }
+    },
+    "expertise-card.layout": {
+      "description": "Which of the two callers the expertise card is dressing. The default context is the portfolio home; the term sheet is a case study's scope facts.",
+      "contexts": {
+        "expertise": [],
+        "term-sheet": [
+          {
+            "$ref": "recipe/expertise-card/layout/term-sheet.json"
+          }
+        ]
+      },
+      "default": "expertise",
+      "$extensions": {
+        "org.metis.recipe": {
+          "$description": "An attribute axis: the context is selected on the element, so it compiles to an attribute selector on the recipe's root and is settable per instance.",
+          "recipe": "expertise-card",
+          "axis": "layout",
+          "attribute": "data-layout",
+          "static": {
+            "term-sheet": {
+              "list": {
+                "grid-template-columns": "repeat(auto-fit, minmax(var(--ame-component-term-sheet-card-col-min), 1fr))",
+                "width": "95.7%",
+                "margin-inline": "auto"
+              },
+              "cell": {
+                "text-align": "center"
+              },
+              "block": {
+                "display": "inline-block",
+                "text-align": "left"
+              }
+            }
+          }
+        }
+      }
+    },
+    "expertise-card.viewport": {
+      "description": "How wide the viewport is. The contexts are the resolver's own sizing example (small, medium, large) applied to one recipe's track count and padding.",
+      "contexts": {
+        "base": [],
+        "sm": [
+          {
+            "$ref": "recipe/expertise-card/viewport/sm.json"
+          }
+        ],
+        "lg": [
+          {
+            "$ref": "recipe/expertise-card/viewport/lg.json"
+          }
+        ]
+      },
+      "default": "base",
+      "$extensions": {
+        "org.metis.recipe": {
+          "$description": "A media axis: the context is selected by the viewport, not by the markup, so it compiles to @media (min-width: <token>) and takes no attribute. The resolver picks exactly one context per resolution; min-width queries stack, so the widest matching context wins — the same selection, reached by the cascade instead of by the tool. Each context names the breakpoint TOKEN, never a literal width.",
+          "recipe": "expertise-card",
+          "axis": "viewport",
+          "media": {
+            "base": null,
+            "sm": "breakpoint.sm",
+            "lg": "breakpoint.lg"
+          }
+        }
+      }
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/sets/base"
+    },
+    {
+      "$ref": "#/sets/semantic"
+    },
+    {
+      "$ref": "#/sets/component"
+    },
+    {
+      "$ref": "#/sets/recipe"
+    },
+    {
+      "$ref": "#/modifiers/theme"
+    },
+    {
+      "$ref": "#/modifiers/expertise-card.viewport"
+    },
+    {
+      "$ref": "#/modifiers/expertise-card.layout"
+    }
+  ]
+}

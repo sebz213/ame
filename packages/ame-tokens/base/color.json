@@ -1,198 +1,513 @@
 {
-  "$description": "Base colour primitives. DTCG 2025.10 colour objects: colourSpace + components, alpha where the colour is translucent. No other file may introduce a colour literal; semantic references these, component references semantic.",
+  "$description": "Base colour primitives. DTOS 2025.10 colour objects: colourSpace + components, alpha where the colour is translucent. No other file may introduce a colour literal; semantic references these, component references semantic.",
   "color": {
     "$type": "color",
-
     "white": {
-      "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "hex": "#ffffff" },
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "hex": "#ffffff"
+      },
       "$description": "Pure white. Glass light pole, card ground, foreground on ink."
     },
     "black": {
-      "$value": { "colorSpace": "srgb", "components": [0, 0, 0], "hex": "#000000" },
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0,
+          0,
+          0
+        ],
+        "hex": "#000000"
+      },
       "$description": "Pure black. Headings only."
-    },
-    "paper": {
-      "$value": { "colorSpace": "oklch", "components": [0.985, 0.003, 106] },
-      "$description": "Warm off-white. The page ground."
     },
     "ink": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.062745, 0.07451, 0.098039],
+        "components": [
+          0.062745,
+          0.07451,
+          0.098039
+        ],
         "hex": "#101319"
       },
-      "$description": "Brand near-black. Body ink, dark surfaces, and the colour every shadow is graded from."
+      "$description": "Brand near-black. The system's only dark pigment: body ink, the ground under every dark surface, and the colour every shadow is graded from. Anything darker is color.ink-alpha; anything lifted off it is color.ink-lift. No other dark may be a colour of its own."
     },
-    "ink-raised": {
-      "$value": { "colorSpace": "srgb", "components": [0.094118, 0.113725, 0.145098], "hex": "#181d25" },
-      "$description": "Ink lifted one step: the secondary (dark) button fill."
-    },
-    "ink-raised-edge": {
-      "$value": { "colorSpace": "srgb", "components": [0.168627, 0.2, 0.243137], "hex": "#2b333e" },
-      "$description": "The hairline edge on the secondary (dark) button."
-    },
-    "slate-400": {
-      "$value": { "colorSpace": "srgb", "components": [0.6, 0.631373, 0.686275], "hex": "#99a1af" },
-      "$description": "Cool blue-grey. Dark-mode secondary / meta text (text.secondary-on-dark)."
-    },
-
-    "neutral": {
-      "$description": "Chromaless grey ramp in oklch. Higher number = darker, so it reads as a weight scale. Closed set: invariant no-raw-color admits no grey outside it.",
-      "100": { "$value": { "colorSpace": "oklch", "components": [0.95, 0, 0] } },
-      "200": { "$value": { "colorSpace": "oklch", "components": [0.93, 0, 0] } },
-      "300": { "$value": { "colorSpace": "oklch", "components": [0.9, 0, 0] } },
-      "500": { "$value": { "colorSpace": "oklch", "components": [0.52, 0, 0] } },
-      "800": { "$value": { "colorSpace": "oklch", "components": [0.22, 0, 0] } }
-    },
-
-    "surface-grey": {
+    "ink-light": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.737255, 0.737255, 0.745098],
-        "hex": "#bcbcbe"
+        "components": [
+          0.682353,
+          0.803922,
+          1
+        ],
+        "hex": "#aecdff"
       },
-      "$description": "The neutral the glass reads as."
+      "$description": "Ink's own hue (217°) carried to full lightness. Not a colour in its own right and never painted: it is the only agent that lifts a dark surface, so that every dark in the system is ink plus a step of ink's light rather than a hex of its own. White cannot do this job — every dark here is bluer than ink, so a white lift desaturates it (the button edge drifts 6 points on red and blue). Solving for the direction color.ink-raised, color.surface-ink and the button edge shared from ink gives this colour; against it those three reproduce exactly, within 1, and within 2. See color.ink-lift."
     },
-    "surface-paper": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [0.933333, 0.933333, 0.921569],
-        "hex": "#eeeeeb"
-      },
-      "$description": "Near-white warm grey. The top utility bar."
-    },
-    "surface-ink": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [0.101961, 0.117647, 0.156863],
-        "hex": "#1a1e28"
-      },
-      "$description": "Dark counterpart of surface-paper: the top utility bar on an ink ground (the marketing-site sister). A subtle elevation of ink that keeps its blue cast."
-    },
-
-    "paper-alpha": {
-      "$description": "The page ground at partial opacity, for the opaque glass variant over a light backdrop.",
-      "88": {
-        "$value": {
-          "colorSpace": "oklch",
-          "components": { "$ref": "#/color/paper/$value/components" },
-          "alpha": 0.88
-        }
-      }
-    },
-
-    "modal-dark": {
-      "$value": { "colorSpace": "lab", "components": [19, 0.33, -15.02], "alpha": 0.69 },
-      "$description": "The shared ink surface behind the cookie, contact, and Ask-AI panels over a dark backdrop. Cooler and lighter than color.ink, so a panel reads as a layer above the dark card rather than a hole in it."
-    },
-
-    "brand": {
-      "$value": { "colorSpace": "oklch", "components": [0.55, 0.15, 256] },
-      "$description": "Brand blue. Links and accents."
-    },
-    "brand-contrast": {
-      "$value": { "colorSpace": "oklch", "components": [0.985, 0, 0] },
-      "$description": "Foreground on brand fills."
-    },
-    "danger": {
-      "$value": { "colorSpace": "oklch", "components": [0.577, 0.245, 27.325] },
-      "$description": "Error and destructive."
-    },
-    "success-fill": {
-      "$value": { "colorSpace": "srgb", "components": [0.133333, 0.772549, 0.368627], "alpha": 0.16 },
-      "$description": "Shipped / done: the green highlight fill on a status badge (green-500 at 16%)."
-    },
-    "success-fg": {
-      "$value": { "colorSpace": "srgb", "components": [0.086275, 0.396078, 0.203922] },
-      "$description": "Green text on a Shipped badge over a light ground (green-800). Dark enough to clear 4.5:1 on the white page, and on the badge own 16% fill over it (6.2:1 composited)."
-    },
-    "success-fg-on-dark": {
-      "$value": { "colorSpace": "srgb", "components": [0.290196, 0.870588, 0.501961] },
-      "$description": "Green text on a Shipped badge over an ink ground (green-400). The dark-theme counterpart of success-fg: 10.7:1 on background.ink, where the light tone would be unreadable."
-    },
-
-    "ink-alpha": {
-      "$description": "The ink at graded opacity. Components are a JSON Pointer to color.ink, so re-toning ink re-tones every shadow, ring, and pill fill in one edit. This replaces the ink-channels string and every rgba(16, 19, 25, a) literal.",
-      "04": {
+    "ink-lift": {
+      "$description": "Ink's light at graded opacity: the dark elevation ramp. Components are a JSON Pointer to color.ink-light, and every step is meant to composite over color.ink — so a dark surface is literally ink showing through its own lift, and re-toning ink re-tones the whole dark family. Higher number = further off the page. This replaces the bespoke darks (ink-raised, ink-raised-edge, surface-ink, modal-dark), each of which was a hand-picked hex that no longer followed ink when ink moved.",
+      "02": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
-          "alpha": 0.04
-        }
+          "components": {
+            "$ref": "#/color/ink-light/$value/components"
+          },
+          "alpha": 0.02
+        },
+        "$description": "The faintest lift: the card surface on an ink ground. On a dark page it is light, not ink, that raises a surface off the page, so the card's elevation is a step on this ramp rather than a colour of its own."
       },
       "05": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink-light/$value/components"
+          },
+          "alpha": 0.052
+        },
+        "$description": "One step off the page: the secondary (dark) button fill. Was #181d25, which this reproduces exactly."
+      },
+      "11": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink-light/$value/components"
+          },
+          "alpha": 0.107
+        },
+        "$description": "The opaque glass panel over a dark backdrop. Was lab(19 0.33 -15.02 / 0.69), whose composite over ink this approaches within five 8-bit steps on blue — the one step where routing through ink costs a visible touch of the original's coolness."
+      },
+      "17": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink-light/$value/components"
+          },
+          "alpha": 0.168
+        },
+        "$description": "The hairline edge on the secondary (dark) button — the top of the ramp. Was #2b333e, which this reproduces within two 8-bit steps."
+      }
+    },
+    "paper-surface": {
+      "$description": "color.ink-alpha composited onto white, emitted opaque: the light theme's answer to color.ink-surface, and its mirror image. Dark resolves ink's light onto ink; light resolves ink onto white. Same reason for existing too — the surfaces that hand their fill to someone else as one value (a popover colour given to fumadocs) cannot paint themselves in two layers.",
+      "06": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
+          "alpha": 0.0625,
+          "over": {
+            "$ref": "#/color/white/$value/components"
+          }
+        },
+        "$description": "The elevated card, popover and menu surface on a white ground: ink at 6.25% resolved onto white. The exact inverse of color.ink-surface.06, which is ink's light at 6.25% resolved onto ink."
+      }
+    },
+    "ink-surface": {
+      "$description": "The lift ramp already composited onto ink, emitted opaque. Same colours color.ink-lift produces when it is painted over the ink page — but resolved at build time into a single value, for the surfaces that cannot paint themselves in two layers because they hand their fill to someone else (a popover colour given to fumadocs, an elevated card fill read as one variable). Still routed: re-tone color.ink and every step here moves with it. Use ink-lift where the surface paints its own background over background.ink; use this where it does not.",
+      "06": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink-light/$value/components"
+          },
+          "alpha": 0.0625,
+          "over": {
+            "$ref": "#/color/ink/$value/components"
+          }
+        },
+        "$description": "The elevated card, popover and menu surface on an ink ground: ink's light at 6.25% resolved onto ink. Was the hand-picked #1a1e28, which it reproduces within one 8-bit step. It has no translucent twin on color.ink-lift because no surface needs this step in layered form — the card that paints its own background uses the fainter component.card.background-lift-on-dark."
+      }
+    },
+    "slate-400": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6,
+          0.631373,
+          0.686275
+        ],
+        "hex": "#99a1af"
+      },
+      "$description": "Cool blue-grey. Dark-mode secondary / meta text (text.secondary-on-dark)."
+    },
+    "neutral": {
+      "$description": "Chromaless grey ramp in oklch. Higher number = darker, so it reads as a weight scale. Closed set: invariant no-raw-color admits no grey outside it.",
+      "100": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.95,
+            0,
+            0
+          ]
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.93,
+            0,
+            0
+          ]
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.9,
+            0,
+            0
+          ]
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.52,
+            0,
+            0
+          ]
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.22,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "surface-paper": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.933333,
+          0.933333,
+          0.921569
+        ],
+        "hex": "#eeeeeb"
+      },
+      "$description": "Near-white warm grey. The top utility bar."
+    },
+    "brand": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.55,
+          0.15,
+          256
+        ]
+      },
+      "$description": "Brand blue. Links and accents.",
+      "$extensions": {
+        "org.metis.hdr": {
+          "stops": 2,
+          "$value": {
+            "colorSpace": "rec2100-linear",
+            "components": [
+              0.06,
+              0.14,
+              0.9
+            ]
+          },
+          "$description": "The HDR rendition of the brand blue, at 2 stops of headroom. Rec.2020 primaries reach a blue sRGB cannot state, which is the whole gain here: this colour is links and accents, so it is TEXT, and text is the one thing that must not get brighter. Its luminance is 33.3 cd/m2 against the SDR blue's 33.7 — the same colour to the eye's brightness sense, further out in chroma. That is the position CS2 encodes: above reference white is for imagery, and for type HDR buys gamut, not brightness. rec2100-linear rather than rec2100-pq because its components are already relative to HDR Reference White, so the luminance the clause bounds is arithmetic on the declared numbers rather than an inverse transfer function."
+        }
+      }
+    },
+    "brand-on-ink": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.7,
+          0.15,
+          256
+        ]
+      },
+      "$description": "Brand blue for text on an ink ground. Same hue and chroma as brand, lifted in lightness only: the brand blue reads 3.79:1 on ink, which is under the 4.5:1 a link needs, and lifting L to 0.70 puts it at 6.93:1 while staying in sRGB gamut. The chroma is held rather than reduced so the two renditions are recognisably one colour."
+    },
+    "brand-contrast": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.985,
+          0,
+          0
+        ]
+      },
+      "$description": "Foreground on brand fills."
+    },
+    "danger": {
+      "$value": {
+        "colorSpace": "oklch",
+        "components": [
+          0.577,
+          0.245,
+          27.325
+        ]
+      },
+      "$description": "Error and destructive."
+    },
+    "success-fill": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.133333,
+          0.772549,
+          0.368627
+        ],
+        "alpha": 0.16
+      },
+      "$description": "Shipped / done: the green highlight fill on a status badge (green-500 at 16%)."
+    },
+    "success-fg": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.086275,
+          0.396078,
+          0.203922
+        ]
+      },
+      "$description": "Green text on a Shipped badge over a light ground (green-800). Dark enough to clear 4.5:1 on the white page, and on the badge own 16% fill over it (6.2:1 composited)."
+    },
+    "success-fg-on-dark": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.290196,
+          0.870588,
+          0.501961
+        ]
+      },
+      "$description": "Green text on a Shipped badge over an ink ground (green-400). The dark-theme counterpart of success-fg: 10.7:1 on background.ink, where the light tone would be unreadable."
+    },
+    "ink-alpha": {
+      "$description": "The ink at graded opacity. Components are a JSON Pointer to color.ink, so re-toning ink re-tones every shadow, ring, and pill fill in one edit. This replaces the ink-channels string and every rgba(16, 19, 25, a) literal.",
+      "02": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
+          "alpha": 0.02
+        },
+        "$description": "The inverse of color.ink-lift.02. Dark mode raises a card off ink with 2% of ink's light; light mode settles one onto white with 2% of ink. Same step, opposite direction — the two themes are one ramp read from either end."
+      },
+      "04": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
+          "alpha": 0.04
+        }
+      },
+      "11": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
+          "alpha": 0.107
+        },
+        "$description": "The inverse of color.ink-lift.11: the opaque glass panel's tone on a light ground."
+      },
+      "05": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.05
         }
       },
       "06": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.06
         }
       },
       "07": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.07
         }
       },
       "08": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.08
         }
       },
       "10": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.1
         }
       },
       "12": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.12
         }
       },
       "14": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.14
         }
       },
       "30": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.3
         }
       },
       "25": {
         "$value": {
           "colorSpace": "srgb",
-          "components": { "$ref": "#/color/ink/$value/components" },
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
           "alpha": 0.25
         }
+      },
+      "69": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": {
+            "$ref": "#/color/ink/$value/components"
+          },
+          "alpha": 0.69
+        },
+        "$description": "Ink at the coverage the opaque glass panels carry. The top of this ramp: not a tint but a backing, the ink that keeps the cookie, contact and Ask-AI panels solid over content while Chrome has their backdrop-filter suppressed mid-transform. Inherited from the 0.69 alpha the old lab() modal colour carried; the panel's own light rides on top of it as color.ink-lift.11."
       }
     },
-
     "white-alpha": {
-      "$description": "White at graded opacity. The dark-backdrop glass foreground and the dark-glass inset edge.",
-      "10": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.1 } },
-      "20": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.2 } },
-      "70": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.7 } },
-      "72": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.72 } },
-      "78": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.78 } },
-      "92": { "$value": { "colorSpace": "srgb", "components": [1, 1, 1], "alpha": 0.92 } }
+      "$description": "White at graded opacity: the dark-backdrop glass foreground and the dark-glass inset edge. Foreground only — a surface that sits on ink lifts with color.ink-lift, not with white, so that it keeps ink's blue cast and follows ink when ink moves.",
+      "10": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.1
+        }
+      },
+      "20": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.2
+        }
+      },
+      "36": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.36
+        }
+      },
+      "69": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.69
+        },
+        "$description": "The inverse of color.ink-alpha.69: white at the coverage the opaque glass panels carry, for the same panels over a LIGHT backdrop. Coverage, not tone — the tone rides on top as color.ink-alpha.11."
+      },
+      "70": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.7
+        }
+      },
+      "72": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.72
+        }
+      },
+      "78": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.78
+        }
+      },
+      "92": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "alpha": 0.92
+        }
+      }
     }
   }
 }

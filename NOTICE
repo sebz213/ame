@@ -1,0 +1,49 @@
+Ame — a design token system with an enforcement gate
+Copyright 2026 Sebastien Chery
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+--------------------------------------------------------------------------
+
+THE NAME IS NOT PART OF THE GRANT.
+
+Apache-2.0 section 6 withholds trademark rights, and that is deliberate here
+rather than incidental. "Ame" and "Mētis", and the logo artwork, are marks
+identifying this author's work. The licence lets you fork the system, take the
+tokens, adapt the gate and ship what you build — it does not let you call the
+result Ame. Rename your fork.
+
+This is the whole reason the project moved from MIT to Apache-2.0. MIT is
+silent on names, so under it a fork could carry the name of the thing it forked
+and a reader could not tell them apart. The permission to reuse the work was
+never the problem; the ambiguity about whose work it is was.
+
+--------------------------------------------------------------------------
+
+DOCUMENTATION IS ALSO OFFERED UNDER CC BY 4.0.
+
+The four documents that carry the reasoning rather than the mechanism —
+tokens/contract.md, tokens/decisions.md, STANDARD.md and docs/LEXICON.md — may
+be used under either Apache-2.0 or Creative Commons Attribution 4.0
+International, at your choice. See LICENSE-DOCS. Quoting them in a paper, a
+post or a talk is the use that licence is for, and CC BY states the attribution
+terms for prose more clearly than a software licence does.
+
+--------------------------------------------------------------------------
+
+THIRD-PARTY MATERIAL.
+
+The icon set under components/ame/icons/ is MIT licensed, Copyright (c)
+Schweizerische Eidgenossenschaft. MIT permits its use here, including inside an
+Apache-2.0 project and commercially, on the condition that its permission
+notice travels with the copies — so the full text is reproduced in
+THIRD-PARTY-NOTICES, and clause L1 in the gate fails the build if it stops
+being there. A link would not have satisfied the condition; a copy does.
+
+Dependencies are obtained through the package manager rather than vendored, and
+carry their own licences: React and anime.js (MIT), lucide-react (ISC),
+TypeScript (Apache-2.0).
+
+Provenance for anything in this tree the author did not write is recorded in
+VENDORED.md, under the rule that a file traceable to no declared source is not
+vendored, merely present.

@@ -4,7 +4,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 
 /*
   PanelWall — an isometric wall of portrait app screens that drifts vertically,
-  four columns receding on the diagonal. Ported to the ame system: the frame,
+  six columns receding on the diagonal. Ported to the ame system: the frame,
   tiles, and mock content take the ame tokens (surface, hairline, radius, brand)
   rather than the original's hardcoded greys, so it sits inside the docs like the
   term-sheet card.
@@ -22,19 +22,29 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 export type PanelItem = { src?: string; node?: ReactNode; mock?: number; aspect?: string }
 export type PanelColumn = { speed: number; offset: number; items: PanelItem[] }
 
-// Five ame mock screens, staggered across four columns so no two neighbours show
+// Five ame mock screens, staggered across six columns so no two neighbours show
 // the same screen at the same height.
 const MOCKS: PanelItem[] = [0, 1, 2, 3, 4].map((n) => ({ mock: n, aspect: '375/813' }))
 
-// The stagger: four columns of three, ordered so no two neighbours show the same
+// The stagger: six columns of three, ordered so no two neighbours show the same
 // screen at the same height. Same layout whether the tiles are mocks or images.
+//
+// The outer two were added to the original four, one on each side. The wall grows
+// to fit them — see the geometry in PanelWall — so a tile is the same size it has
+// always been; the added columns are extra wall, not a re-slicing of the old one.
+//
+// Every column carries its own speed so no two ever drift in lockstep, and the
+// two new ones are seeded between the existing values rather than outside them —
+// the wall reads as one field with no column running visibly fast or slow.
 function stagger(items: PanelItem[]): PanelColumn[] {
   const at = (i: number) => items[i % items.length]
   return [
+    { speed: 88, offset: 0.05, items: [at(3), at(1), at(2)] },
     { speed: 70, offset: 0.35, items: [at(0), at(3), at(1)] },
     { speed: 95, offset: 0.6, items: [at(2), at(0), at(4)] },
     { speed: 80, offset: 0.15, items: [at(4), at(1), at(3)] },
     { speed: 110, offset: 0.5, items: [at(1), at(2), at(0)] },
+    { speed: 102, offset: 0.8, items: [at(4), at(0), at(3)] },
   ]
 }
 
@@ -59,14 +69,14 @@ function PhoneMock({ variant = 0 }: { variant?: number }) {
         gap: '5%',
         padding: '8% 7%',
         boxSizing: 'border-box',
-        background: 'var(--port-page-bg)',
+        background: 'var(--ame-background-page)',
       }}
     >
       <div style={{ height: 6, width: '34%', margin: '0 auto', borderRadius: 999, background: 'var(--port-hairline)' }} />
       <div style={{ display: 'flex', alignItems: 'center', gap: '6%' }}>
-        <div style={{ width: '15%', aspectRatio: '1', borderRadius: 999, background: accent ? 'var(--port-brand)' : 'var(--port-hairline)' }} />
+        <div style={{ width: '15%', aspectRatio: '1', borderRadius: 999, background: accent ? 'var(--ame-text-brand)' : 'var(--port-hairline)' }} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {bar('68%', 'var(--port-text-secondary)')}
+          {bar('68%', 'var(--ame-text-secondary)')}
           {bar('44%')}
         </div>
       </div>
@@ -75,7 +85,7 @@ function PhoneMock({ variant = 0 }: { variant?: number }) {
           width: '100%',
           flex: '0 0 32%',
           borderRadius: 10,
-          background: accent ? 'color-mix(in oklab, var(--port-brand) 24%, transparent)' : 'var(--port-hairline)',
+          background: accent ? 'color-mix(in oklab, var(--ame-text-brand) 24%, transparent)' : 'var(--port-hairline)',
         }}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -88,7 +98,7 @@ function PhoneMock({ variant = 0 }: { variant?: number }) {
           marginTop: 'auto',
           height: '9%',
           borderRadius: 999,
-          background: accent ? 'var(--port-brand)' : 'color-mix(in oklab, var(--port-text-primary) 12%, transparent)',
+          background: accent ? 'var(--ame-text-brand)' : 'color-mix(in oklab, var(--ame-text-body) 12%, transparent)',
         }}
       />
     </div>
@@ -106,7 +116,7 @@ function Panel({ item }: { item: PanelItem }) {
     overflow: 'hidden',
     borderRadius: 12,
     border: '1px solid var(--port-hairline)',
-    background: 'var(--port-page-bg)',
+    background: 'var(--ame-background-page)',
   }
   if (item.src) {
     return (
@@ -153,10 +163,12 @@ export function PanelWall({
   className,
   height = '22rem',
   href,
+  frame = true,
+  overlay,
 }: {
-  /** Four columns of screens. Each item is an image ({src}), a node ({node}), or an ame mock ({mock}). Overrides `screens`. */
+  /** The columns of screens (six by default). Each item is an image ({src}), a node ({node}), or an ame mock ({mock}). Overrides `screens`. */
   columns?: PanelColumn[]
-  /** Image URLs to fill the four staggered columns. Omitted, the ame mock screens are shown (the design-system default). */
+  /** Image URLs to fill the staggered columns. Omitted, the ame mock screens are shown (the design-system default). */
   screens?: string[]
   /** Gap between tiles, px. */
   gap?: number
@@ -165,8 +177,38 @@ export function PanelWall({
   height?: string
   /** Wrap the wall in a link. */
   href?: string
+  /**
+   * Draw the wall's own outer hairline. Off when the wall sits inside a card
+   * that already frames it, so the two do not stack into a double edge.
+   * The per-tile hairlines are not affected — those belong to the screens.
+   */
+  frame?: boolean
+  /**
+   * Content laid over the tiles, INSIDE the wall's own box — so it takes the
+   * same radius and the same overflow clip the tiles take, rather than being
+   * clipped by whatever the host happens to wrap the wall in. Position it with
+   * `absolute`; the wall box is the containing block.
+   */
+  overlay?: ReactNode
 } = {}) {
   const cols = columns ?? (screens ? stagger(screens.map((src) => ({ src, aspect: '375/813' }))) : defaultColumns)
+
+  /*
+    The wall grows outward; the tiles do not shrink.
+
+    The isometric geometry below (a 112rem square, top 30%, right 54%) was authored
+    around four tracks, so one track is a quarter of the square. Rather than divide
+    that fixed square into more, thinner columns — which would have kept the wall
+    the same size and made every phone smaller — the grid widens by a full track
+    for each column added, and shifts left by half of what it gained so the growth
+    is symmetric: columns arrive at both edges instead of piling onto the right.
+
+    At four columns these resolve to 100% and 54%, which is the original geometry
+    exactly. Nothing moves until a fifth column exists.
+  */
+  const TRACK_PCT = 100 / 4
+  const wallWidth = `${cols.length * TRACK_PCT}%`
+  const wallRight = `${54 + ((cols.length - 4) / 2) * TRACK_PCT}%`
   const [reduceMotion, setReduceMotion] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -178,13 +220,42 @@ export function PanelWall({
 
   const wall = (
     <div
+      /*
+        The radius lives on this class rather than in the style below, because a
+        style attribute cannot carry a media query and one caller needs it to: the
+        portfolio home runs this wall full-bleed on a phone, where a rounded corner
+        is a corner on nothing. Everywhere else the class resolves to the same
+        component token this used to state inline, so nothing else moves.
+      */
+      className="ame-panel-wall"
       style={{
         height,
         width: '100%',
+        // The containing block for `overlay`, so an absolute child is clipped by
+        // this box's overflow and radius rather than by the host's wrapper.
+        position: 'relative',
+        // The tiles run an infinite transform animation, which the compositor
+        // promotes to its own layer. Anything painted OVER that has to be
+        // promoted with it or the two are composited from different frames —
+        // which is the tearing an overlay shows while the page scrolls. Isolating
+        // here keeps that resolution inside the wall instead of leaving it to the
+        // page's blend layers (.portfolio-root::after paints with mix-blend-mode
+        // over everything).
+        isolation: 'isolate',
         overflow: 'hidden',
-        borderRadius: 'var(--component-card-radius)',
-        border: '1px solid var(--port-hairline)',
-        background: 'var(--port-page-bg)',
+        // Omitted rather than set to `none`, so nothing is declared at all when
+        // the host card owns the frame.
+        ...(frame ? { border: '1px solid var(--port-hairline)' } : null),
+        /*
+          NO GROUND OF ITS OWN. This box used to paint --ame-background-page, which
+          was the same value as whatever it sat on in both callers — so it never
+          showed, and it was one more opaque layer between the tiles and anything a
+          host might want to put behind them. The tiles bring their own fills; the
+          space between them is the host's to decide.
+
+          Left transparent rather than removed from the type: `background` is the
+          kind of thing a caller might want back, and the absence is the statement.
+        */
       }}
     >
       <div style={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
@@ -193,12 +264,15 @@ export function PanelWall({
             style={{
               position: 'relative',
               display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              width: '100%',
+              // Counted, not hardcoded: `columns` is a public prop, so the track
+              // count has to come from whatever was passed rather than from a
+              // literal that silently disagrees with it.
+              gridTemplateColumns: `repeat(${cols.length}, 1fr)`,
+              width: wallWidth,
               height: '100%',
               transformOrigin: 'top left',
               top: '30%',
-              right: '54%',
+              right: wallRight,
               gap,
               transformStyle: 'preserve-3d',
               transform: 'rotateX(55deg) rotateZ(-45deg)',
@@ -210,6 +284,9 @@ export function PanelWall({
           </div>
         </div>
       </div>
+      {/* After the tiles in source order, so it paints above them without a
+          z-index of its own. */}
+      {overlay}
     </div>
   )
 

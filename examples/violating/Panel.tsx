@@ -16,7 +16,7 @@ export function ViolatingPanel({ label }: { label: string }) {
     <div
       className="example-broken"
       style={{
-        color: 'var(--color-ink)',
+        color: 'var(--ame-color-ink)',
         // S1 — 17 is not a member of the font.size scale. 16 and 18 both are.
         fontSize: '17px',
         animationDuration: `${reveal.duration}ms`,

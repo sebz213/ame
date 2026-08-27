@@ -14,70 +14,180 @@
         "$description": "The one portfolio face, with Hanken Grotesk ahead of the system stack.",
         "$extensions": {
           "org.metis.css": {
-            "familyVars": { "Neue Haas Display": "--font-neue-haas", "Hanken Grotesk": "--font-hanken" },
-            "note": "next/font injects both faces under generated names exposed on CSS variables. The DTCG $value carries the true family names; the build substitutes var(...) for the two that next/font owns."
+            "familyVars": {
+              "Neue Haas Display": "--font-neue-haas",
+              "Hanken Grotesk": "--font-hanken"
+            },
+            "note": "next/font injects both faces under generated names exposed on CSS variables. The DTOS $value carries the true family names; the build substitutes var(...) for the two that next/font owns."
           }
         }
       }
     },
-
     "size": {
+      "9": {
+        "$value": {
+          "value": 9,
+          "unit": "px"
+        },
+        "$description": "Shortcut badge."
+      },
+      "12": {
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        }
+      },
+      "13": {
+        "$value": {
+          "value": 13,
+          "unit": "px"
+        },
+        "$description": "Language switch, meta, error."
+      },
+      "14": {
+        "$value": {
+          "value": 14,
+          "unit": "px"
+        },
+        "$description": "Small body and secondary."
+      },
+      "15": {
+        "$value": {
+          "value": 15,
+          "unit": "px"
+        },
+        "$description": "Panel body and mobile nav."
+      },
+      "16": {
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        }
+      },
+      "18": {
+        "$value": {
+          "value": 18,
+          "unit": "px"
+        },
+        "$description": "Lead paragraph."
+      },
+      "20": {
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        },
+        "$description": "Case-study title."
+      },
+      "42": {
+        "$value": {
+          "value": 42,
+          "unit": "px"
+        },
+        "$description": "The search prompt. 40% above the 30px the prompt previously took, on the ramp so it is a step rather than an arbitrary value."
+      },
       "$type": "dimension",
       "$description": "Every type size the surface uses. Closed set: invariant type-scale admits no font-size outside it.",
-      "9": { "$value": { "value": 9, "unit": "px" }, "$description": "Shortcut badge." },
-      "11_9": { "$value": { "value": 11.9, "unit": "px" }, "$description": "Nav item and Ask-AI pill (0.85 of 14)." },
-      "12": { "$value": { "value": 12, "unit": "px" } },
-      "13": { "$value": { "value": 13, "unit": "px" }, "$description": "Language switch, meta, error." },
-      "14": { "$value": { "value": 14, "unit": "px" }, "$description": "Small body and secondary." },
-      "15": { "$value": { "value": 15, "unit": "px" }, "$description": "Panel body and mobile nav." },
-      "16": { "$value": { "value": 16, "unit": "px" } },
-      "18": { "$value": { "value": 18, "unit": "px" }, "$description": "Lead paragraph." },
-      "20": { "$value": { "value": 20, "unit": "px" }, "$description": "Case-study title." },
+      "11_9": {
+        "$value": {
+          "value": 11.9,
+          "unit": "px"
+        },
+        "$description": "Nav item and Ask-AI pill (0.85 of 14)."
+      },
       "2xl": {
-        "$value": { "value": 1.5, "unit": "rem" },
+        "$value": {
+          "value": 1.5,
+          "unit": "rem"
+        },
         "$description": "Hero and section headings. In rem because it is Tailwind's text-2xl, which the markup sets by class."
       }
     },
-
     "leading": {
       "$type": "number",
       "$description": "Unitless line-height multipliers.",
-      "none": { "$value": 1 },
-      "tight": { "$value": 1.05, "$description": "Hero and section headings." },
-      "snug": { "$value": 1.4, "$description": "Dense rows." },
-      "normal": { "$value": 1.5 },
-      "relaxed": { "$value": 1.55 },
-      "loose": { "$value": 1.6, "$description": "Body copy." }
+      "none": {
+        "$value": 1
+      },
+      "tight": {
+        "$value": 1.05,
+        "$description": "Hero and section headings."
+      },
+      "snug": {
+        "$value": 1.4,
+        "$description": "Dense rows."
+      },
+      "normal": {
+        "$value": 1.5
+      },
+      "relaxed": {
+        "$value": 1.55
+      },
+      "loose": {
+        "$value": 1.6,
+        "$description": "Body copy."
+      }
     },
-
     "tracking": {
       "$type": "number",
-      "$description": "letter-spacing as a multiple of font size, so it scales. letter-spacing REPLACES on inherit, so each role sets its own; there is no additive base. Emitted in em: DTCG dimension admits px and rem only, so em cannot be a dimension token here. See contract.md > Spec gaps.",
-      "$extensions": { "org.metis.css": { "unit": "em" } },
-      "tight": { "$value": 0.04, "$description": "Headings: hero, section, case titles." },
-      "body": { "$value": 0.05, "$description": "The dominant body and label tracking." },
-      "base": { "$value": 0.07, "$description": "Root default." },
-      "caps": { "$value": 0.14, "$description": "Uppercase meta." }
+      "$description": "letter-spacing as a multiple of font size, so it scales. letter-spacing REPLACES on inherit, so each role sets its own; there is no additive base. Emitted in em: DTOS dimension admits px and rem only, so em cannot be a dimension token here. See contract.md > Spec gaps.",
+      "$extensions": {
+        "org.metis.css": {
+          "unit": "em"
+        }
+      },
+      "tight": {
+        "$value": 0.07,
+        "$description": "Section and case titles, and UI controls - the rung the h2 on every section binds. Lowered half a step (0.01) from 0.08. It is a SHARED rung: 28 surfaces bind it, from a 24px section title down to 11px docs labels, so this half step moved all of them, not only the headings. It now sits level with body rather than below it, which its name no longer describes - the name is kept because a token renamed under a caller is worse than a token whose name is approximate, and splitting the heading use into its own rung is the fix if the two ever need to move apart."
+      },
+      "body": {
+        "$value": 0.07,
+        "$description": "The dominant body and label tracking - 123 rendered elements at 13-15px against 7 at 18px, so its centre of gravity is the small end. Took ONE of the three steps the other rungs took, so it sits two steps below its neighbours rather than level with them. That gap is deliberate: running text is where widening helps least, and this rung carries all of it. A later raise should move it by the same fraction, not close the gap."
+      },
+      "base": {
+        "$value": 0.08,
+        "$description": "Root default, inherited by every element that sets no tracking of its own. Raised with the whole ramp by three steps of 0.02 from 0.02."
+      },
+      "caps": {
+        "$value": 0.14,
+        "$description": "Uppercase. Capitals are blocky and lack the ascenders and descenders that give lowercase its rhythm, so they clump without help - the widest rung, on purpose, at every size. Raised with the whole ramp by three steps of 0.02 from 0.08."
+      },
+      "tighter": {
+        "$value": 0.04,
+        "$description": "DISPLAY LINES. The larger the type, the less tracking it wants relative to the rest of the ramp, and this rung is where that relation is expressed - it stays the second-least whatever the ramp's offset is. Raised with the whole ramp by three steps of 0.02 from -0.02."
+      },
+      "tightest": {
+        "$value": 0.03,
+        "$description": "The floor: the least tracking any rung carries, for the largest type on a surface. Raised with the whole ramp by three steps of 0.02; it was -0.03 while the ramp was set to the ordinary typographic advice for display sizes, and before that 0."
+      }
     },
-
     "weight": {
       "$type": "fontWeight",
       "$description": "Real cuts only. Neue Haas is loaded as static files at 100, 200, 300, 350, 400, 500, 700, and 900. There is no variable axis, so no weight between 400 and 500 is reachable from these files.",
-      "regular": { "$value": 400, "$description": "Body." },
-      "medium": { "$value": 500, "$description": "Docs active link." }
+      "regular": {
+        "$value": 400,
+        "$description": "Body."
+      },
+      "medium": {
+        "$value": 500,
+        "$description": "Docs active link."
+      }
     },
-
     "weight-synthesis": {
+      "450": {
+        "$value": 0.013
+      },
+      "460": {
+        "$value": 0.0156
+      },
       "$type": "number",
       "$description": "NOT font weights. Each value is a -webkit-text-stroke width applied to the 400 cut in the text's own colour, which thickens the glyph to sit visually between 400 and 500. The name records the visual target; the value is a stroke width, emitted in em so it scales with size. Any surface showing one of these is showing a synthesized weight, not an interpolated outline. Removed the day a variable Neue Haas lands.",
-      "$extensions": { "org.metis.css": { "unit": "em", "property": "-webkit-text-stroke-width" } },
-      "450": { "$value": 0.013 },
-      "460": { "$value": 0.0156 },
-      "470": { "$value": 0.018 },
-      "480": { "$value": 0.0208 },
-      "490": { "$value": 0.0234 }
+      "$extensions": {
+        "org.metis.css": {
+          "unit": "em",
+          "property": "-webkit-text-stroke-width"
+        }
+      }
     },
-
     "icon-stroke": {
       "$type": "number",
       "$value": 1.5,

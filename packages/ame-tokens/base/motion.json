@@ -17,6 +17,14 @@
       "$value": { "value": 800, "unit": "ms" },
       "$description": "A dismissal meant to be watched rather than got through. Sits 20ms from settle (780); the two are near-duplicates and one of them should absorb the other if a third consumer ever wants this length."
     },
+    "dwell": {
+      "$value": { "value": 2000, "unit": "ms" },
+      "$description": "A deliberate wait before something that left comes back. Not a transition length — nothing moves during it — which is why it is longer than every duration above and why it may only be used as a delay. The search dialog's prompt takes it: once a reader has typed, the line has said its part, and returning it the instant the field empties reads as the interface arguing with them."
+    },
+    "ambient": {
+      "$value": { "value": 6000, "unit": "ms" },
+      "$description": "AMBIENT MOTION, WHICH IS A DIFFERENT CLASS FROM THE REST OF THIS SCALE.\n\nEvery step above it times a response: something moved because someone did something, and the duration is how long the answer takes to arrive. This one times a loop nobody started and nobody is waiting for \u2014 a gradient drifting behind a control. The requirement inverts. A response wants to be quick; ambient motion wants to be slow enough that a reader looking at the control in front of it never resolves the movement as an event.\n\nIt is roughly three times the longest response on the scale, which is the gap that keeps the two from reading as the same kind of motion. It exists as a scale member rather than a literal because the component layer may only state dimension and number (L3): a duration living in a component is a value with no home, and the next ambient surface would invent a second one."
+    },
     "cycle": {
       "$value": { "value": 2180, "unit": "ms" },
       "$description": "One full logo-bounce cycle: enter, hold, exit, gap. The splash reveal runs exactly one of these, reversed. logo-bounce.tsx LOGO_CYCLE_MS must equal it (invariant P4)."
@@ -25,7 +33,7 @@
 
   "ease": {
     "$type": "cubicBezier",
-    "$description": "The CSS curves, as DTCG control-point arrays. anime.js spring-family eases are not cubic beziers, are not CSS-emitted, and are therefore not tokens; their inventory is in decisions.md.",
+    "$description": "The CSS curves, as DTOS control-point arrays. anime.js spring-family eases are not cubic beziers, are not CSS-emitted, and are therefore not tokens; their inventory is in decisions.md.",
     "slide": { "$value": [1, 0, 0.4, 1], "$description": "Nav pill slide." },
     "enter": { "$value": [0.2, 0, 0, 1], "$description": "Card and message enter." },
     "accel": { "$value": [0.4, 0, 1, 1], "$description": "Mobile-menu close." }

@@ -16,8 +16,8 @@ export function CompliantPanel({ label, children }: { label: string; children?: 
       className="example-panel"
       style={{
         // text.body on background.page — contrast pair C1, already declared.
-        color: 'var(--text-body)',
-        background: 'var(--background-page)',
+        color: 'var(--ame-text-body)',
+        background: 'var(--ame-background-page)',
         fontSize: '16px',
         animationDuration: `${reveal.duration}ms`,
       }}

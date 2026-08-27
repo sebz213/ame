@@ -117,8 +117,8 @@ height and stretch. The components render with Tailwind classes.
 
 And the inverse: the two most-read values on the surface were not in the
 contract. `--port-glass-fg` has 41 call sites and `--port-glass-fg-muted` 23,
-both declared in `portfolio.css`. `--port-dither-strength`, `--port-glass-halo`,
-and `--port-panel-w` likewise. A contract that omits its two most-used values and
+both declared in `portfolio.css`. `--ame-surface-dither-strength`, `--port-glass-halo`,
+and `--ame-component-accessibility-width` likewise. A contract that omits its two most-used values and
 carries 91 clauses nobody invokes has the census exactly backwards.
 
 The `ease.js-*` group is the clearest single case: four tokens, read by nothing,
@@ -138,7 +138,7 @@ Meyer's argument against defensive programming: assign each consistency conditio
 to exactly one party, exactly once, because redundant checking adds software that
 can itself fail. Six duplications, all found by D1:
 
-- `--port-glass-blur: 14px` and `--port-glass-saturate: 1.5` declared in
+- `--ame-component-glass-blur: 14px` and `--ame-component-glass-saturate: 1.5` declared in
   `.port-glass` **and** emitted as tokens. The README's own text ("Blur and
   saturate live HERE, not on each call site") named `portfolio.css` as the home
   while the token file also claimed it.
@@ -147,10 +147,10 @@ can itself fail. Six duplications, all found by D1:
 - `.port-glass` restated `inset 0 0 0 1px rgba(16,19,25,0.06), 0 1px 6px
   rgba(16,19,25,0.06)` inline, four lines below reading a var, while
   `--component-glass-shadow` held the identical recipe and was read by nothing.
-- `--port-panel-w: 18.08rem` in `portfolio.css` and `component.ask-ai.width:
+- `--ame-component-accessibility-width: 18.08rem` in `portfolio.css` and `component.ask-ai.width:
   "18.08rem"` in the token file, the token's description pointing at the CSS as
   though the CSS were the source.
-- `--port-dither-strength: 0.035` in CSS, absent from tokens.
+- `--ame-surface-dither-strength: 0.035` in CSS, absent from tokens.
 - The build emitted `--ease-out-expo` as both a token and an alias, so the
   generated file would have contained `--ease-out-expo: var(--ease-out-expo)`.
 
@@ -237,5 +237,5 @@ one is showing a stroked 400.
 - **The display type range (S1, 12 strays).** Extending `font.size` to swallow
   40px, 48px, and 52px would make the check pass without a type decision having
   been made. Recorded instead.
-- **`--port-dither-noise`.** An inline SVG data URI. No DTOS type admits it; it
+- **`--ame-dither-noise`.** An inline SVG data URI. No DTOS type admits it; it
   stays in CSS as a named D1 exception.
