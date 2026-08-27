@@ -18,8 +18,6 @@ Ame is a design token system with an enforcement gate: 3 layers of DTCG tokens c
   <img alt="Three token layers — base literals, semantic roles, component measures — compile to tokens.css. The gate rejects raw values, layer leaks, and contrast failures." src="docs/architecture-light.svg">
 </picture>
 
-<sub>Drawn to ISO 5807-1985, in the same symbols the system's own flowchart component uses.</sub>
-
 ## What's in the box
 
 The consumable unit is `packages/ame-tokens` plus the gate.
