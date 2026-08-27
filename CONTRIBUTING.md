@@ -12,7 +12,7 @@ pnpm gate:fixtures
  
 Do not "fix" `examples/violating`. Every mistake in that directory is deliberate, and `gate:fixtures` passes only because the gate still rejects them.
  
-One thing the gate cannot tell you, and the first thing to trip over: the tokens are emitted under a `.portfolio-root` class, which must sit on an ancestor of anything binding them, with `[data-theme="dark"]` under it for the themed aliases. The README's Adopt section carries the details and the reason the name stays.
+The tokens are emitted under a `.portfolio-root` class, which must sit on an ancestor of anything binding them, with `[data-theme="dark"]` under it for the themed aliases.
  
 `pnpm build` runs the token build, the gate, and the fixture run in order, which is what CI runs.
  
