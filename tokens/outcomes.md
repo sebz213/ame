@@ -29,7 +29,7 @@ and one that cannot quietly go stale.
 | Contrast pairs | 19, both themes, all passing their minimums | `pnpm gate` contrast table |
 | Emitted CSS | 485 lines | `wc -l packages/ame-tokens/tokens.css` |
 | Decisions | 15, dated | `grep -c "^## D-" tokens/decisions.md` |
-| Tokens with no consumer here | 94 of 339 | `pnpm gate` H1 line |
+| Tokens with no consumer here | 92 of 339 | `pnpm gate` H1 line |
 
 <!-- numbers:end -->
 

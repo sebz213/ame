@@ -132,6 +132,27 @@ if (missing.length) {
   writeFileSync(p, JSON.stringify(rules, null, 2) + '\n')
 }
 
+/*
+  The package's CITATION.cff title.
+
+  Upstream the work really is "a portfolio and the design system that ships it".
+  No portfolio travels, so the published package would cite itself as something
+  it is not. Rewritten here, where the difference is made, rather than left for a
+  reader to discover.
+*/
+{
+  const p = join(OUT, 'CITATION.cff')
+  if (existsSync(p)) {
+    writeFileSync(
+      p,
+      readFileSync(p, 'utf8').replace(
+        /^title:.*$/m,
+        'title: "Ame: a design token system with an enforcement gate"',
+      ),
+    )
+  }
+}
+
 for (const [from, to] of Object.entries(RULES.package_manifest?.paratext ?? {})) {
   if (from.startsWith('$')) continue // a note in the map, not a path
   const src = join(REPO, from)
@@ -377,7 +398,21 @@ if (build.status !== 0) {
   console.error((build.stderr || build.stdout || '').split('\n').slice(-12).join('\n'))
   process.exit(1)
 }
-const gate = run('node', ['tokens/check.mjs', '--scope', 'package', '--no-log'])
+/*
+  The verifying run WRITES the package's run log, and the log ships.
+
+  X1 compares each baseline against the last logged run, so with no committed
+  log it returns early and the one-way ratchet passes vacuously — a guarantee
+  that holds only on whichever machine happened to run the gate last. The
+  monorepo's own log cannot travel (it measured a different tree), so the
+  package had none at all.
+
+  The run that proves the extraction is exactly the run whose measurements the
+  baselines must be judged against, so it is the right one to keep. No --no-log
+  here for that reason; the copy step strips the monorepo's log, and this writes
+  the package its own.
+*/
+const gate = run('node', ['tokens/check.mjs', '--scope', 'package'])
 console.log((gate.stdout || '').split('\n').slice(-24).join('\n'))
 if (gate.status !== 0) {
   console.error('\nextract: FAILED — the extracted tree does not pass its own gate.')

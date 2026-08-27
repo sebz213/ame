@@ -196,10 +196,22 @@ These hold before and after any change to any token, not of any one token.
 
 ### P. Parity
 
-- **P1–P3** A value with a second home in hand-written source. The token is the
-  home; the literal must equal it. Currently: four nav constants in
-  `site-header.tsx`, the rendered nav flex gap, and the lucide `strokeWidth` on
-  every icon.
+A value with a second home in hand-written source. Each clause names the file,
+the literal, and the token that owns the value; the data is
+`invariants.json > parity` and the check is in `check.mjs`.
+
+This section declared `P1-P3` over "four nav constants" while the data held
+six entries under P1c, P1d, P2, P3, P4 and P5. Three ids the gate can emit were
+therefore undeclared, which also made them invisible to the Z1 census — the
+census walks contract-declared ids, so a clause the contract does not name is a
+clause the bijection cannot miss.
+
+- **P1c** `components/portfolio/site-header.tsx` holds `const LOGO_GAP = <n>`, which must equal `component.nav.logo-gap` read as px. The token is the home; the literal is a second one and may only agree with it.
+- **P1d** `components/portfolio/site-header.tsx` holds `const NAV_OFFSET_FALLBACK = <n>`, which must equal `component.nav.offset-fallback` read as px. The token is the home; the literal is a second one and may only agree with it.
+- **P2** `components/portfolio/site-header.tsx` holds `gap-[<n>rem]`, which must equal `component.nav.item-gap` read as rem. The token is the home; the literal is a second one and may only agree with it.
+- **P3** `components/portfolio/*.tsx` holds `strokeWidth={<n>}`, which must equal `font.icon-stroke` read as number. The token is the home; the literal is a second one and may only agree with it.
+- **P4** `components/logo-bounce.tsx` holds `export const LOGO_CYCLE_MS = <n>`, which must equal `component.splash.cycle` read as ms. The token is the home; the literal is a second one and may only agree with it.
+- **P5** `components/portfolio/loading-screen.tsx` holds `const FADE_MS = <n>`, which must equal `component.splash.fade` read as ms. The token is the home; the literal is a second one and may only agree with it.
 
 ### KW. Keyword evidence
 

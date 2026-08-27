@@ -6,27 +6,37 @@ typography, radii, elevation, motion, glass, and stacking.
 
 ```
 tokens/
-├─ ame.json                the manifest. The version every artifact stamps.
-├─ contract.md             the conditions. Precondition, postcondition, invariants.
-├─ decisions.md            the reasoning. Why a condition is what it is.
-├─ outcomes.md             the numbers. What the checks currently measure.
-├─ deliverables.md         the Case Study Deliverable Standard, and this repo's status against it.
-├─ invariants.json         the conditions, machine-readable. One entry per clause.
-├─ baseline.json           the drift counts a change must not exceed.
-├─ runs.log                append-only history of gate runs.
-│
-├─ base/                   primitives. color, space, type, shape, motion, effect.
-├─ semantic/               decisions, each a reference to a primitive.
-├─ component/              element-specific, referencing semantic.
-│
-├─ ame.mjs                 the command. Routes, and routes only.
-├─ build.mjs               transforms. Does not judge.
-├─ check.mjs               judges. Every condition, evaluated once, here.
-├─ dipstick.mjs            measures. Read-only; writes one export and nothing else.
-├─ dipstick.schema.json    the export's shape, single home.
-├─ dipstick/               dated state exports. The listing is the history.
-└─ build/portfolio.tokens.css   GENERATED
+├─ README.md              this file. What each thing is for.
+├─ ame.mjs                the command. Routes, and routes only.
+├─ audit.md               standing audit notes.
+├─ baseline.json          the drift counts a change must not exceed.
+├─ baseline.package.json  the same, measured for the extracted package.
+├─ check.mjs              judges. Every condition, evaluated once, here.
+├─ contract.md            the conditions. Precondition, postcondition, invariants.
+├─ contrast.mjs           the WCAG ratio, on its own so it can be tested alone.
+├─ decisions.md           the reasoning. Why a condition is what it is.
+├─ deliverables.md        the Case Study Deliverable Standard, and this repo's status against it.
+├─ dipstick.mjs           measures. Read-only; writes one export and nothing else.
+├─ dipstick.schema.json   the export's shape, single home.
+├─ dipstick/              dated state exports. The listing is the history.
+├─ docgen.mjs             component documentation generator.
+├─ extract.mjs            selects the published package from this tree.
+├─ gate-fixtures.mjs      runs the gate against examples/violating and inverts the verdict.
+├─ hdr.mjs                the PQ transfer function, likewise.
+├─ invariants.json        the conditions, machine-readable. One entry per clause.
+├─ jscode.mjs             blanks everything in a JS source that is not code. Z2 reads the rest.
+├─ lint-baseline.json     the lint counts held at their current measure.
+├─ outcomes.md            the numbers. Generated; what the checks currently measure.
+├─ ratchet.mjs            the drift comparison, likewise.
+├─ readme-diagram.mjs     generates the architecture SVGs from the token values.
+├─ readme-numbers.mjs     generates the figures in the package README and outcomes.md.
+└─ wo-report.md           work-order reporting.
 ```
+
+The token source is not in this directory. `ame.json`, `base/`, `semantic/`,
+`component/`, `recipe/`, `theme/`, `build.mjs` and the emitted artifacts live in
+`packages/ame-tokens/`. This map listed them here until 2026-08-27, and ended
+with `build/portfolio.tokens.css`, a path gone since the extraction.
 
 Four homes for four kinds of statement, and each condition, reason, number, and
 procedure lives in exactly one of them. A rule written twice can disagree with
