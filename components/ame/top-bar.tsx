@@ -197,6 +197,15 @@ export function ameBouncePress(
   springMs: number = SPRING_MS,
 ) {
   if (!el) return
+  /*
+    Held under prefers-reduced-motion, like every other motion in this file. The
+    press is a 0.55 scale collapse followed by an elastic overshoot, which is
+    exactly the kind of springy size change the preference is asked for; the
+    expand, the collapse and the two below already honoured it and this one did
+    not, so the setting half-worked -- which is worse than not working, because
+    a reader cannot tell which half.
+  */
+  if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
   animate(el, {
     scale: 0.55,
     duration: swapMs,

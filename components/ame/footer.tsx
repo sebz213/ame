@@ -20,7 +20,7 @@ export type AmeFooterColumn = { title: string; links: AmeFooterLink[] }
 type Tone = 'light' | 'dark'
 
 // Links shift to the accent/hover colour on hover; the var is set per-tone below.
-const HOVER = 'transition-colors duration-200 hover:[color:var(--ame-ftr-fg-hover)]'
+const HOVER = 'transition-colors duration-200 hover:[color:var(--ame-footer-fg-hover)]'
 
 export function AmeFooter({
   tone = 'light',
@@ -79,10 +79,23 @@ export function AmeFooter({
   ruleClassName?: string
 }) {
   const dark = tone === 'dark'
+  /*
+    Locally-minted custom properties, in canonical words.
+
+    These were --ame-ftr-bg / -fg / -fg-hover / -rule. Two problems in four
+    names: `ftr` is an abbreviation registered nowhere, and `bg` is the
+    DEPRECATED half of the background/bg pair the invariants declare. Both sat
+    inside the --ame- namespace the token build reserves, so they read as system
+    tokens while being neither declared nor derived.
+
+    N2 did not catch it because it scans token paths and exported symbols, and
+    these are strings in a style object — minted at runtime, spelled by hand,
+    and shaped exactly like the thing the rule governs.
+  */
   const toneVars = {
-    ['--ame-ftr-bg' as string]: dark ? 'var(--ame-component-topbar-bg-on-dark)' : 'var(--ame-component-topbar-bg)',
-    ['--ame-ftr-fg' as string]: dark ? 'var(--ame-component-topbar-fg-on-dark)' : 'var(--ame-component-topbar-fg)',
-    ['--ame-ftr-fg-hover' as string]: dark
+    ['--ame-footer-background' as string]: dark ? 'var(--ame-component-topbar-bg-on-dark)' : 'var(--ame-component-topbar-bg)',
+    ['--ame-footer-fg' as string]: dark ? 'var(--ame-component-topbar-fg-on-dark)' : 'var(--ame-component-topbar-fg)',
+    ['--ame-footer-fg-hover' as string]: dark
       ? 'var(--ame-component-topbar-fg-hover-on-dark)'
       : 'var(--ame-component-topbar-fg-hover)',
     /*
@@ -90,7 +103,7 @@ export function AmeFooter({
       declaration covers light and dark because the foreground already re-points, and it
       keeps the component from asking its host for a hairline it can derive.
     */
-    ['--ame-ftr-rule' as string]: 'color-mix(in oklab, var(--ame-ftr-fg) 18%, transparent)',
+    ['--ame-footer-rule' as string]: 'color-mix(in oklab, var(--ame-footer-fg) 18%, transparent)',
   }
   /*
     THE RULES SIT AT THE CONTENT WIDTH, NOT THE VIEWPORT'S.
@@ -106,7 +119,7 @@ export function AmeFooter({
   const rule = ruleClassName ? (
     <div aria-hidden="true" className={ruleClassName} />
   ) : (
-    <div aria-hidden="true" style={{ borderTop: '1px solid var(--ame-ftr-rule)' }} />
+    <div aria-hidden="true" style={{ borderTop: '1px solid var(--ame-footer-rule)' }} />
   )
 
   /*
@@ -136,8 +149,8 @@ export function AmeFooter({
       aria-label="Site footer"
       className={`mt-auto${className ? ` ${className}` : ''}`}
       style={{
-        backgroundColor: 'var(--ame-ftr-bg)',
-        color: 'var(--ame-ftr-fg)',
+        backgroundColor: 'var(--ame-footer-background)',
+        color: 'var(--ame-footer-fg)',
         fontSize: 'var(--ame-type-meta-size)',
         letterSpacing: 'var(--ame-type-body-tracking)',
         lineHeight: 'var(--ame-type-dense-leading)',
@@ -212,7 +225,7 @@ export function AmeFooter({
           >
             {columns.map((col) => (
               <div key={col.title}>
-                <h3 className="font-medium" style={{ color: 'var(--ame-ftr-fg-hover)' }}>
+                <h3 className="font-medium" style={{ color: 'var(--ame-footer-fg-hover)' }}>
                   {col.title}
                 </h3>
                 <ul className="mt-[var(--ame-space-stack)] space-y-2.5">

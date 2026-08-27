@@ -17,8 +17,7 @@ if (start >= 0) html = html.slice(start)
 const iconRe = /<svg\b([^>]*)>([\s\S]*?)<\/svg>\s*<div class="storybook-icon__text">([^<]+)<\/div>/g
 const icons = {}
 const order = []
-let m
-while ((m = iconRe.exec(html))) {
+for (const m of html.matchAll(iconRe)) {
   const attrs = m[1]
   let inner = m[2]
   const name = m[3].trim()
@@ -61,5 +60,24 @@ export type AmeIconName = keyof typeof AME_ICON_DATA
 export const AME_ICON_NAMES = Object.keys(AME_ICON_DATA) as AmeIconName[]
 `
 
-fs.writeFileSync(OUT, out)
-console.log(`wrote ${order.length} icons to ${path.relative(root, OUT)}`)
+/*
+  --check: fail if the committed file disagrees with a fresh generation.
+
+  icon-data.ts is generated, committed, and was the one generated artifact in the
+  tree with no byte check (STANDARD V3 requires one, and six others have it). Its
+  generator was also invoked by nothing, so a hand edit to 218 glyphs of
+  third-party path data was undetectable -- in the file whose provenance the MIT
+  notice in THIRD-PARTY-NOTICES depends on being accurate.
+*/
+if (process.argv.includes('--check')) {
+  const committed = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : ''
+  if (committed !== out) {
+    console.error('icons: committed icon-data.ts disagrees with a fresh parse of icon-source.html.')
+    console.error('Run: node scripts/parse-ame-icons.mjs')
+    process.exit(1)
+  }
+  console.log(`icons parity PASS: ${order.length} glyphs match icon-source.html.`)
+} else {
+  fs.writeFileSync(OUT, out)
+  console.log(`wrote ${order.length} icons to ${path.relative(root, OUT)}`)
+}

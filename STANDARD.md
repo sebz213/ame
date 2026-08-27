@@ -3,6 +3,9 @@
 The conditions this repository holds itself to. Each clause is checkable: it names the condition, the check that proves it, and the source it leans on. A clause without a check does not bind, and a clause violated knowingly must carry a recorded decision, the same rule `tokens/contract.md` already applies to token values.
 
 Scope markers: *(publication)* binds only if the repo is published; *(deploy)* binds only while the site is deployed. Everything unmarked binds always.
+*(monorepo)* binds only in this repository: the clause names an artefact that does not travel into the
+published package. STANDARD.md itself does travel, so without the marker those clauses read as dead there
+while being satisfied here — six of them, which is what an external audit measured them as.
 
 ## Sources
 
@@ -22,7 +25,7 @@ git log --oneline | head -1 && git remote -v
 
 **V3.** Generated files are not committed. The one standing exception: `packages/ame-tokens/tokens.css`, the published token home the portfolio and Metis bind, which contract clause B4 holds honest by rebuilding it from source in memory and byte-comparing, so a source edit that was never rebuilt cannot pass. It is committed because a consumer installs the package without building it. There is one emitted home, not a mirrored pair; any new exception needs the same treatment, a machine check and a written decision. (S5 rule 1, S9)
 
-**V4.** No file over 5 MB enters git outside LFS, and nothing approaches GitHub's 100 MB hard limit. Models, video, and raw binaries live in LFS or external storage. (S5 rule 4, S9)
+**V4.** No file over 5 MB enters git outside LFS, and nothing approaches GitHub's 100 MB hard limit. Models, video, and raw binaries live in LFS or external storage. (S5 rule 1, Box 2. NOT S9: Wilson 2017 p.15 calls LFS-class systems "not yet mature enough for us to recommend", so this clause departs from that source rather than resting on it.)
 
 ```bash
 git ls-files -z | xargs -0 du -b 2>/dev/null | awk '$1 > 5000000' \
@@ -31,9 +34,9 @@ git ls-files -z | xargs -0 du -b 2>/dev/null | awk '$1 > 5000000' \
 
 **V5.** No credentials, tokens, or private keys in the tree, ever, including history. `.env*` stays ignored. (S9 rule on security)
 
-**V6.** *(publication)* Releases get a tag in X.Y.Z semver form, so any shipped state can be recovered by name. (S5 rule 8)
+**V6.** *(publication)* Releases get a tag in X.Y.Z semver form, so any shipped state can be recovered by name. (S5 rule 4)
 
-**V7.** The concrete release convention, V6's successor and its one operational home. A release is a git tag in `vX.Y.Z` form; the leading `v` marks a release tag apart from a bare version string. A tag is cut on a portfolio-visible release: a deploy that changes what a visitor sees, or a versioned `ame@x.y.z` token bump a consumer would pin. Every tag carries one dated `CHANGELOG.md` entry, reverse-chronological, so a shipped state is recoverable by name and readable by what changed. Written before the first release so the convention is not invented under release pressure; it binds once a tag exists, and until then the check passes vacuously. (S5 rule 8, decision R-18)
+**V7.** *(monorepo)* The concrete release convention, V6's successor and its one operational home. A release is a git tag in `vX.Y.Z` form; the leading `v` marks a release tag apart from a bare version string. A tag is cut on a portfolio-visible release: a deploy that changes what a visitor sees, or a versioned `ame@x.y.z` token bump a consumer would pin. Every tag carries one dated `CHANGELOG.md` entry, reverse-chronological, so a shipped state is recoverable by name and readable by what changed. Written before the first release so the convention is not invented under release pressure; it binds once a tag exists, and until then the check passes vacuously. (S5 rule 8, decision R-18)
 
 ```bash
 for t in $(git tag -l 'v*'); do grep -q "${t#v}" CHANGELOG.md || { echo FAIL; break; }; done
@@ -69,13 +72,17 @@ grep -q "tokens/check" package.json && echo PASS || echo FAIL
 grep -rn "\[\[" .next/server/app --include="*.html" && echo FAIL || echo PASS
 ```
 
-**C6.** A check that reports *nothing found* proves it can still find something. R-10 proves a gate fires once, at installation; a gate whose silence is load-bearing proves it fires on every run, by asserting a must-catch sample inside the check itself. A vacuous "none" is byte-identical to an earned one, so a matcher that has quietly stopped matching reports health it never established. Where a check carries a must-never-catch list it carries a non-empty must-catch list beside it, and both are asserted on every run rather than in a test that may not be run. (The instance that earned this: `packages/woven/check.mjs`, whose must-catch assertion caught a pattern a JSON rewrite had killed — `` re-read as the backspace escape rather than a word boundary — long after the pattern passed its one-time proof. R-80.)
+**C6.** *(monorepo)* A check that reports *nothing found* proves it can still find something. R-10 proves a gate fires once, at installation; a gate whose silence is load-bearing proves it fires on every run, by asserting a must-catch sample inside the check itself. A vacuous "none" is byte-identical to an earned one, so a matcher that has quietly stopped matching reports health it never established. Where a check carries a must-never-catch list it carries a non-empty must-catch list beside it, and both are asserted on every run rather than in a test that may not be run. (The instance that earned this: `packages/woven/check.mjs`, whose must-catch assertion caught a pattern a JSON rewrite had killed — `` re-read as the backspace escape rather than a word boundary — long after the pattern passed its one-time proof. R-80.)
 
 ```bash
 node -e 'const r=require("./packages/woven/invariants.json").register; process.exit(Object.keys(r.must_catch||{}).length && Object.keys(r.must_never_catch||{}).length ? 0 : 1)' && echo PASS || echo FAIL
 ```
 
 **C7.** *(stated non-clause — nothing enforces this one.)* An element's hidden resting state belongs in the markup, not only in an effect. Effects run after the browser paints and the server ships the markup it was given, so a panel whose `opacity: 0` is written in `useEffect` renders visible for at least one frame on every load — and for the whole pre-hydration window, which is as long as the JS takes to arrive.
+
+**C8.** A dated record is annotated, never rewritten. Decision logs, audit reports, preflights and any document carrying a date state what was true when they were written; a later correction is added beside the original with its own date, and the original text stays. Rewriting one to agree with the present destroys the only evidence of what was believed and when, which is the whole reason the record exists. (S7 Noble 2009, the dated lab notebook; S3 Marwick, on a compendium's history being part of its result.)
+
+  Declared 2026-08-27. This rule was in force and cited by id four times in `docs/AME-EXTRACTION-PREFLIGHT-2026-08-24.md` while existing in no clause: the C section ended at C7. The practice was real and followed — `decisions.md` is chronological and annotated, and this file's own corrections are appended rather than swapped in — so what was missing was the declaration, not the discipline. It also gives S7 its first citing clause; it was declared in the sources list and used by nothing.
 
 React cannot warn about this, and that is the part worth understanding rather than remembering. Hydration checking compares the server tree against the client tree; here the two agree exactly. The server rendered a visible panel, the client hydrated a visible panel, and the effect changed it afterwards — a legal state change, not a mismatch. The defect is *which frame the truth arrives in*, and no check that diffs two trees can see a difference in time between them. A correct program with the wrong behaviour.
 
@@ -113,7 +120,7 @@ find . -path ./node_modules -prune -o -type f -print0 | xargs -0 md5sum | sort |
 
 **H4.** One implementation per concept. A prototype that graduates into a component takes the prototype with it, or the prototype is labeled frozen and dated.
 
-**H5.** Two decision logs, split by scope. `DECISIONS.md` is authoritative for repo-scope decisions (R-numbers): structure, standard clauses, routes, module interfaces. `tokens/decisions.md` is authoritative for token-scope decisions (D-numbers): the token contract and the build pipeline. A decision is recorded in the one log its scope names; the same decision in both is the duplication this section forbids. `docs/LEXICON.md` names the pair. (S8)
+**H5.** *(monorepo)* Two decision logs, split by scope. `DECISIONS.md` is authoritative for repo-scope decisions (R-numbers): structure, standard clauses, routes, module interfaces. `tokens/decisions.md` is authoritative for token-scope decisions (D-numbers): the token contract and the build pipeline. A decision is recorded in the one log its scope names; the same decision in both is the duplication this section forbids. `docs/LEXICON.md` names the pair. (S8)
 
 ## VN. Vendored code
 
@@ -133,7 +140,7 @@ find . -path ./node_modules -prune -o -type f -print0 | xargs -0 md5sum | sort |
 
 **N4.** Names are built from concepts: pick the concepts, pick one word per concept, compose in natural-language order. Multi-word names are the norm; 2 to 3 words and 8 to 16 characters is the professional center of gravity. (S10: longer names preferred in 74% of comparisons, names with more concepts in 83%)
 
-**N5.** A name over 30 characters, or containing characters outside letters, digits, and separators, gets flagged and justified or shortened. Files whose names begin with `-` are banned outright. (S10 outlier threshold)
+**N5.** A name over 30 characters, or containing characters outside letters, digits, and separators, gets flagged and justified or shortened. Files whose names begin with `-` are banned outright. (Not S10: Feitelson's ">30 characters" marks suspicious survey responses for exclusion in §III-B3, not names in a codebase. The threshold here is this repository's own, and it is UNENFORCED — 41 of the token paths exceed it and no check reads name length. Unfinished, not a category.)
 
 **N6.** Names that can mislead are worse than names that say little. A name promising one behavior while the code does another is a defect of the highest naming severity. (S10, S8)
 
@@ -141,7 +148,7 @@ find . -path ./node_modules -prune -o -type f -print0 | xargs -0 md5sum | sort |
 
 **M1.** A module hides one difficult or changeable decision, and its interface reveals as little of that decision as possible. The test for splitting a file: count the independent reasons it changes. (S2)
 
-**M2.** A source file over 500 lines carries a recorded decision or gets decomposed. Functions stay near one page and take at most 6 parameters. (S9 rule 2b, S2)
+**M2.** *(monorepo)* A source file over 500 lines carries a recorded decision or gets decomposed. Functions stay near one page and take at most 6 parameters. (S9 rule 2b, S2)
 
 ```bash
 find app components lib hooks -name "*.ts*" | xargs wc -l | awk '$1 > 500 && $2 != "total"'
@@ -149,7 +156,7 @@ find app components lib hooks -name "*.ts*" | xargs wc -l | awk '$1 > 500 && $2 
 
 **M3.** Shared logic is extracted, never copy-pasted. Numbered variables and parallel near-copies are the smell. (S9 rule 2c)
 
-**M4.** The repository's interfaces, the binding points where one module reads a name or shape another commits to, are listed with their guarding checks in [`docs/INTERFACE-REGISTER.md`](docs/INTERFACE-REGISTER.md). A change to any binding point there requires a work order and a dated decision. This is Parnas's interface management: an interface is managed when its definition and its verification are both recorded. (S2; decision R-52)
+**M4.** *(monorepo)* The repository's interfaces, the binding points where one module reads a name or shape another commits to, are listed with their guarding checks in [`docs/INTERFACE-REGISTER.md`](docs/INTERFACE-REGISTER.md). A change to any binding point there requires a work order and a dated decision. The practice is this repository's own. Parnas 1972 argues for revealing as little as possible across a module boundary (S2), which is why the binding points are few and named; it states no doctrine about recording definitions and verifications together, and this clause should not have borrowed his authority for one. (decision R-52)
 
 ## D. Structured data and page metadata
 
@@ -161,7 +168,7 @@ find app components lib hooks -name "*.ts*" | xargs wc -l | awk '$1 > 500 && $2 
 
 **D4.** *(deploy)* Each route type carries JSON-LD matching its Schema.org type: the root gets `WebSite` with a `SearchAction` wired to the search route (S16); the portfolio landing gets `ProfilePage` with a `Person` as `mainEntity` (S14); each case study gets an `ItemPage` whose `mainEntity` is a `CreativeWork`, or `WebApplication` when the subject is an app (S13, decision R-27); the `/system` index gets `CollectionPage`, each component page an `APIReference` naming a `SoftwareSourceCode`, other docs a `TechArticle` (S12); docs pages get `breadcrumb` as `BreadcrumbList` (S14). Proof: Google's Rich Results test parses each type. Microdata attributes (S1) are the permitted alternative where inline markup is preferred.
 
-**D5.** The JSON-LD graph is internally consistent: one `WebSite` node with a stable `@id`, every page node carries `isPartOf` back to it, the `mainEntity`/`mainEntityOfPage` inverse pair agrees where both appear, and no superseded Schema.org property from the blacklist reaches an emitted node. The blacklist and the `proficiencyLevel` vocabulary are data in `tokens/invariants.json > structured_data`; the check is `tests/json-ld.test.tsx`, run by `pnpm test` (decision R-30). This is D4's consistency counterpart: D4 fixes the type per route, D5 fixes the edges between them.
+**D5.** *(monorepo)* The JSON-LD graph is internally consistent: one `WebSite` node with a stable `@id`, every page node carries `isPartOf` back to it, the `mainEntity`/`mainEntityOfPage` inverse pair agrees where both appear, and no superseded Schema.org property from the blacklist reaches an emitted node. The blacklist and the `proficiencyLevel` vocabulary are data in `tokens/invariants.json > structured_data`; the check is `tests/json-ld.test.tsx`, run by `pnpm test` (decision R-30). This is D4's consistency counterpart: D4 fixes the type per route, D5 fixes the edges between them.
 
 ```bash
 npx vitest run json-ld

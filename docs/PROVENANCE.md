@@ -29,7 +29,7 @@ destination.**
 | `RUNBOOK.md` | Operator procedures for the monorepo — running the site, the docs surface, and the deploy. None of it applies to this package. | `README.md` § Getting started, and `CONTRIBUTING.md`. |
 | `CHANGELOG.md` | The monorepo's changelog. | Not yet written here. `git log` is the record until a first tagged release earns one. |
 | `AGENTS.md` | A pointer file that said "read `CLAUDE.md`". | `CLAUDE.md`, present. |
-| `VENDORED.md` | A manifest for code the author did not write. Nothing in this tree is vendored, so clause VN left with its subject (D-53). | — |
+| `VENDORED.md` | A manifest for code the author did not write. It TRAVELS: the 218 icons under `components/ame/icons/` are the Schweizerische Eidgenossenschaft's set (MIT, notice in `THIRD-PARTY-NOTICES`). This row said nothing here was vendored, which stopped being true when the icons were recorded; corrected 2026-08-27. The `components/ui` entries VENDORED.md lists stayed with its subject (D-53). | — |
 
 ## Clauses that left, and the decisions that still name them
 
@@ -43,7 +43,7 @@ they describe the tree Ame was extracted from, and are left as written.
 | **P1–P5** | Parity between JS constants in portfolio components and the tokens they had to equal | Gone with those components. |
 | **K1** | A per-class byte ceiling over `public/` | Gone; this package ships no assets. |
 | **AM1–AM3** | The `/ame` docs registry and its tiers | Gone with the docs site. |
-| **VN1–VN2** | A manifest for code the author did not write | Gone; nothing here is vendored. |
+| **VN1–VN2** | A manifest for code the author did not write | NOT gone. `components/ui` left with the monorepo, but `components/ame/icons/` is vendored and travels. VN1 governs declared roots and that directory is not one, so the only vendored code actually present is the code the vendoring check cannot see (D-86). |
 | **U4** | That the portfolio surface bound one token system and not a second | Gone; there is one token system here. |
 
 This is the third time in three days that a dated record has been found naming a

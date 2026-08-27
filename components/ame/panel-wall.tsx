@@ -107,7 +107,17 @@ function PhoneMock({ variant = 0 }: { variant?: number }) {
 
 // ---- Tile ---------------------------------------------------------------
 
-function Panel({ item }: { item: PanelItem }) {
+/*
+  `eager` marks a tile that is in the initial viewport.
+
+  Every tile was hard-coded loading="lazy" with no opt-out, including the ones
+  the wall paints first. Lazy-loading the image a page opens on is the named LCP
+  anti-pattern: the browser is told to defer exactly the fetch it should start
+  soonest, so the largest contentful paint waits on a request that was
+  deliberately delayed. The caller decides, because only the caller knows which
+  tiles are above the fold.
+*/
+function Panel({ item, eager = false }: { item: PanelItem; eager?: boolean }) {
   const aspect = item.aspect || '375/813'
   const box: CSSProperties = {
     aspectRatio: aspect.replace('/', ' / '),
@@ -121,7 +131,13 @@ function Panel({ item }: { item: PanelItem }) {
   if (item.src) {
     return (
       <div style={box}>
-        <img src={item.src} alt="" loading="lazy" decoding="async" draggable={false} style={{ height: '100%', width: '100%', objectFit: 'cover' }} />
+        <img
+          src={item.src}
+          alt=""
+          loading={eager ? 'eager' : 'lazy'}
+          fetchPriority={eager ? 'high' : undefined}
+          decoding="async"
+          draggable={false} style={{ height: '100%', width: '100%', objectFit: 'cover' }} />
       </div>
     )
   }
@@ -145,7 +161,10 @@ function DriftColumn({ items, speed = 80, offset = 0, gap = 32, reduceMotion }: 
         {[0, 1].map((copy) => (
           <div key={copy} style={{ display: 'flex', flexDirection: 'column', gap }} aria-hidden={copy === 1}>
             {items.map((item, i) => (
-              <Panel key={`${copy}-${i}`} item={item} />
+              // Copy 0 is the one on screen at rest; copy 1 is the drift's
+              // second lap and is aria-hidden. Only the first tile of the first
+              // copy can be the largest contentful paint.
+              <Panel key={`${copy}-${i}`} item={item} eager={copy === 0 && i === 0} />
             ))}
           </div>
         ))}

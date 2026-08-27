@@ -108,10 +108,30 @@ export default tseslint.config(
       'jsx-a11y/aria-role': ['error', { ignoreNonDOM: true }],
     },
   },
-  // The token pipeline scripts, plain ESM JavaScript. No TS parser, no
-  // naming-convention (that rule is TypeScript-only).
+  /*
+    Every plain-ESM JavaScript file this repository authors. No TS parser, no
+    naming-convention (that rule is TypeScript-only).
+
+    This matched only tokens/*.mjs until 2026-08-27, and the gap was invisible
+    because the LINT SCRIPT named paths the CONFIG did not cover: eslint was
+    handed packages/ame-tokens/*.mjs and packages/woven/*.mjs, matched them
+    against no block, and linted them with zero rules while reporting success.
+    scripts/ was not named by either. So the 997-line token build and every
+    generator ran unchecked, including the assignment-in-conditional in
+    parse-ame-icons.mjs -- the third-riskiest smell in the replication study this
+    config's own header cites.
+
+    A file passed to a linter that has no rules for it is not linted; it is
+    counted. Naming the directories in one place is what stops the two lists
+    disagreeing again.
+  */
   {
-    files: ['tokens/*.mjs'],
+    files: [
+      'tokens/*.mjs',
+      'packages/ame-tokens/*.mjs',
+      'packages/woven/**/*.mjs',
+      'scripts/*.mjs',
+    ],
     languageOptions: { sourceType: 'module' },
     rules: {
       ...errorRules,

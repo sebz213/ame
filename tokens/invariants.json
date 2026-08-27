@@ -918,7 +918,8 @@
       "ame": "the dipstick rite (LEXICON: dipstick). Read-only and deliberately hand-run, so a dated export is a decision someone made rather than a file CI rewrites.",
       "docgen": "the writing half of docgen:check, run by hand when generated docs must be regenerated. The checking half is what the gate needs, and it is wired.",
       "diagram": "The writer half of the README diagram. CI runs diagram:check; this one is run by a person when the tokens move, the same relationship tokens:build has to the gate.",
-      "numbers": "The writer half of the README figures. CI runs numbers:check; this one is run by a person after the tokens move, the same relationship diagram has to diagram:check."
+      "numbers": "The writer half of the README figures. CI runs numbers:check; this one is run by a person after the tokens move, the same relationship diagram has to diagram:check.",
+      "icons": "The writer half of the icon set. CI runs icons:check; this one is run by a person when icon-source.html is re-exported, the same relationship numbers has to numbers:check. It writes 218 third-party glyphs, so it is deliberately hand-run: a regeneration is a decision about vendored data, not a file CI rewrites."
     }
   },
   "vendored": {
@@ -1127,12 +1128,6 @@
         "check": "checkContrastCoverage",
         "scope": "package"
       },
-      "P1-P3": {
-        "invariant": "parity",
-        "check": "checkParity",
-        "scope": "portfolio",
-        "scope_because": "parity against constants in this app's components"
-      },
       "KW1": {
         "invariant": "keywords",
         "check": "checkKeywords",
@@ -1303,6 +1298,42 @@
         "invariant": "restated",
         "check": "checkRestated",
         "scope": "package"
+      },
+      "P1c": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P1d": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P2": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P3": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P4": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+      },
+      "P5": {
+        "invariant": "parity",
+        "check": "checkParity",
+        "scope": "portfolio",
+        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
       }
     },
     "allowlists": {

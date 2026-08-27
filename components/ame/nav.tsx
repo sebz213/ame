@@ -23,9 +23,20 @@ import { useEffect, useRef, useState } from 'react'
   in each site's own header, which composes this bar.
 */
 
-// The bar's own geometry (portfolio home's): bar pad 0.25rem, item height 1.75rem.
-const NAV_PAD = '0.25rem'
-const NAV_ITEM_H = '1.75rem'
+/*
+  The bar's geometry, READ from the tokens rather than restated beside them.
+
+  These were `'0.25rem'` and `'1.75rem'`, byte-equal to component.nav.pad and
+  component.nav.item-height. Two homes for one measure, which is the exact
+  condition D2 fails a CSS file for — and it was invisible here because the
+  restated-value scan matches CSS syntax and these were JS strings.
+
+  The gate was reporting both tokens as CLIENTLESS at the same time: the token
+  had no consumer precisely because the component had copied its value instead
+  of binding it. The H1 count was measuring the duplication.
+*/
+const NAV_PAD = 'var(--ame-component-nav-pad)'
+const NAV_ITEM_H = 'var(--ame-component-nav-item-height)'
 
 export type AmeNavItem = { id: string; label: string; href: string }
 
@@ -49,6 +60,23 @@ export function AmeNav({
   const barRef = useRef<HTMLElement>(null)
   const [pill, setPill] = useState<{ x: number; w: number } | null>(null)
   const [barW, setBarW] = useState<number | null>(null)
+  /*
+    prefers-reduced-motion, read the same way panel-wall reads it: initial false
+    so the server render and the first client render agree, then corrected in an
+    effect, and kept live because a person can change the setting while the page
+    is open.
+
+    Nothing in this component honoured the preference. The bar's width and the
+    pill's slide are the two things here that move, and both moved regardless.
+  */
+  const [reduceMotion, setReduceMotion] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduceMotion(mq.matches)
+    const onChange = (e: MediaQueryListEvent) => setReduceMotion(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
   const activeIndex = Math.max(0, items.findIndex((it) => it.id === activeId))
   // The labels, as one string. A caller may build the items array inline, so its
   // identity is not a dependency worth having; what the measurement actually
@@ -141,7 +169,12 @@ export function AmeNav({
         padding: NAV_PAD,
         // Null until measured, so the first paint is the intrinsic width.
         width: barW ?? undefined,
-        transition: `width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)`,
+        // No width tween under prefers-reduced-motion: the bar arrives at its
+        // measured width instead of sliding to it. Nothing in this file honoured
+        // the preference before; the pill's slide below is guarded the same way.
+        transition: reduceMotion
+          ? undefined
+          : `width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)`,
       }}
       aria-label={ariaLabel}
     >
@@ -157,8 +190,9 @@ export function AmeNav({
             top: NAV_PAD,
             bottom: NAV_PAD,
             left: 0,
-            transition:
-              'translate var(--ame-motion-slide-duration) var(--ame-motion-enter-ease), width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)',
+            transition: reduceMotion
+              ? undefined
+              : 'translate var(--ame-motion-slide-duration) var(--ame-motion-enter-ease), width var(--ame-motion-slide-duration) var(--ame-motion-enter-ease)',
           }}
         />
       )}

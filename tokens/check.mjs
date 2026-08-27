@@ -532,8 +532,15 @@ const contrastResults = []
 
 // ── P. Parity with hand-written source ──────────────────────────────────────
 ;(function checkParity() {
-  if (!clauseInScope('P1-P3')) return
+  /*
+    Each parity entry carries its own id and its own scope now, so the guard is
+    per entry rather than one gate over the section. It read clauseInScope('P1-P3'),
+    an id the census no longer holds; an unknown id is not out of scope, so the
+    whole section ran in the package and reported six literals it could not find
+    in files that had not travelled.
+  */
   for (const e of RULES.parity.entries) {
+    if (!clauseInScope(e.id)) continue
     const token = byPath.get(e.token)
     if (!token) {
       fail(e.id, `parity entry names a token that does not exist: ${e.token}`)
@@ -1853,11 +1860,14 @@ function entryFiles() {
     fail(c.id, `${c.contract_file} not found; the census cannot parse the contract clauses it must account for.`)
     return
   }
-  // Bold clause markers only: **A1**, **C1–C10**, ... The id is a letter run,
-  // digits, optionally a range (en-dash or hyphen) to a second id. Normalize the
-  // en-dash contract.md writes ranges with to a plain hyphen for the map key.
+  // Bold clause markers only: **A1**, **C1-C10**, ... The id is a letter run,
+  // digits, an optional lowercase suffix, and optionally a range to a second id.
+  // The suffix matters: the parity data uses P1c and P1d, and without it those
+  // two read as undeclared while their census rows read as stale -- the census
+  // disagreeing with itself about clauses that were correctly written down.
+  // Normalize the en-dash contract.md writes ranges with to a plain hyphen.
   const declared = new Set()
-  for (const m of contract.matchAll(/\*\*([A-Z]+[0-9]+(?:[\u2013-][A-Z]*[0-9]+)?)\*\*/g))
+  for (const m of contract.matchAll(/\*\*([A-Z]+[0-9]+[a-z]?(?:[–-][A-Z]*[0-9]+[a-z]?)?)\*\*/g))
     declared.add(m[1].replace(/\u2013/g, '-'))
 
   const checkerSrc = read(c.checker_file)
