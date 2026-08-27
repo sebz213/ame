@@ -104,9 +104,21 @@ is where they were written, not because anyone decided they belonged there. They
 carry no Radix primitive and no registry counterpart; `glass-button` reads this
 repo's own `.port-glass` language, which no upstream ships.
 
-`components/ui/avatar-counter.tsx`, `components/ui/glass-button.tsx`,
+`components/ui/glass-button.tsx`,
 `components/ui/layered-card-stage.tsx`,
 `components/ui/sync-card.tsx`
+
+`avatar-counter.tsx` was here and is gone, for the reason `layered-card.tsx` went:
+nothing reached it. Its only consumer was the old root page — the avatar counter with
+three invented readers — and when `/` became a 308 to the portfolio (app/page.tsx) it
+was left with no caller at all. The three demo JPGs it rendered went with it
+(`public/avatars/`, 265,866 B between them, the same files WO-8.7 flagged as
+74-100 KB images drawn into a 16px circle).
+
+Note for whoever reconciles this file: the heading above says five and the list has
+named four since before this edit, and now three. The drift is older than this
+removal and is left visible rather than quietly absorbed into a new number, because
+guessing which name fell out would be worse than saying it fell out.
 
 **Why this matters more than the filing.** R-8 exempts `components/ui` from the
 naming clauses (N2/N3), from eslint, and from the uses-graph, on the stated ground

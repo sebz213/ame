@@ -350,11 +350,18 @@ export type AmeTokenName =
   | '--ame-recipe-expertise-card-value-letter-spacing'
   | '--ame-recipe-expertise-card-value-margin-block'
 
-/** The legacy --port-* spellings. Each resolves to one token per theme (contract B3). */
+/*
+  AmeVarName was `AmeTokenName | AmeAliasName` while the legacy --port-*
+  aliases existed. They were deleted; this reference was not, so the published
+  tokens.d.ts named a type it never declared and did not compile.
 
-
-/** Anything `token()` will accept: a token's own name, or an alias for one. */
-export type AmeVarName = AmeTokenName | AmeAliasName
+  Nothing here caught it because tsconfig sets skipLibCheck, which suppresses
+  errors in .d.ts files by design. The repo's own typecheck is therefore blind
+  to the one file it publishes for other people to typecheck against, and a
+  consumer without that flag inherits the error we cannot see.
+*/
+/** Anything `token()` will accept. */
+export type AmeVarName = AmeTokenName
 
 /** The recipes this system compiles. */
 export type AmeRecipeName =

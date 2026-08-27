@@ -12,9 +12,14 @@ import { useEffect, useRef, useState } from 'react'
 
   Controlled: the parent owns `activeId` (a scroll-spy or plain click state) and
   passes it in; `onNavigate` fires on click. `tone` sets [data-backdrop] so the
-  glass runs light or dark. Portable — only React and ame's .port-glass* classes
-  + tokens; no app-specific imports, no animation library (the slide is a CSS
-  transition). The logo, scroll-spy, smooth-scroll, and any right-side cluster stay
+  glass runs light or dark. Portable: React, ame's tokens, and the .port-glass*
+  classes in components/ame/chrome.css, which ships beside this file. No
+  app-specific imports, no animation library (the slide is a CSS transition).
+
+  "Portable" was false until 2026-08-27. Those classes lived only in the
+  monorepo's portfolio.css, which does not travel, so the published component
+  rendered as an unstyled bar with var(--port-glass-fg-muted) silently dropped.
+  Shipping chrome.css is what made the word true. The logo, scroll-spy, smooth-scroll, and any right-side cluster stay
   in each site's own header, which composes this bar.
 */
 

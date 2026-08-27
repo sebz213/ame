@@ -24,7 +24,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { buildTokens, renderCss, manifest, deriveBaseNames } from './build.mjs'
+import { buildTokens, buildRecipes, ARTIFACTS, manifest, deriveBaseNames } from './build.mjs'
 
 const PKG = dirname(fileURLToPath(import.meta.url)) // this package, wherever installed
 const CWD = process.cwd() // the consumer's repo
@@ -32,16 +32,40 @@ const fails = []
 const fail = (id, msg) => fails.push(`${id}  ${msg}`)
 
 const { tokens } = buildTokens() // reads the package's own shipped source
+const compiled = buildRecipes()
 
-// ── B4, B5. The installed artifact is a faithful, stamped build of the source ─
+/*
+  ── B4, B5. The installed artifacts are faithful, stamped builds of the source ─
+
+  ITERATE THE BUILD'S OWN MAP. This used to call `renderCss(tokens)` directly,
+  which is a second implementation of "how an artifact is rendered", and it
+  drifted the way a second copy always does: `renderCss` grew a `compiled`
+  parameter when theme scopes landed, this call site did not, and the in-memory
+  rebuild came out missing the [data-theme="dark"] block that the committed
+  tokens.css contains. The byte-compare then failed on every healthy install,
+  telling each consumer their package was corrupt.
+
+  The failure was invisible here because nothing ran this file, and invisible to
+  a consumer because it looked like a true verdict about their tree rather than
+  a false one about ours. D-20 sanctioned this as the one re-implementation in
+  the repo; ARTIFACTS is what makes it stop being one.
+
+  It also now checks all four artifacts. Only tokens.css was ever compared, so
+  recipes.css, tokens.mjs and tokens.d.ts could ship stale without a word.
+*/
+for (const [file, render] of Object.entries(ARTIFACTS)) {
+  const p = join(PKG, file)
+  if (!existsSync(p)) {
+    fail('B4', `${file} is missing from the package`)
+    continue
+  }
+  if (readFileSync(p, 'utf8') !== render({ tokens, compiled }))
+    fail('B4', `${file} does not match a fresh build of the shipped source; the package is corrupt or stale`)
+}
+
 const cssPath = join(PKG, 'tokens.css')
-if (!existsSync(cssPath)) {
-  fail('B4', 'tokens.css is missing from the package')
-} else {
-  const committed = readFileSync(cssPath, 'utf8')
-  if (renderCss(tokens) !== committed)
-    fail('B4', 'tokens.css does not match a fresh build of the shipped source; the package is corrupt or stale')
-  const stamp = committed.split('\n')[0].match(/^\/\* ame@([0-9]+\.[0-9]+\.[0-9]+) /)
+if (existsSync(cssPath)) {
+  const stamp = readFileSync(cssPath, 'utf8').split('\n')[0].match(/^\/\* ame@([0-9]+\.[0-9]+\.[0-9]+) /)
   if (!stamp) fail('B5', 'tokens.css carries no version header')
   else if (stamp[1] !== manifest.version)
     fail('B5', `tokens.css stamps ame@${stamp[1]} but the manifest declares ${manifest.version}`)

@@ -7,7 +7,7 @@
   Each recipe emits its slots once, then one scope per variant context holding
   only what that context changes. A context re-declares the recipe token's own
   custom property in a narrower scope; the token's single home under
-  .portfolio-root (contract B1) is untouched, and the slot rules read the name,
+  :root (contract B1) is untouched, and the slot rules read the name,
   never the value, so they need no variant of their own.
 */
 

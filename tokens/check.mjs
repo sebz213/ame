@@ -15,11 +15,13 @@
   Run:  node tokens/check.mjs
 */
 import { readdirSync, readFileSync, existsSync, appendFileSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildTokens, renderCss, deriveBaseNames, cssName, LAYERS, manifest, buildRecipes, ARTIFACTS, RECIPE_EXT, tokenFigures } from 'ame-tokens/build.mjs'
 import { contrast } from './contrast.mjs'
 import { ratchetExceeded } from './ratchet.mjs'
+import { stripNonCode } from './jscode.mjs'
 import { exceedsReferenceWhite } from './hdr.mjs'
 
 const ROOT = dirname(fileURLToPath(import.meta.url))
@@ -1392,9 +1394,12 @@ function entryFiles() {
 ;(function checkAssetBudget() {
   if (!clauseInScope('K1')) return
   const a = RULES.asset_budget
-  const classOf = (f) => {
+  const extOf = (f) => {
     const dot = f.lastIndexOf('.')
-    const ext = dot === -1 ? '' : f.slice(dot).toLowerCase()
+    return dot === -1 ? '' : f.slice(dot).toLowerCase()
+  }
+  const classOf = (f) => {
+    const ext = extOf(f)
     for (const [cls, exts] of Object.entries(a.extensions)) if (exts.includes(ext)) return cls
     return null
   }
@@ -1418,10 +1423,10 @@ function entryFiles() {
     the stub's own length: that is the exact reading that was wrong before, and
     guessing it again quietly would be worse than saying so.
   */
-  const POINTER_PREFIX = 'version https://git-lfs.github.com/spec/v1'
-  // Comfortably above a real pointer (~130 B) and far below anything these classes
-  // hold, so the read is bounded and a genuinely tiny asset still measures itself.
-  const POINTER_MAX_BYTES = 512
+  // Both values are invariants.json > lfs_pointer, read by K1 and K2 alike. They
+  // were restated here as literals, which is the thing Z2 exists to catch, and Z2
+  // had not caught it -- see that block's `because`.
+  const { prefix: POINTER_PREFIX, max_bytes: POINTER_MAX_BYTES } = RULES.lfs_pointer
   const measure = (f, onDisk) => {
     if (onDisk > POINTER_MAX_BYTES) return onDisk
     let head
@@ -1440,7 +1445,32 @@ function entryFiles() {
   }
   for (const f of walkFiles(a.root)) {
     const cls = classOf(f)
-    if (!cls) continue
+    /*
+      A SKIP IS A DECISION, SO IT HAS TO BE WRITTEN DOWN SOMEWHERE.
+
+      This was `if (!cls) continue`, and that one line is how the largest file in the
+      repository went unweighed. An extension in no class was not held to a generous
+      ceiling; it was held to none, silently, while the clause above it said "every
+      file under public/" and the run went green. sheet-loop.mp4 sat there at 5.9 MB
+      -- bigger than the GLB this budget was written to catch -- because .mp4 was in
+      no class and nothing was looking.
+
+      So the world is closed. Every extension is either classed and weighed, or named
+      in asset_budget.unweighed as a deliberate exclusion, and anything that is
+      neither stops the line and asks to be classified. The cost is a failure the
+      first time a new kind of file appears under public/, which is precisely when
+      someone should be deciding what it is allowed to weigh -- not months later,
+      from a Lighthouse trace.
+    */
+    if (!cls) {
+      const ext = extOf(f)
+      if (!a.unweighed.includes(ext))
+        fail(
+          a.id,
+          `${f} has extension "${ext}", which belongs to no class in asset_budget.extensions and is not listed in asset_budget.unweighed. K1 weighed nothing for it. Give the extension a class and a ceiling, or declare it unweighed and say why.`,
+        )
+      continue
+    }
     const size = measure(f, statSync(join(REPO, f)).size)
     const w = a.waived[f]
     if (w !== undefined) {
@@ -1465,6 +1495,81 @@ function entryFiles() {
       fail(a.id, `${f} is ${size} B, over the ${cls} budget of ${a.budgets[cls]} B. Reduce it, or if it genuinely cannot shrink now, waive it in invariants.json > asset_budget.waived with its size and a reduction order.`)
     }
   }
+})()
+
+// -- K2. A model contract's declared bytes are the bytes on disk --------------
+/*
+  THE HEADER PROMISES SOMETHING THE PATH CANNOT KEEP, SO THE URL HAS TO.
+
+  next.config.mjs serves /models/:path* as `public, max-age=31536000, immutable`.
+  That is a promise that the bytes at the URL will not change for a year. The path
+  carries no content hash, so the promise was false, and it was falsified here
+  rather than in theory: iphone17-pro.glb went 82,689,464 -> 4,340,480 B under the
+  same name, after the 82 MB version had already shipped under that header. Those
+  visitors keep the 82 MB copy into 2027 and no deploy reaches them.
+
+  The fix is in load-model.ts: the glb is requested at `?v=<contentHash>`, so new
+  bytes are a new cache key. Which moves the whole guarantee onto a hand-written
+  constant -- re-export the model, forget the constant, and the URL stops changing
+  while the header keeps promising. That is the bug again, just slower. K2 is the
+  thing that makes forgetting loud.
+
+  THE WORLD IS CLOSED, the way K1's was not. Every file under contracts_dir that
+  types itself as a ModelContract must declare both fields, and finding no contract
+  at all is a failure rather than a quiet pass: a check that silently measures
+  nothing is the exact shape that let 5.9 MB of video go unweighed.
+
+  LFS, same reading as K1. The glb is an LFS-tracked path, so on a CI checkout that
+  never fetched the object the file on disk is a ~130-byte pointer. The pointer
+  states `oid sha256:<hex>` -- the real file's sha256, which is precisely the value
+  being checked -- so the clause reads the pointer instead of hashing the stub, and
+  is byte-exact whether or not the checkout was smudged.
+*/
+;(function checkModelVersioning() {
+  if (!clauseInScope('K2')) return
+  const m = RULES.model_versioning
+  const { prefix: POINTER_PREFIX, max_bytes: POINTER_MAX_BYTES } = RULES.lfs_pointer
+  const width = m.hash_prefix_hex
+  let contracts = 0
+  for (const f of walkFiles(m.contracts_dir)) {
+    if (!f.endsWith('.ts')) continue
+    const src = readFileSync(join(REPO, f), 'utf8')
+    if (!/:\s*ModelContract\b/.test(src)) continue
+    contracts++
+    const declaredPath = src.match(/\bpath:\s*'([^']+)'/)
+    const declaredHash = src.match(/\bcontentHash:\s*'([^']+)'/)
+    if (!declaredPath || !declaredHash) {
+      fail(m.id, `${f} is a ModelContract but declares no ${declaredPath ? 'contentHash' : 'path'}. Both are required: the path names the file, the hash versions its URL so the immutable header on /models/ is honest.`)
+      continue
+    }
+    const [, urlPath] = declaredPath
+    const [, hash] = declaredHash
+    if (!new RegExp(`^[0-9a-f]{${width}}$`).test(hash)) {
+      fail(m.id, `${f} declares contentHash "${hash}", which is not ${width} lowercase hex digits. K2 compares it against the first ${width} of the file's ${m.hash_algorithm}.`)
+      continue
+    }
+    const rel = `${m.public_root}/${urlPath.replace(/^\//, '').split('?')[0]}`
+    if (!existsSync(join(REPO, rel))) {
+      fail(m.id, `${f} declares path "${urlPath}", which resolves to ${rel} and does not exist. A contract that points at nothing versions nothing.`)
+      continue
+    }
+    const bytes = readFileSync(join(REPO, rel))
+    let actual
+    if (bytes.length <= POINTER_MAX_BYTES && bytes.toString('utf8').startsWith(POINTER_PREFIX)) {
+      const oid = bytes.toString('utf8').match(/^oid sha256:([0-9a-f]+)$/m)
+      if (!oid) {
+        fail(m.id, `${rel} is an LFS pointer with no oid line, so the real file's ${m.hash_algorithm} cannot be read and K2 would otherwise hash the stub.`)
+        continue
+      }
+      actual = oid[1]
+    } else {
+      actual = createHash(m.hash_algorithm).update(bytes).digest('hex')
+    }
+    if (!actual.startsWith(hash))
+      fail(m.id, `${f} declares contentHash "${hash}" but ${rel} hashes to "${actual.slice(0, width)}". The bytes changed and the URL did not, so /models/ is still serving them as immutable at the old address. Update the constant to "${actual.slice(0, width)}".`)
+  }
+  if (contracts === 0)
+    fail(m.id, `K2 found no ModelContract under ${m.contracts_dir}, so it measured nothing and would have passed silently. Point contracts_dir at the contracts, or retire the clause.`)
 })()
 
 // ── W1, W2. CI references a script that exists, with a least-privilege token ──
@@ -1754,21 +1859,50 @@ function entryFiles() {
 // invariants.json > census.threshold_scan, so this scan states no number either.
 ;(function checkThresholdScan() {
   const t = RULES.census.threshold_scan
-  let src = read(RULES.census.checker_file)
-  src = src.replace(/\/\*[\s\S]*?\*\//g, ' ')
-  src = src.replace(/`(?:\\.|[^`\\])*`/g, ' ')
-  src = src.replace(/'(?:\\.|[^'\\])*'/g, ' ')
-  src = src.replace(/"(?:\\.|[^"\\])*"/g, ' ')
-  src = src.replace(/(^|[=(,:[!&|?{;])\s*\/(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[gimsuy]*/g, '$1 ')
-  src = src.replace(/(^|[^:/])\/\/[^\n]*/g, '$1')
-  const allow = new Set(Object.keys(t.allow))
-  const flagged = new Map()
-  for (const m of src.matchAll(/\b\d+\.\d+\b/g)) if (!allow.has(m[0])) flagged.set(m[0], 'decimal')
-  for (const m of src.matchAll(/\b\d+\b/g)) {
-    if (Number(m[0]) >= t.min_integer && !allow.has(m[0])) flagged.set(m[0], 'integer')
+
+  /*
+    THE SCANNER IS PROVED BEFORE IT IS TRUSTED, on every run.
+
+    Z2's whole job is removing the places a number is not a threshold, and its old
+    four-regex strip did that wrongly in a way that produced silence rather than a
+    failure: a `/*` inside a string opened a comment the source never opened, and
+    everything to the next `*​/` left the scan. 23% of this file, with K1's own
+    threshold inside it, over a green gate (R-194).
+
+    A blind spot cannot report itself, so the samples do it instead. Each one is a
+    fragment whose correct classification is known, and both directions are stated:
+    a number that must survive stripping and be seen, and a number that must not.
+    If stripNonCode regresses, this fails here, at the instrument, instead of
+    quietly widening the hole downstream.
+  */
+  for (const sample of t.scanner_samples) {
+    const seen = /\d/.test(stripNonCode(sample.code))
+    if (sample.sees_number && !seen)
+      fail(t.id, `the scanner lost a number it must see (${sample.why}): ${sample.code}`)
+    if (!sample.sees_number && seen)
+      fail(t.id, `the scanner kept a number it must strip (${sample.why}): ${sample.code}`)
   }
-  for (const [num, kind] of flagged)
-    fail(t.id, `${RULES.census.checker_file} hardcodes the ${kind} threshold ${num}; a threshold lives in invariants.json, not in the checker. Move it there, or if it is a legitimate constant allowlist it in invariants.json > census.threshold_scan.allow.`)
+
+  const allow = new Set(Object.keys(t.allow))
+  /*
+    Every module the checker is made of, not just check.mjs. Splitting the scanner
+    into its own file would otherwise have moved code out from under the clause that
+    governs it, which is the bypass this whole change exists to close: "put the
+    literal in the other file" must not be an answer.
+  */
+  for (const file of [RULES.census.checker_file, ...t.also_scan]) {
+    const src = stripNonCode(read(file))
+    const flagged = new Map()
+    src.split('\n').forEach((line, i) => {
+      for (const m of line.matchAll(/\b\d+\.\d+\b/g))
+        if (!allow.has(m[0]) && !flagged.has(m[0])) flagged.set(m[0], { kind: 'decimal', line: i + 1 })
+      for (const m of line.matchAll(/\b\d+\b/g))
+        if (Number(m[0]) >= t.min_integer && !allow.has(m[0]) && !flagged.has(m[0]))
+          flagged.set(m[0], { kind: 'integer', line: i + 1 })
+    })
+    for (const [num, at] of flagged)
+      fail(t.id, `${file}:${at.line} hardcodes the ${at.kind} threshold ${num}; a threshold lives in invariants.json, not in the checker. Move it there, or if it is a legitimate constant allowlist it in invariants.json > census.threshold_scan.allow.`)
+  }
 })()
 
 // ── CS1. Perceptual ramps are declared in OKLCH ──────────────────────────────
@@ -2211,9 +2345,17 @@ if (skipped.length)
 if (waivedAssets.length) {
   console.log('\nWAIVED (measured, excused, and owned — not passed)')
   for (const w of waivedAssets) {
-    const over = ((w.size / w.budget - 1) * 100).toFixed(0)
+    // Intl rather than `* 100`, so the ratio-to-percent constant does not exist to
+    // be mistaken for a threshold. Z2 could not see this line until R-194 widened
+    // its scan, and the alternative -- allowlisting 100 -- would have grown a list
+    // Z4 only lets shrink. Same output: signDisplay gives the leading '+'.
+    const over = new Intl.NumberFormat('en-US', {
+      style: 'percent',
+      signDisplay: 'always',
+      maximumFractionDigits: 0,
+    }).format(w.size / w.budget - 1)
     console.log(`  ${RULES.asset_budget.id}  ${w.file}`)
-    console.log(`      ${w.size} B against a ${w.budget} B ceiling (+${over}%), waived at ${w.ceiling} B`)
+    console.log(`      ${w.size} B against a ${w.budget} B ceiling (${over}), waived at ${w.ceiling} B`)
     if (w.spec) {
       console.log(`      owner ${w.spec.owner}, recorded ${w.spec.recorded}, target ${w.spec.target} B`)
       console.log(`      ends: ${w.spec.trigger}`)

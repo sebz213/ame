@@ -1,0 +1,158 @@
+/*
+  Chrome for components/ame — the classes and custom properties the demo
+  components bind, shipped so they resolve.
+
+  WHY THIS FILE EXISTS. These rules lived only in the monorepo's
+  app/(portfolio)/portfolio.css, which does not travel. The package shipped
+  nav.tsx binding .port-glass, .port-glass-quiet, .port-glass-pill and
+  var(--port-glass-fg-muted), and panel-wall.tsx binding var(--port-hairline),
+  with nothing in the tree defining any of them. A consumer got an unstyled bar
+  and silently dropped colors: exactly the undefined-custom-property failure
+  clause U5 exists to catch, in the one place U5 could not see it. nav.tsx's own
+  header called the component "Portable" while it was not.
+
+  Every value here resolves through --ame-* tokens, so this file holds no color,
+  size or duration of its own and cannot drift from the token system. It is
+  demo chrome, not a component library; the README says so and means it.
+*/
+
+:root {
+  /* Both declared in portfolio.css and used by components/ame; routed to tokens. */
+  --port-hairline: color-mix(in oklab, var(--ame-text-body) 18%, transparent);
+}
+
+[data-theme='dark'] {
+  --port-hairline: var(--ame-border-hairline-on-dark);
+}
+
+.port-glass.port-glass-opaque {
+  background-color: var(--ame-component-glass-fill-opaque-ground);
+  background-image: linear-gradient(
+    var(--ame-component-glass-fill-opaque),
+    var(--ame-component-glass-fill-opaque)
+  );
+}
+
+.port-glass.port-glass-opaque[data-backdrop='dark'] {
+  /* Shared ink surface for the cookie, contact, and Ask-AI panels and pill.
+
+     Two layers, because this surface carries two independent facts. The GROUND
+     is coverage: ink at the opacity that keeps the panel solid over the hero
+     title while Chrome has the backdrop-filter suppressed (see above) — that
+     number belongs to this component, not to a colour. The IMAGE is tone: one
+     step of ink's own light, the same ramp every other dark surface here lifts
+     with, so the panel reads as a layer above the dark page rather than a hole
+     in it.
+
+     This replaced a single lab(19 0.33 -15.02 / 0.69) fill that bundled both
+     facts into one hand-picked colour — it could not follow ink when ink moved,
+     and its opacity could not be tuned without also shifting its hue. */
+  background-color: var(--ame-component-glass-fill-opaque-on-dark-ground);
+  background-image: linear-gradient(
+    var(--ame-component-glass-fill-opaque-on-dark),
+    var(--ame-component-glass-fill-opaque-on-dark)
+  );
+}
+
+.port-glass {
+  -webkit-backdrop-filter: blur(var(--ame-component-glass-blur)) saturate(var(--ame-component-glass-saturate));
+  backdrop-filter: blur(var(--ame-component-glass-blur)) saturate(var(--ame-component-glass-saturate));
+
+  --port-glass-fg: var(--ame-surface-glass-fg-on-light);
+  --port-glass-fg-muted: var(--ame-surface-glass-fg-muted-on-light);
+  color: var(--port-glass-fg);
+
+  /* Glass nav font: synthesized 460. */
+  font-weight: 400;
+  -webkit-text-stroke: var(--ame-type-nav-synthesis) currentColor;
+  paint-order: stroke fill;
+
+  /* No text halo — the seamless look depends on no glow behind white text. */
+  --port-glass-halo: none;
+  text-shadow: var(--port-glass-halo);
+
+  background-color: var(--ame-surface-glass-fill-on-light);
+  /*
+    The edge is its own variable so a surface can pick its strength without
+    touching its drop. Default is --ame-component-glass-edge; add .port-glass-quiet
+    for the faint one. Both are tokens; nothing here holds a colour.
+  */
+  --port-glass-edge: var(--ame-component-glass-edge);
+  --port-glass-drop: var(--ame-component-glass-drop);
+  box-shadow: var(--port-glass-edge), var(--port-glass-drop);
+  transition:
+    --port-glass-fg var(--ame-motion-surface-duration) ease,
+    --port-glass-fg-muted var(--ame-motion-surface-duration) ease,
+    background-color var(--ame-motion-surface-duration) ease,
+    box-shadow var(--ame-motion-surface-duration) ease;
+}
+
+.port-glass[data-backdrop='dark'] {
+  --port-glass-fg: var(--ame-surface-glass-fg-on-dark);
+  /* Not pure white at reduced alpha: over dark glass that greys out fast.
+     The muted token holds 0.78, which keeps the inactive labels clearly
+     readable while still reading as secondary next to the selected item. */
+  --port-glass-fg-muted: var(--ame-surface-glass-fg-muted-on-dark);
+  /* No halo in this tone either — see the base rule. The white foreground is
+     carried by the glass background alone, which is what keeps it seamless. */
+  --port-glass-halo: none;
+
+  background-color: var(--ame-surface-glass-fill-on-dark);
+  --port-glass-edge: var(--ame-component-glass-edge-on-dark);
+  --port-glass-drop: var(--ame-component-glass-drop-on-dark);
+}
+
+.port-glass.port-glass-quiet {
+  --port-glass-edge: var(--ame-component-glass-edge-light);
+}
+
+.port-glass.port-glass-quiet[data-backdrop='dark'] {
+  --port-glass-edge: var(--ame-component-glass-edge-light-on-dark);
+}
+
+.port-glass-pill {
+  background-color: var(--ame-component-nav-pill-bg);
+  box-shadow: var(--ame-component-nav-pill-shadow);
+  transition:
+    background-color var(--ame-motion-surface-duration) ease,
+    box-shadow var(--ame-motion-surface-duration) ease;
+  will-change: translate;
+}
+
+.port-glass[data-backdrop='dark'] .port-glass-pill {
+  background-color: var(--ame-component-nav-pill-bg-on-dark);
+  box-shadow: var(--ame-component-nav-pill-shadow-on-dark);
+}
+
+.port-glass {
+  --port-nav-selected-fg: var(--ame-component-nav-pill-fg);
+}
+
+.port-diagram-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: var(--ame-space-block-gap, 0.75rem);
+  padding-inline: var(--ame-space-grid-gap, 1rem);
+  color: var(--ame-text-secondary);
+  font-size: var(--ame-type-meta-size);
+  letter-spacing: var(--ame-type-body-tracking);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+a rounded corner sitting exactly on the screen's edge has
+  nothing to sit against, and with the clip squared and the wall not, the corner a
+  reader sees is the wall's. Both, or neither — the same pairing the full-bleed band
+  needed before it left the page.
+
+  AND THE -30 PULL COMES OFF. .port-hero-card lifts itself 30px above md, which is
+  half of a composition tuned against the band's own 48px of top padding. There is
+  no band here — the thing above is a section title — so the pull would just close
+  the gap under it by an arbitrary amount.
+*/
+.port-wall-bleed .port-hero-clip,
+.port-wall-bleed .ame-panel-wall {
+  border-radius: 0;
+}
