@@ -44,7 +44,8 @@ itself.
 
 Also binding, outside this directory: [`STANDARD.md`](../STANDARD.md) (the repo
 standard), [`CLAUDE.md`](../CLAUDE.md) (the session contract every agent reads
-first), and [`RUNBOOK.md`](../RUNBOOK.md) (the three operator procedures).
+first), and `RUNBOOK.md` (the three operator procedures, *monorepo only* — it
+does not travel into the extracted package, so the link is deliberately not one).
 
 ## Running it
 
@@ -77,7 +78,8 @@ primitive when the whole system should re-tone: every shadow, ring, and pill fil
 is a pointer into `color.ink`, so re-toning it moves all of them at once.
 
 Then run the check. If a contrast pair drops below its minimum or a drift count
-grows, the change stops there. `RUNBOOK.md` procedure 1 is the full path.
+grows, the change stops there. `RUNBOOK.md` procedure 1 is the full path
+(monorepo only; see above).
 
 Never add a value to `portfolio.css` that a token could hold. That is a second
 home, and D1 fails on it.

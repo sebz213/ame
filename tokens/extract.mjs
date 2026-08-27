@@ -190,10 +190,13 @@ const pkg = {
     'diagram:check': 'node tokens/readme-diagram.mjs --check',
     numbers: 'node tokens/readme-numbers.mjs',
     'numbers:check': 'node tokens/readme-numbers.mjs --check',
-    lint: 'eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs',
+    icons: 'node scripts/parse-ame-icons.mjs',
+    'icons:check': 'node scripts/parse-ame-icons.mjs --check',
+    lint: 'eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs scripts/*.mjs',
     typecheck: 'tsc --noEmit',
     test: 'vitest run',
-    build: 'pnpm tokens:build && pnpm diagram:check && pnpm numbers:check && pnpm gate && pnpm gate:fixtures',
+    build:
+      'pnpm tokens:build && pnpm diagram:check && pnpm numbers:check && pnpm icons:check && pnpm gate && pnpm gate:fixtures',
   },
   dependencies: {
     'ame-tokens': 'workspace:*',
@@ -297,6 +300,11 @@ jobs:
         run: pnpm diagram:check
       # Every figure in the README is generated from the tree. This is what
       # stops a published number outliving the thing it counts.
+      # icon-data.ts is generated from icon-source.html and committed. Without
+      # this a hand edit to 218 glyphs of third-party path data is undetectable,
+      # in the file THIRD-PARTY-NOTICES rests on.
+      - name: icons parity
+        run: pnpm icons:check
       - name: numbers parity
         run: pnpm numbers:check
       - name: gate

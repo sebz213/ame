@@ -215,6 +215,7 @@ clause the bijection cannot miss.
 
 ### KW. Keyword evidence
 
+- **P6** `components/ame/top-bar.tsx` holds `const EXIT_MS = <n>`, which must equal `duration.exit` read as ms. The token is the home; the literal is a second one and may only agree with it. It is a JS number rather than a CSS value, so `var()` cannot bind it and tokens.mjs deliberately carries no values — parity is the mechanism this system already has for a literal that must stay a literal.
 - **KW1** Every résumé keyword that carries a link points at an anchor that
   exists, in a file that exists, holding the text the link says it holds. Two
   anchor kinds: a `<Kw id="…">` wrapper in hand-written MDX, whose inner text

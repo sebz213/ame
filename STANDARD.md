@@ -9,7 +9,7 @@ while being satisfied here — six of them, which is what an external audit meas
 
 ## Sources
 
-**S1** Microdata spec. **S2** Parnas 1972, on decomposing systems into modules. **S3** Marwick et al., research compendia. **S4** Patterns of Folder Use and Project Popularity. **S5** Perez-Riverol 2016, Ten Simple Rules for Git. **S6** What Makes a Popular Academic AI Repository. **S7** Noble 2009, organizing computational projects. **S8** Deissenboeck & Pizka 2006, concise and consistent naming. **S9** Wilson 2017, Good Enough Practices in Scientific Computing. **S10** Feitelson 2021, How Developers Choose Names. **S11** Tsay 2014, social and technical factors in GitHub evaluation. **S12 to S16** Schema.org type pages: SoftwareSourceCode, SoftwareApplication, WebPage, WebPageElement, WebSite.
+**S1** schema.org's getting-started guide (labelled "Microdata spec" until 2026-08-27; it is a tutorial, not the specification). **S2** Parnas 1972, on decomposing systems into modules. **S3** Marwick et al., research compendia. **S4** Patterns of Folder Use and Project Popularity. **S5** Perez-Riverol 2016, Ten Simple Rules for Git. **S6** What Makes a Popular Academic AI Repository. **S7** Noble 2009, organizing computational projects. **S8** Deissenboeck & Pizka 2006, concise and consistent naming. **S9** Wilson 2017, Good Enough Practices in Scientific Computing. **S10** Feitelson 2021, How Developers Choose Names. **S11** Tsay 2014, social and technical factors in GitHub evaluation. **S12 to S16** Schema.org type pages: S12 SoftwareSourceCode, S13 SoftwareApplication, S14 WebPage, S15 WebPageElement, S16 WebSite. **S15 is cited by no clause** — it was declared inside a collapsed range, which is how a source can sit in a list looking used while nothing reads it. Numbered individually now so the next uncited one is visible rather than absorbed.
 
 ---
 
@@ -50,7 +50,10 @@ for t in $(git tag -l 'v*'); do grep -q "${t#v}" CHANGELOG.md || { echo FAIL; br
 
 **R3.** `CITATION.cff` sits at the root and states how to cite the portfolio and the Ame token system. Its `version` agrees with `packages/ame-tokens/ame.json`, the version's one home. `repository-code` and `url` are omitted while the repo is private and the site is undeployed, per decision R-3; both are added in the commit that publishes either. (S5 Box 3)
 
-**R4.** Nothing good stays buried. Every substantial internal document is reachable from the README in one hop. (S6, S4)
+**R4.** *(unenforced)* Nothing good stays buried. Every substantial internal document is reachable from the README in one hop.
+This is this repository's own rule; neither S6 nor S4 states it, and the citation is withdrawn rather than kept as decoration.
+It is also currently FALSE: `SECURITY.md`, `DCO`, `VENDORED.md` and both dated documents under `docs/` are reachable from no
+README link. Nothing measures it, so it has been true only by accident. Recorded as unfinished rather than quietly dropped.
 
 ## C. Checks
 
@@ -134,7 +137,8 @@ find . -path ./node_modules -prune -o -type f -print0 | xargs -0 md5sum | sort |
 
 **N1.** A name states exactly the concept it holds: never a generalization of it, never a sub-part of it. Repo name, `package.json` name, and README title agree. Scaffold names (`my-project`) are defects. (S8 correctness and conciseness rules)
 
-**N2.** A filename describes its contents. When content changes concept, the file is renamed in the same commit. Template names left over from a scaffold are defects. (S8, S9 rule 4f, S10 on the accessibility effect)
+**N2.** A filename describes its contents. When content changes concept, the file is renamed in the same commit. Template names left over from a scaffold are defects. (S8; S9 rule 4f. NOT S10: Feitelson's accessibility effect is about scenario wording priming which words a
+programmer reaches for, which is a finding about how names are CHOSEN, not a rule that a filename must describe its contents.)
 
 **N3.** One word per concept, project-wide. No synonyms: two names for one concept multiply reading effort and decay into homonyms. When a concept is renamed, the rename is global. (S8 bijective-mapping rule)
 

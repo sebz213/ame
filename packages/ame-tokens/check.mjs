@@ -104,8 +104,36 @@ for (const f of cssFiles(CWD)) {
   // A generated ame token file declares base names; it is not a consumer
   // binding them, so skip it (identified by the ame version header).
   if (/^\/\* ame@/.test(src)) continue
+  /*
+    A file that declares itself a deliberate violation is not a finding.
+
+    Run from a consumer's repo this never matters. Run at the root of THIS one
+    it does: examples/violating/panel.css exists to break U1, so the portable
+    check reported the fixture as a defect and exited 1 on a healthy tree —
+    the same false verdict the B4 bug gave, from the other direction.
+
+    The marker is the file's own opt-out rather than a path this check hardcodes,
+    because the portable check must not need to know this repository's layout. A
+    consumer who writes the same line is making the same promise about their own
+    fixture.
+  */
+  if (/ame-fixture:\s*violating/.test(src.slice(0, 400))) continue
   const rel = f.slice(CWD.length + 1)
-  for (const m of src.matchAll(/var\((--[a-z0-9_-]+)/g))
+  /*
+    Comments are not bindings.
+
+    This scanned the raw source, so `var(--ame-color-ink)` written INSIDE a CSS
+    comment counted as a consumer binding a base token. Measured against this
+    repository: three of the three hits in app/(portfolio)/portfolio.css were
+    prose, and the portable check exited 1 while the full gate reported U1: 0 on
+    the same file. Two instruments disagreeing about one tree, and the portable
+    one was wrong.
+
+    The full gate has always stripped comments before scanning. This is the same
+    correction, in the copy that a consumer actually runs.
+  */
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, ' ')
+  for (const m of code.matchAll(/var\((--[a-z0-9_-]+)/g))
     if (base.has(m[1]))
       fail('U1', `${rel} binds base token ${m[1]} directly; bind a semantic or theme name${remedy}, never a base primitive.`)
 }
