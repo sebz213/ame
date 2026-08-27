@@ -44,5 +44,4 @@ default branch. `pnpm gate` green on a fresh clone is the only supported state.
 
 ## Secrets
 
-None are committed, in the tree or its history. If you believe one has leaked,
-use the private flow above rather than opening an issue.
+None are committed, in the tree or its history. 
