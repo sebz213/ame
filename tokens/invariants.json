@@ -1386,8 +1386,8 @@
       "P6": {
         "invariant": "parity",
         "check": "checkParity",
-        "scope": "portfolio",
-        "scope_because": "the literal it guards lives in a portfolio component, which does not travel"
+        "scope": "package",
+        "scope_because": "components/ame/top-bar.tsx TRAVELS, so the literal P6 guards ships in the package and the clause must run there. It was scoped portfolio by copying the reason from P1c-P5, whose subjects are portfolio components that stay behind — a scope word inherited rather than measured, which left the verification event firing nowhere near the code it verifies."
       }
     },
     "allowlists": {

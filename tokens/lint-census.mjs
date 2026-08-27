@@ -32,6 +32,22 @@ const REPO = join(ROOT, '..')
 const BASELINE = join(ROOT, 'lint-baseline.json')
 
 /*
+  The complexity ceiling, ratcheted like the counts.
+
+  invariants > thresholds.complexity is 53 because a function of complexity 53
+  exists — the config's own note says it is "set at the current measured
+  maximum, so it is green today". That is honest, and it is only half a ratchet:
+  nothing stopped the next author raising 53 to 60 the same way, and a ceiling
+  that rises to meet the code is not a ceiling.
+
+  WO-6.3 put the warning counts under a down-only rule. This is the same rule for
+  the one number the config states as an error, and it is the reason a ceiling
+  like this gets EARNED down by decomposition rather than edited down.
+*/
+const RULES = JSON.parse(readFileSync(join(ROOT, 'invariants.json'), 'utf8'))
+const ceiling = RULES.lint?.complexity
+
+/*
   The paths come from package.json's own lint script, not from a second list.
   A census measured over a different set than the command lints is how the
   previous one drifted: two lists, one of them unread.
@@ -70,11 +86,20 @@ for (const file of report)
     total++
   }
 counts.total = total
+if (typeof ceiling === 'number') counts['complexity-ceiling'] = ceiling
+
 
 const prev = JSON.parse(readFileSync(BASELINE, 'utf8'))
 const note = prev.$description
 
 if (process.argv.includes('--check')) {
+  if (typeof ceiling === 'number' && typeof prev['complexity-ceiling'] === 'number' && ceiling > prev['complexity-ceiling']) {
+    console.error(
+      `lint-census FAIL: the complexity ceiling rose to ${ceiling}, above the ${prev['complexity-ceiling']} recorded.`,
+    )
+    console.error('A ceiling that rises to meet the code is not a ceiling. Decompose the function instead.')
+    process.exit(1)
+  }
   const grew = Object.entries(counts).filter(([k, v]) => typeof prev[k] === 'number' && v > prev[k])
   if (grew.length) {
     console.error('lint-census FAIL: a warning count grew.')

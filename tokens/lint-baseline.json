@@ -1,8 +1,8 @@
 {
   "$description": "The WARNING census from eslint.config.mjs, per rule (WO-6.3, decision R-23). These are the structural smells the config reports at warning severity: they do not block, but the counts only ever move down, the same ratchet rule baseline.json holds for token drift (X1). Lower a number only in the change that earns it. The ERROR-severity rules (no-cond-assign, no-param-reassign, prefer-const, complexity) are absent here because they are held at zero by the gate, not baselined. Automated CI enforcement of these counts is deferred to Phase 4 (Agent 3 WO-3.5); this file is the record it will read. Scope excludes vendored components/ui (R-8). RE-MEASURED 2026-08-27 over the full lint set, 41 -> 73. That rise is a WIDER LENS, not decay: eslint was being handed packages/ame-tokens and packages/woven with no config block matching them, so they linted with zero rules and contributed nothing to a census claiming to be the tree's. Recorded once, here; from now the counts only fall, and tokens/lint-census.mjs --check is what makes that true rather than merely stated.",
-  "max-lines-per-function": 60,
-  "max-depth": 5,
-  "@typescript-eslint/naming-convention": 6,
+  "max-lines-per-function": 6,
+  "max-depth": 4,
   "max-params": 2,
-  "total": 73
+  "total": 12,
+  "complexity-ceiling": 53
 }

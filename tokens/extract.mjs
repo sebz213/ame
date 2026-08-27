@@ -192,6 +192,8 @@ const pkg = {
     'numbers:check': 'node tokens/readme-numbers.mjs --check',
     icons: 'node scripts/parse-ame-icons.mjs',
     'icons:check': 'node scripts/parse-ame-icons.mjs --check',
+    'lint:census': 'node tokens/lint-census.mjs',
+    'lint:census:check': 'node tokens/lint-census.mjs --check',
     lint: 'eslint components lib tokens/*.mjs packages/ame-tokens/*.mjs scripts/*.mjs',
     typecheck: 'tsc --noEmit',
     test: 'vitest run',
@@ -305,6 +307,10 @@ jobs:
       # in the file THIRD-PARTY-NOTICES rests on.
       - name: icons parity
         run: pnpm icons:check
+      # The warning census, ratcheted. lint-baseline.json held a per-rule count
+      # and nothing read it; a baseline nobody compares against is a note.
+      - name: lint census
+        run: pnpm lint:census:check
       - name: numbers parity
         run: pnpm numbers:check
       - name: gate
@@ -420,6 +426,21 @@ if (build.status !== 0) {
   here for that reason; the copy step strips the monorepo's log, and this writes
   the package its own.
 */
+/*
+  The package's OWN warning baseline, measured here.
+
+  It lints a smaller set than the monorepo — no app/, no hooks/, no
+  packages/woven — so carrying the monorepo's counts would give this tree a
+  ceiling it passes under without touching, which is a vacuous pass rather than
+  a ratchet. Measured once by the run that verifies the extraction, exactly as
+  runs.log is.
+*/
+const census = run('node', ['tokens/lint-census.mjs'])
+if (census.status !== 0) {
+  console.error('extract: could not measure the package lint census\n' + (census.stderr || census.stdout))
+  process.exit(1)
+}
+
 const gate = run('node', ['tokens/check.mjs', '--scope', 'package'])
 console.log((gate.stdout || '').split('\n').slice(-24).join('\n'))
 if (gate.status !== 0) {
