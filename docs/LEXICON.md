@@ -62,8 +62,3 @@ as context. `docs/PROVENANCE.md` says what every absent citation pointed at.
 | **attestation** | A signed human judgment, recorded where determinism does not reach. Verifiable as a signature, reproducible never — which is what separates it from a verdict, and why it is never blended into one. |
 
 
-it, collapsing two rulers into one. Demoted from criterion to denominator it becomes the
-scale that makes the criterion legible: how many multiples of the generator's own jitter
-is this difference? A criterion that moves with a second measurement is a free parameter
-wearing a denominator, so the demoted number is reported beside the verdict and never
-inside it.
