@@ -12,7 +12,7 @@ Ame is a design token system with an enforcement gate. Its 3 layers of DTCG toke
 | **Adopting the tokens** in your own app | [Getting started](#getting-started) | one install |
 | **Contributing** a change | [CONTRIBUTING.md](CONTRIBUTING.md), where `pnpm gate` green *is* the install test | one install |
 
-## The one claim, checked
+## Check claims
 
 This system says a build fails when a scanned file hand-writes a value the tokens already own. You do not have to take that on trust, and you do not have to clone anything. `examples/violating/` is a panel written to break the rules on purpose. [The CI log](../../actions) shows the gate rejecting it on every push, naming the literal it found and the token it collided with.
 
@@ -21,13 +21,13 @@ D2 restated: examples/violating/panel.css:
   "0px 1px 6px 0px rgb(16 19 25 / 0.06)" == component.glass.drop
 ```
 
-A gate nobody has watched fail is indistinguishable from a gate that cannot. That fixture is the difference. `pnpm gate:fixtures` is green only when the gate rejected it, so a clause that quietly stops catching turns CI red instead of silent.
+ `pnpm gate:fixtures` is green only when the gate rejected it, so a clause that quietly stops catching turns CI red instead of silent.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.svg">
   <img alt="Three token layers (base literals, semantic roles, component measures) compile to tokens.css. The gate rejects raw values, layer leaks, and contrast failures." src="docs/architecture-light.svg">
 </picture>
-<sub>Drawn to ISO 5807-1985, in the same symbols the system's own flowchart component uses, and colored from the tokens themselves: a color change in <code>base/color.json</code> changes this picture or fails the build (<code>pnpm diagram:check</code>). It ships in both themes because the system has both.</sub>
+
 
 ## What's in the box
 

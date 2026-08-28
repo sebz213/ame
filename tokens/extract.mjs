@@ -462,6 +462,46 @@ if (fixtures.status !== 0) {
   process.exit(1)
 }
 
+/*
+  PARATEXT IS THE ONE THING A PERSON EDITS DOWNSTREAM.
+
+  README.md, CONTRIBUTING.md and SECURITY.md are the package's front door. They
+  are written here and published there, so every sync overwrites whatever the
+  published repo holds. That is correct for a generated artifact and wrong for a
+  document someone edits by hand -- and someone does: ten commits tightening
+  these three files were overwritten by one sync, silently, because the copy
+  step has no opinion about what it is replacing.
+
+  The deletion guard already refuses to remove a file without being told. This
+  is the same rule for replacement: if the published paratext differs from what
+  this run would write, say so and stop. --allow-delete carries this too, since
+  both are "the published tree holds something this run would discard".
+
+  Only runs with --against, because only then is there a published tree to
+  compare against.
+*/
+if (AGAINST) {
+  const clobbered = []
+  for (const [from, to] of Object.entries(RULES.package_manifest?.paratext ?? {})) {
+    if (from.startsWith('$')) continue
+    const published = join(AGAINST, to)
+    if (!existsSync(published)) continue
+    if (readFileSync(published, 'utf8') !== readFileSync(join(REPO, from), 'utf8')) clobbered.push(to)
+  }
+  if (clobbered.length) {
+    console.log('')
+    console.log(`extract: ${clobbered.length} paratext file(s) differ from what this run would write:`)
+    for (const f of clobbered) console.log(`  ~ ${f}`)
+    if (!ALLOW_DELETE) {
+      console.error('')
+      console.error('Refusing. Someone edited these in the published repo, and this run would')
+      console.error('overwrite the edit without a word. Bring the change upstream into')
+      console.error('docs/package/ first, or pass --allow-delete to say the overwrite is intended.')
+      process.exit(1)
+    }
+  }
+}
+
 // ── Account for what the published tree holds and this one would not ──────
 if (AGAINST) {
   if (!existsSync(AGAINST)) {
