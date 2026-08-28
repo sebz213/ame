@@ -81,8 +81,6 @@ green.
   fully reviewed it."
 - **Be able to answer for it.** A change nobody has read will not be merged.
 
-The objection was never to the tool. It is to arriving with work you cannot
-answer questions about, and that was possible long before the tool existed.
 
 ## Reporting a security issue
 
