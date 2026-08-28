@@ -1580,7 +1580,6 @@
       "components/ame/nav.tsx": "Demo chrome and the glyph it binds. In the monorepo these are reached through the app; in the extracted package there is no app, and STANDARD.md H2 admits a file NAMED IN THE README AS A FROZEN PROTOTYPE, which the package README does for components/ame. The exemption is the escape the clause states, not a way round it (D-81).",
       "components/ame/panel-wall.tsx": "Demo chrome and the glyph it binds. In the monorepo these are reached through the app; in the extracted package there is no app, and STANDARD.md H2 admits a file NAMED IN THE README AS A FROZEN PROTOTYPE, which the package README does for components/ame. The exemption is the escape the clause states, not a way round it (D-81).",
       "components/ame/top-bar.tsx": "Demo chrome and the glyph it binds. In the monorepo these are reached through the app; in the extracted package there is no app, and STANDARD.md H2 admits a file NAMED IN THE README AS A FROZEN PROTOTYPE, which the package README does for components/ame. The exemption is the escape the clause states, not a way round it (D-81).",
-      "lib/a11y-glyph.ts": "Demo chrome and the glyph it binds. In the monorepo these are reached through the app; in the extracted package there is no app, and STANDARD.md H2 admits a file NAMED IN THE README AS A FROZEN PROTOTYPE, which the package README does for components/ame. The exemption is the escape the clause states, not a way round it (D-81).",
       "examples/compliant/Panel.tsx": "A gate fixture. Nothing imports it on purpose: examples/README.md names both as the disconfirming world the gate is run against, which is the escape STANDARD.md H2 states (D-82).",
       "examples/violating/Panel.tsx": "A gate fixture. Nothing imports it on purpose: examples/README.md names both as the disconfirming world the gate is run against, which is the escape STANDARD.md H2 states (D-82).",
       "lib/translate.ts": "Reached only through components/ame/top-bar.tsx, which is itself exempt as demo chrome, so the walk stops before it. It travels because the chrome imports it: leaving it out ships a package that cannot typecheck (D-82)."
@@ -1602,7 +1601,6 @@
       "packages/ame-tokens",
       "tokens",
       "components/ame",
-      "lib/a11y-glyph.ts",
       "tests/tokens.test.ts",
       "docs/LEXICON.md",
       "STANDARD.md",
