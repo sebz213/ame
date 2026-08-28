@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { animate } from 'animejs'
-import { A11Y_VIEWBOX, A11Y_PATH } from '@/lib/a11y-glyph'
+import { Icon } from './icons/icon'
 import { support, translatePage, type TranslationStatus } from '@/lib/translate'
 
 /*
@@ -69,8 +69,9 @@ const LOCK_MS = 993.6
 // When the bounce timings are overridden, the lock scales to keep the same guard.
 const LOCK_MARGIN_MS = LOCK_MS - SWAP_MS - SPRING_MS
 
-// The accessibility glyph (viewBox + path) is shared with the portfolio floating
-// pill; it lives in lib/a11y-glyph so the ~600-char path is defined once.
+// The accessibility glyph comes from the ame icon set (UniversalAccess). The
+// portfolio's floating pill still binds lib/a11y-glyph, which is a monorepo
+// file and does not travel.
 
 type Tone = 'light' | 'dark'
 
@@ -101,9 +102,17 @@ export function AmeAccessibilityButton({
       onClick={onAccessibility}
       className={`inline-flex items-center justify-center rounded-full p-1.5 text-[color:var(--tb-fg)] transition-colors duration-200 hover:text-[color:var(--tb-fg-hover)]${className ? ` ${className}` : ''}`}
     >
-      <svg viewBox={A11Y_VIEWBOX} className="h-[0.86539rem] w-auto shrink-0" fill="currentColor" aria-hidden="true">
-        <path d={A11Y_PATH} />
-      </svg>
+      {/*
+        The accessibility glyph comes from the ame icon set, not from a path
+        this file keeps. 210 glyphs ship in the package and nothing called them:
+        the set carried an attribution obligation and a parity check while every
+        icon on screen was hand-maintained somewhere else.
+
+        UniversalAccess is the set's own name for this figure. It draws the ring
+        the previous hand-rolled path deliberately removed, which is a visible
+        change and the reason it is written down here.
+      */}
+      <Icon name="UniversalAccess" size={14} className="shrink-0" />
     </button>
   )
 }
